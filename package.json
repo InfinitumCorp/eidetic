@@ -10,6 +10,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "demo": "tsx scripts/demo.ts",
     "demo:http": "tsx scripts/demo.ts --http",
+    "audit:verify": "pnpm --filter @eidetic/api audit:verify",
+    "audit:export": "pnpm --filter @eidetic/api audit:export",
     "build": "pnpm --filter @eidetic/reviewer build && pnpm --filter @eidetic/admin build"
   },
   "devDependencies": {

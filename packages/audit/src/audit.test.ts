@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { AuditAttestation } from "@eidetic/contracts";
-import { AuditLog, verifyChain, type AuditEntry, type AuditRepository, type MerkleCheckpoint } from "./index.js";
+import { AuditLog, exportAuditLog, verifyChain, verifyExportDocument, type AuditEntry, type AuditRepository, type MerkleCheckpoint } from "./index.js";
 
 class MemoryAuditRepository implements AuditRepository {
   entries: AuditEntry[] = [];
@@ -22,6 +22,12 @@ class MemoryAuditRepository implements AuditRepository {
 
   checkpoints(): Promise<MerkleCheckpoint[]> {
     return Promise.resolve(structuredClone(this.points));
+  }
+
+  sealBlank(throughSeq: number, signature: string): Promise<void> {
+    const checkpoint = this.points.find((item) => item.throughSeq === throughSeq);
+    if (checkpoint && checkpoint.signature === "") checkpoint.signature = signature;
+    return Promise.resolve();
   }
 }
 
@@ -59,5 +65,18 @@ describe("hash-chained audit log", () => {
       }),
     ).rejects.toThrow(/DoNotLog/);
     expect(repository.entries).toHaveLength(0);
+  });
+
+  it("signs checkpoints and refuses biometric keys in an export", async () => {
+    const repository = new MemoryAuditRepository();
+    const log = new AuditLog(repository);
+    await log.record({ actorId: "actor-admin", action: "enroll", recordedAt: "2026-11-07T12:00:00.000Z", attestation: attestation("enrolled") });
+    const exported = await log.export();
+    expect(exported.checkpoints[0].signature).toMatch(/^[a-f0-9]{64}$/);
+    expect(verifyExportDocument(exported).ok).toBe(true);
+    const tampered = structuredClone(exported);
+    tampered.checkpoints[0].signature = "0".repeat(64);
+    expect(verifyExportDocument(tampered).ok).toBe(false);
+    expect(() => exportAuditLog([{ ...repository.entries[0], attestation: { ...attestation("x"), embedding: [1] } as AuditEntry["attestation"] }], [])).toThrow(/DoNotLog|refused/);
   });
 });

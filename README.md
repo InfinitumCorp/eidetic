@@ -35,7 +35,7 @@ flowchart LR
 1. **Authorize.** `authorizeSearch` checks edition, purpose, role, legal basis, and dataset. Out-of-policy requests are stored as denials and the matcher is not called.
 2. **Match.** The default adapter is `mock-statistical`. It scores synthetic fixtures inside the process and returns confidence, evidence, and alternatives. Embeddings never leave the matcher.
 3. **Review.** A pending review is created even when confidence is high. The person who ran the search cannot decide it. Confirm, reject, and inconclusive are human outcomes.
-4. **Record.** Entries are hash-chained. Each append also stores a Merkle checkpoint over the leaf hashes, in the style of a [Trillian](https://github.com/google/trillian) log. PostgreSQL triggers reject updates and deletes. The optional Trillian port is not configured.
+4. **Record.** Entries are hash-chained. Each append stores a Merkle checkpoint and an HMAC-SHA256 signature over that checkpoint. PostgreSQL triggers reject updates and deletes. `pnpm audit:verify` checks the chain and the signatures. `pnpm audit:export` writes a JSON file that is sealed again on the way out, so a biometric field cannot ride along. The optional Trillian port is not configured.
 
 ## Consent and threat model
 
@@ -129,12 +129,56 @@ pnpm typecheck
 
 Unit tests cover the happy path and the denial paths without Postgres. `apps/api/src/pg/pg.integration.test.ts` runs when `postgres://eidetic:eidetic@127.0.0.1:5432/eidetic_test` is reachable. It checks the append-only trigger.
 
+## Vision adapters
+
+`MATCHER_MODE=mock` and `CAPTURE_PROVIDER=local` are the defaults. CI uses them. They score `EIDETIC-SYNTHETIC-v1` fixtures inside the process. No weights are downloaded.
+
+[InsightFace](https://github.com/deepinsight/insightface) pretrained weights are often limited to noncommercial research. This repository does not ship those weights. To point at a sidecar you operate inside the sealed boundary:
+
+```bash
+MATCHER_MODE=insightface
+INSIGHTFACE_LICENSE_ACCEPTED=true
+INSIGHTFACE_URL=http://127.0.0.1:43120
+```
+
+Without both the license flag and the URL, the process refuses to start. The sidecar contract receives the synthetic fixture id, not an embedding, and a response that contains an `embedding` field is rejected.
+
+[OpenCV](https://opencv.org/) and [MediaPipe](https://developers.google.com/mediapipe) are not installed. Capture quality stays on the local statistical gate unless you set:
+
+```bash
+CAPTURE_PROVIDER=opencv-mediapipe
+OPENCV_MEDIAPIPE_URL=http://127.0.0.1:43121
+```
+
+Remote vision calls accept synthetic fixtures only. Set `EIDETIC_ALLOW_OPERATOR_CAPTURES=true` only inside a licensed deployment that is allowed to receive operator captures. Do not send photographs of public figures.
+
+## Purpose, consent, and Keycloak
+
+The API uses the embedded policy decider, which applies the same denial order as `deploy/opa/eidetic.rego`: edition, purpose, role, legal basis, dataset, then consent when a subject CID is named. Set `OPA_URL` to hand that decision to [Open Policy Agent](https://www.openpolicyagent.org/). An unreachable OPA fails closed.
+
+[Keycloak](https://www.keycloak.org/) is the recommended production OpenID Connect identity provider. Verify the access token against the realm JWKS, then pass the claims to `mapVerifiedKeycloakClaims`. That function checks issuer and expiry and maps one `eidetic-*` realm role. It does not validate a signature. Demo bearer tokens exist only while `DEMO_MODE=true`. With `DEMO_MODE=false` and `KEYCLOAK_ISSUER` set, those demo tokens are rejected.
+
+## Audit commands
+
+```bash
+pnpm audit:verify
+pnpm audit:export -- --out audit-export.json
+pnpm audit:verify -- --file audit-export.json
+```
+
+Set `AUDIT_SIGNING_KEY` before a shared deployment. When it is unset, checkpoints are signed with the documented development key and the API logs that fact.
+
+## Fixture fairness
+
+`POST /v1/bias/fixture-evaluations` scores cases whose cohort comes from `FIXTURE_COHORTS` (`avery-quinn`, `jordan-blake`, `casey-morgan`). Those keys are written on the fixture card. The hook does not classify a face, and [Fairlearn](https://fairlearn.org/) is not executed. The metric names match Fairlearn's demographic parity and equalized odds differences.
+
+## Site context
+
+`packages/geo` answers `GET /v1/sites/hq-washington` with the Washington office asset. Rasterio is not imported. Requests that ask to follow a person, drone, satellite, or plate are refused.
+
 ## Replacing the mock matcher
 
-Implement `MatcherAdapter` (`assess`, `enroll`, `match`, `purge`). Keep template bytes inside that class. `match` must return confidence and explainable evidence only.
-
-- Capture quality: replace `assessCaptureQuality` with the `OpenCvMediaPipeQualityGate` shape. [OpenCV](https://opencv.org/) and [MediaPipe](https://developers.google.com/mediapipe) are not installed.
-- Recognition: bind a licensed `InsightFaceClient` only after you accept the weight license. See [InsightFace](https://github.com/deepinsight/insightface). Mock mode stays the CI default.
+Implement `MatcherAdapter` (`assess`, `enroll`, `match`, `purge`). Keep template bytes inside that class. `match` must return confidence and explainable evidence only. `createMatcher` is the env-flag factory.
 
 ## Optional adapters
 
@@ -142,14 +186,14 @@ Leave the URLs unset unless that service is actually running beside this API.
 
 | Variable | Adapter | Public project |
 | --- | --- | --- |
-| `OPA_URL` | Purpose and legal-basis decision | [Open Policy Agent](https://www.openpolicyagent.org/) |
-| `KEYCLOAK_ISSUER` | Role mapping only. JWT validation is not bundled | [Keycloak](https://www.keycloak.org/) |
+| `OPA_URL` | External purpose, legal-basis, and consent decision. Embedded rules run when this is unset | [Open Policy Agent](https://www.openpolicyagent.org/) |
+| `KEYCLOAK_ISSUER` | Recommended production IdP. Signature verification stays in your JWKS client | [Keycloak](https://www.keycloak.org/) |
 | `FIDES_URL` | Export of a consent receipt. Local consent stays authoritative | [Fides](https://github.com/ethyca/fides) |
 | `PRESIDIO_URL` | Recognized, not proxied. Local pattern redaction stays on so notes are not shipped out | [Presidio](https://github.com/microsoft/presidio) |
 | Fairlearn | Metric names match `demographic_parity_difference` and `equalized_odds_difference`. The Python library is not called | [Fairlearn](https://fairlearn.org/) |
 | Trillian | Checkpoint port returns `not_configured` | [Trillian](https://github.com/google/trillian) |
 | Verifiable Credentials | Local sha256 consent receipt in the W3C shape. Not a Digital Bazaar signature | [vc](https://github.com/digitalbazaar/vc), [VC data model](https://www.w3.org/TR/vc-data-model-2.0/) |
-| Rasterio | Site or asset context only. Person-tracking ids are refused | [Rasterio](https://rasterio.readthedocs.io/) |
+| Rasterio | `packages/geo` holds site and asset context. The Rasterio library is not imported. Person tracking is refused | [Rasterio](https://rasterio.readthedocs.io/) |
 | Label Studio | The review task shape is in `deploy/label-studio/review.xml` | [Label Studio](https://labelstud.io/) |
 
 Cohort labels for the bias hook are supplied by the evaluation designer. The software does not infer demographics from a face.

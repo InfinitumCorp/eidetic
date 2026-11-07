@@ -197,4 +197,10 @@ class MemoryAuditRepository implements AuditRepository {
   checkpoints(): Promise<MerkleCheckpoint[]> {
     return Promise.resolve(structuredClone(this.db.checkpoints));
   }
+
+  sealBlank(throughSeq: number, signature: string): Promise<void> {
+    const checkpoint = this.db.checkpoints.find((item) => item.throughSeq === throughSeq);
+    if (checkpoint && checkpoint.signature === "") checkpoint.signature = signature;
+    return Promise.resolve();
+  }
 }

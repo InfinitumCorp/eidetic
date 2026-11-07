@@ -1,7 +1,7 @@
 // © Infinitum Corporation®. All rights reserved.
 
 import type { Pool, PoolClient } from "pg";
-import { AuditLog, type AuditEntry, type AuditRepository, type MerkleCheckpoint } from "@eidetic/audit";
+import { AuditLog, DEV_AUDIT_SIGNING_KEY, type AuditEntry, type AuditRepository, type MerkleCheckpoint } from "@eidetic/audit";
 import type { FairnessReport } from "@eidetic/bias";
 import type {
   Actor,
@@ -19,7 +19,7 @@ import type {
 import type { Repositories } from "@eidetic/pipeline";
 import { asSql, type Sql } from "./pool.js";
 
-export function createRepositories(sql: Sql): Repositories {
+export function createRepositories(sql: Sql, signingKey = DEV_AUDIT_SIGNING_KEY): Repositories {
   const audit: AuditRepository = {
     async append(build) {
       await sql.query("SELECT id FROM audit_lock WHERE id = 1 FOR UPDATE");
@@ -46,9 +46,9 @@ export function createRepositories(sql: Sql): Repositories {
         ],
       );
       await sql.query(
-        `INSERT INTO audit_checkpoints (through_seq, leaf_count, merkle_root, computed_at)
-         VALUES ($1, $2, $3, $4)`,
-        [built.checkpoint.throughSeq, built.checkpoint.leafCount, built.checkpoint.merkleRoot, built.checkpoint.computedAt],
+        `INSERT INTO audit_checkpoints (through_seq, leaf_count, merkle_root, computed_at, signature)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [built.checkpoint.throughSeq, built.checkpoint.leafCount, built.checkpoint.merkleRoot, built.checkpoint.computedAt, built.checkpoint.signature],
       );
       return built;
     },
@@ -59,6 +59,9 @@ export function createRepositories(sql: Sql): Repositories {
     async checkpoints() {
       const result = await sql.query("SELECT * FROM audit_checkpoints ORDER BY through_seq ASC");
       return result.rows.map(mapCheckpoint);
+    },
+    async sealBlank(throughSeq, signature) {
+      await sql.query("UPDATE audit_checkpoints SET signature = $2 WHERE through_seq = $1 AND signature = ''", [throughSeq, signature]);
     },
   };
 
@@ -295,15 +298,15 @@ export function createRepositories(sql: Sql): Repositories {
         return result.rows[0] ? (jsonValue(result.rows[0].report) as FairnessReport) : null;
       },
     },
-    audit: new AuditLog(audit),
+    audit: new AuditLog(audit, signingKey),
   };
 }
 
-export async function withTransaction<T>(pool: Pool, fn: (repos: Repositories) => Promise<T>): Promise<T> {
+export async function withTransaction<T>(pool: Pool, fn: (repos: Repositories) => Promise<T>, signingKey = DEV_AUDIT_SIGNING_KEY): Promise<T> {
   const client: PoolClient = await pool.connect();
   try {
     await client.query("BEGIN");
-    const result = await fn(createRepositories(asSql(client)));
+    const result = await fn(createRepositories(asSql(client), signingKey));
     await client.query("COMMIT");
     return result;
   } catch (error) {
@@ -431,6 +434,7 @@ function mapCheckpoint(row: Record<string, unknown>): MerkleCheckpoint {
     leafCount: numberValue(row.leaf_count),
     merkleRoot: text(row, "merkle_root"),
     computedAt: text(row, "computed_at"),
+    signature: typeof row.signature === "string" ? row.signature : "",
   };
 }
 

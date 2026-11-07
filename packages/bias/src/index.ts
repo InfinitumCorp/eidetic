@@ -27,6 +27,7 @@ export interface FairnessReport {
   reference: "https://fairlearn.org/";
   groupsAreSuppliedLabels: true;
   inferredFromBiometrics: false;
+  source?: "supplied-labels" | "fixture-metadata";
   byGroup: Record<string, GroupMetrics>;
   metrics: {
     demographic_parity_difference: number;
@@ -120,5 +121,43 @@ export function evaluateFairness(input: { releaseId: string; model: string; case
     note: passes
       ? "Within the local stub threshold. Publish the report with the release notes. This is not a certification."
       : "Local disparity threshold exceeded. Do not treat this release as cleared for a new dataset.",
+    source: "supplied-labels",
+  };
+}
+
+/** Author-assigned cohort keys for synthetic fixtures. These are not estimated from a face. */
+export const FIXTURE_COHORTS: Record<string, string> = {
+  "avery-quinn": "cohort-a",
+  "jordan-blake": "cohort-b",
+  "casey-morgan": "cohort-a",
+};
+
+export function evaluateFixtureFairness(input: {
+  releaseId: string;
+  model: string;
+  cases: Array<{ id: string; fixtureId: string; expectedCid: string | null; predictedCid: string | null; confidence: number }>;
+}): FairnessReport {
+  const cases = input.cases.map((item) => {
+    const group = FIXTURE_COHORTS[item.fixtureId];
+    if (!group) {
+      throw new EideticError(
+        "VALIDATION",
+        `Fixture ${item.fixtureId} has no cohort metadata. Cohorts are assigned on the fixture card and are never inferred from biometrics.`,
+        422,
+        false,
+      );
+    }
+    return {
+      id: item.id,
+      group,
+      expectedCid: item.expectedCid,
+      predictedCid: item.predictedCid,
+      confidence: item.confidence,
+    };
+  });
+  return {
+    ...evaluateFairness({ releaseId: input.releaseId, model: input.model, cases }),
+    source: "fixture-metadata",
+    note: "Cohorts come from synthetic fixture metadata. Fairlearn was not invoked and no face was classified.",
   };
 }

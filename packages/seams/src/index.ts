@@ -1,6 +1,9 @@
 // © Infinitum Corporation®. All rights reserved.
 
 import { EideticError } from "@eidetic/contracts";
+import { RasterioSiteContextPort, describeSiteAsset, type SiteAsset } from "@eidetic/geo";
+
+export { RasterioSiteContextPort, describeSiteAsset, type SiteAsset };
 
 export interface IntegrationSeam {
   system: "HRVST" | "SPECTRE" | "METATRON" | "VEIL" | "FIRMAMENT" | "ODIN";
@@ -68,35 +71,3 @@ export function attestConsentHash(attestationHash: string): EidtReceipt {
   };
 }
 
-export interface SiteAssetContext {
-  assetId: string;
-  label: string;
-  note: string;
-}
-
-export interface SiteContextPort {
-  describeAsset(assetId: string): Promise<SiteAssetContext>;
-}
-
-export class RasterioSiteContextPort implements SiteContextPort {
-  describeAsset(assetId: string): Promise<SiteAssetContext> {
-    if (/person|face|track|follow|drone|satellite/i.test(assetId)) {
-      return Promise.reject(
-        new EideticError(
-          "PERSON_TRACKING_REFUSED",
-          "Rasterio is an optional site and asset context adapter. ei·det·ic™ does not track people from satellite or drone imagery.",
-          403,
-          false,
-        ),
-      );
-    }
-    return Promise.reject(
-      new EideticError(
-        "POLICY_UNAVAILABLE",
-        "Rasterio is not enabled. Later work can describe a site or asset. Person tracking stays out of scope.",
-        501,
-        false,
-      ),
-    );
-  }
-}

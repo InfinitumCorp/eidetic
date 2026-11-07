@@ -1,7 +1,7 @@
 // © Infinitum Corporation®. All rights reserved.
 
 import { describe, expect, it } from "vitest";
-import { UnconfiguredFairlearnBridge, evaluateFairness } from "./index.js";
+import { UnconfiguredFairlearnBridge, evaluateFairness, evaluateFixtureFairness } from "./index.js";
 
 describe("fairness hook", () => {
   it("computes demographic parity and equalized odds from supplied cohort labels", () => {
@@ -22,6 +22,28 @@ describe("fairness hook", () => {
     expect(report.passesLocalThreshold).toBe(false);
     expect(report.byGroup["cohort-a"].truePositiveRate).toBe(1);
     expect(report.byGroup["cohort-b"].falsePositiveRate).toBe(1);
+  });
+
+  it("scores fixture cohorts from metadata and refuses an unknown fixture", () => {
+    const report = evaluateFixtureFairness({
+      releaseId: "mvp-1",
+      model: "mock-statistical@1",
+      cases: [
+        { id: "1", fixtureId: "avery-quinn", expectedCid: "cid://infinitum/fixture-avery-quinn", predictedCid: "cid://infinitum/fixture-avery-quinn", confidence: 0.97 },
+        { id: "2", fixtureId: "jordan-blake", expectedCid: null, predictedCid: null, confidence: 0.18 },
+      ],
+    });
+    expect(report.source).toBe("fixture-metadata");
+    expect(report.inferredFromBiometrics).toBe(false);
+    expect(report.byGroup["cohort-a"].count).toBe(1);
+    expect(report.byGroup["cohort-b"].count).toBe(1);
+    expect(() =>
+      evaluateFixtureFairness({
+        releaseId: "mvp-1",
+        model: "mock-statistical@1",
+        cases: [{ id: "x", fixtureId: "a-real-person", expectedCid: null, predictedCid: null, confidence: 0 }],
+      }),
+    ).toThrow(/never inferred/);
   });
 
   it("does not shell out to Fairlearn", async () => {

@@ -7,6 +7,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@eidetic/contracts": "workspace:*"
+    "@eidetic/contracts": "workspace:*",
+    "@eidetic/geo": "workspace:*"
   }
 }

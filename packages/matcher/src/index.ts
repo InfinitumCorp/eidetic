@@ -51,7 +51,7 @@ export interface EnrollResult {
 
 export interface MatcherAdapter {
   readonly model: MatcherModel;
-  assess(image: Uint8Array): CaptureQuality;
+  assess(image: Uint8Array): CaptureQuality | Promise<CaptureQuality>;
   enroll(image: Uint8Array): Promise<EnrollResult>;
   match(request: MatchRequest): Promise<MatchReport>;
   purge(templateRef: string): Promise<void>;
@@ -144,14 +144,155 @@ export function assessCaptureQuality(bytes: Uint8Array): CaptureQuality {
   };
 }
 
-export class OpenCvMediaPipeQualityGate {
-  assess(): CaptureQuality {
+export const INSIGHTFACE_LICENSE_WARNING =
+  "InsightFace pretrained weights are often limited to noncommercial research. ei·det·ic™ does not download or ship those weights. MATCHER_MODE stays mock for CI. Set INSIGHTFACE_LICENSE_ACCEPTED=true only when you hold a license, and set INSIGHTFACE_URL to a sidecar inside the sealed boundary.";
+
+export const OPENCV_MEDIAPIPE_NOTICE =
+  "OpenCV and MediaPipe are not bundled. Set CAPTURE_PROVIDER=opencv-mediapipe and OPENCV_MEDIAPIPE_URL to a sidecar you operate. Remote vision calls accept EIDETIC-SYNTHETIC-v1 fixtures unless EIDETIC_ALLOW_OPERATOR_CAPTURES=true. Real public-figure biometrics are refused.";
+
+type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
+
+export function assertSyntheticFixture(image: Uint8Array, allowOperatorCaptures: boolean): void {
+  if (allowOperatorCaptures) return;
+  if (!readFixtureId(image)) {
     throw new EideticError(
       "CAPTURE_REJECTED",
-      "OpenCV and MediaPipe are optional sealed-boundary adapters and are not installed. The local statistical gate is active.",
-      501,
+      "Remote vision adapters accept EIDETIC-SYNTHETIC-v1 fixtures unless EIDETIC_ALLOW_OPERATOR_CAPTURES=true. Public-figure biometrics are refused.",
+      422,
       false,
     );
+  }
+}
+
+function refuseEmbeddingPayload(body: unknown): void {
+  if (body && typeof body === "object" && "embedding" in body) {
+    throw new EideticError(
+      "BIOMETRIC_PAYLOAD_REFUSED",
+      "The vision sidecar returned an embedding. ei·det·ic™ refuses to take that vector back across the adapter boundary.",
+      502,
+      false,
+    );
+  }
+}
+
+export class OpenCvMediaPipeQualityGate {
+  readonly provider = "opencv-mediapipe" as const;
+
+  constructor(
+    private readonly options: {
+      endpoint?: string;
+      fetchImpl?: FetchLike;
+      allowOperatorCaptures?: boolean;
+    },
+  ) {}
+
+  async assess(image: Uint8Array): Promise<CaptureQuality> {
+    if (!this.options.endpoint) {
+      throw new EideticError("CAPTURE_REJECTED", OPENCV_MEDIAPIPE_NOTICE, 501, false);
+    }
+    assertSyntheticFixture(image, this.options.allowOperatorCaptures === true);
+    const response = await (this.options.fetchImpl ?? fetch)(this.options.endpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ op: "quality", syntheticFixture: readFixtureId(image) }),
+    });
+    if (!response.ok) {
+      throw new EideticError("CAPTURE_REJECTED", "The OpenCV and MediaPipe sidecar refused the synthetic fixture.", 502, false);
+    }
+    const body = (await response.json()) as { score?: number; accept?: boolean; reasons?: string[]; embedding?: unknown };
+    refuseEmbeddingPayload(body);
+    return {
+      score: typeof body.score === "number" ? body.score : 0,
+      accept: body.accept === true,
+      provider: "opencv-mediapipe",
+      reasons: body.reasons?.length ? body.reasons : ["OpenCV and MediaPipe sidecar assessed a synthetic fixture."],
+    };
+  }
+}
+
+export class InsightFaceSidecar implements MatcherAdapter {
+  readonly model: MatcherModel = { name: "insightface-sidecar", version: "unconfigured", mode: "insightface" };
+
+  constructor(
+    private readonly options: {
+      endpoint: string;
+      store: BiometricStore;
+      fetchImpl?: FetchLike;
+      allowOperatorCaptures?: boolean;
+      ids?: () => string;
+    },
+  ) {}
+
+  assess(image: Uint8Array): CaptureQuality {
+    assertSyntheticFixture(image, this.options.allowOperatorCaptures === true);
+    return {
+      score: 0.9,
+      accept: true,
+      provider: "local-statistical",
+      reasons: ["Synthetic fixture accepted before the InsightFace sidecar call. Weights are not loaded in this process."],
+    };
+  }
+
+  async enroll(image: Uint8Array): Promise<EnrollResult> {
+    assertSyntheticFixture(image, this.options.allowOperatorCaptures === true);
+    const response = await this.post({ op: "enroll", syntheticFixture: readFixtureId(image) });
+    const quality = typeof response.quality === "number" ? response.quality : 0.9;
+    const templateRef = `templates/${(this.options.ids ?? (() => randomUUID().replace(/-/g, "")))()}`;
+    const payload = { v: 1, fixtureId: readFixtureId(image), provider: "insightface-sidecar" };
+    await this.options.store.put(templateRef, Buffer.from(JSON.stringify(payload)));
+    return { templateRef, quality };
+  }
+
+  async match(request: MatchRequest): Promise<MatchReport> {
+    assertSyntheticFixture(request.probe, this.options.allowOperatorCaptures === true);
+    const gallery = [];
+    for (const member of request.gallery) {
+      let fixtureId: string | null = null;
+      try {
+        const stored = JSON.parse(Buffer.from(await this.options.store.get(member.templateRef)).toString("utf8")) as { fixtureId?: string | null };
+        fixtureId = stored.fixtureId ?? null;
+      } catch {
+        continue;
+      }
+      gallery.push({ cid: member.cid, syntheticFixture: fixtureId });
+    }
+    const response = await this.post({ op: "match", syntheticFixture: readFixtureId(request.probe), gallery });
+    const scores = Array.isArray(response.scores) ? response.scores : [];
+    const candidates = scores
+      .filter((item): item is { cid: string; confidence: number } => typeof item?.cid === "string" && typeof item.confidence === "number")
+      .sort((left, right) => right.confidence - left.confidence)
+      .slice(0, request.topK)
+      .map((item, index) => ({
+        cid: item.cid,
+        confidence: item.confidence,
+        rank: index + 1,
+        evidence: [
+          {
+            kind: "template_similarity" as const,
+            summary: `InsightFace sidecar similarity ${item.confidence.toFixed(2)} for a synthetic fixture. The descriptor stayed in the sidecar.`,
+            weight: item.confidence,
+          },
+        ],
+      }));
+    return { model: this.model, candidates, quality: this.assess(request.probe) };
+  }
+
+  async purge(templateRef: string): Promise<void> {
+    await this.options.store.delete(templateRef);
+  }
+
+  private async post(payload: unknown): Promise<{ quality?: number; scores?: Array<{ cid?: string; confidence?: number }>; embedding?: unknown }> {
+    const response = await (this.options.fetchImpl ?? fetch)(this.options.endpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new EideticError("BIOMETRIC_PAYLOAD_REFUSED", INSIGHTFACE_LICENSE_WARNING, 502, false);
+    }
+    const body = (await response.json()) as { quality?: number; scores?: Array<{ cid?: string; confidence?: number }>; embedding?: unknown };
+    refuseEmbeddingPayload(body);
+    return body;
   }
 }
 
@@ -367,11 +508,69 @@ export class InsightFaceAdapter implements MatcherAdapter {
 
 export function createMatcher(options: {
   mode: "mock" | "insightface";
+  captureProvider?: "local" | "opencv-mediapipe";
   store: BiometricStore;
   licenseAccepted?: boolean;
+  insightfaceUrl?: string;
+  opencvMediapipeUrl?: string;
+  allowOperatorCaptures?: boolean;
+  fetchImpl?: FetchLike;
 }): MatcherAdapter {
-  if (options.mode === "insightface") {
-    return new InsightFaceAdapter({ licenseAccepted: options.licenseAccepted === true, client: null });
+  const capture = options.captureProvider ?? "local";
+  if (capture === "opencv-mediapipe" && !options.opencvMediapipeUrl) {
+    throw new EideticError("CAPTURE_REJECTED", OPENCV_MEDIAPIPE_NOTICE, 501, false);
   }
-  return new MockMatcher(options.store);
+  let recognizer: MatcherAdapter;
+  if (options.mode === "insightface") {
+    if (options.licenseAccepted !== true || !options.insightfaceUrl) {
+      throw new EideticError("BIOMETRIC_PAYLOAD_REFUSED", INSIGHTFACE_LICENSE_WARNING, 501, false);
+    }
+    recognizer = new InsightFaceSidecar({
+      endpoint: options.insightfaceUrl,
+      store: options.store,
+      fetchImpl: options.fetchImpl,
+      allowOperatorCaptures: options.allowOperatorCaptures,
+    });
+  } else {
+    recognizer = new MockMatcher(options.store);
+  }
+  if (capture !== "opencv-mediapipe") return recognizer;
+  const gate = new OpenCvMediaPipeQualityGate({
+    endpoint: options.opencvMediapipeUrl,
+    fetchImpl: options.fetchImpl,
+    allowOperatorCaptures: options.allowOperatorCaptures,
+  });
+  return new QualityGuardedMatcher(recognizer, gate);
+}
+
+class QualityGuardedMatcher implements MatcherAdapter {
+  constructor(
+    private readonly inner: MatcherAdapter,
+    private readonly gate: OpenCvMediaPipeQualityGate,
+  ) {}
+
+  get model() {
+    return this.inner.model;
+  }
+
+  assess(image: Uint8Array) {
+    return this.gate.assess(image);
+  }
+
+  async enroll(image: Uint8Array): Promise<EnrollResult> {
+    const quality = await this.gate.assess(image);
+    if (!quality.accept) throw new EideticError("CAPTURE_REJECTED", quality.reasons.join(" "), 422, false);
+    return this.inner.enroll(image);
+  }
+
+  async match(request: MatchRequest): Promise<MatchReport> {
+    const quality = await this.gate.assess(request.probe);
+    if (!quality.accept) throw new EideticError("CAPTURE_REJECTED", quality.reasons.join(" "), 422, false);
+    const report = await this.inner.match(request);
+    return { ...report, quality };
+  }
+
+  purge(templateRef: string) {
+    return this.inner.purge(templateRef);
+  }
 }

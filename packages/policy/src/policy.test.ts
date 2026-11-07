@@ -2,7 +2,9 @@
 
 import { describe, expect, it } from "vitest";
 import type { Actor, PurposeDefinition } from "@eidetic/contracts";
-import { OpaPolicyDecider, authorizeSearch, mapKeycloakRoles, type PolicyInput } from "./index.js";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { OpaPolicyDecider, authorizeSearch, mapKeycloakRoles, mapVerifiedKeycloakClaims, type PolicyInput } from "./index.js";
 
 const operator: Actor = { id: "actor-operator", displayName: "Mira Calder", role: "operator" };
 const admin: Actor = { id: "actor-admin", displayName: "Idris Hale", role: "admin" };
@@ -63,5 +65,44 @@ describe("authorizeSearch", () => {
     expect(mapKeycloakRoles(["eidetic-reviewer"])).toBe("reviewer");
     expect(mapKeycloakRoles(["eidetic-admin", "eidetic-operator"])).toBeNull();
     expect(mapKeycloakRoles(["offline_access"])).toBeNull();
+  });
+
+  it("denies withdrawn consent inside the same gate as purpose", () => {
+    expect(authorizeSearch(input({ consent: { state: "withdrawn", label: "Jordan Blake" } }))).toMatchObject({
+      allow: false,
+      code: "CONSENT_WITHDRAWN",
+    });
+    expect(authorizeSearch(input({ consent: { state: "missing" } }))).toMatchObject({ code: "CONSENT_REQUIRED" });
+    expect(authorizeSearch(input({ consent: { state: "granted" } }))).toEqual({ allow: true });
+  });
+
+  it("accepts Keycloak claims only after issuer and expiry checks", () => {
+    const issuer = "https://idp.example/realms/eidetic";
+    expect(
+      mapVerifiedKeycloakClaims(
+        { iss: issuer, exp: 2_000, realm_access: { roles: ["eidetic-operator"] } },
+        issuer,
+        1_000,
+      ),
+    ).toBe("operator");
+    expect(
+      mapVerifiedKeycloakClaims(
+        { iss: issuer, exp: 1, realm_access: { roles: ["eidetic-operator"] } },
+        issuer,
+        5_000,
+      ),
+    ).toBeNull();
+    expect(mapVerifiedKeycloakClaims({ iss: "https://other", exp: 9_000, realm_access: { roles: ["eidetic-operator"] } }, issuer, 1_000)).toBeNull();
+  });
+
+  it("keeps the Rego bundle aligned with the embedded denial order", () => {
+    const rego = readFileSync(path.resolve(process.cwd(), "deploy/opa/eidetic.rego"), "utf8");
+    const codes = ["MIL_NOT_ENABLED", "MIL_NOT_IMPLEMENTED", "PURPOSE_UNKNOWN", "FORBIDDEN", "CONSENT_WITHDRAWN", "CONSENT_REQUIRED"];
+    let cursor = 0;
+    for (const code of codes) {
+      const at = rego.indexOf(code, cursor);
+      expect(at).toBeGreaterThan(-1);
+      cursor = at + code.length;
+    }
   });
 });

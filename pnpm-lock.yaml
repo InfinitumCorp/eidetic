@@ -105,6 +105,9 @@ importers:
       '@eidetic/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@eidetic/geo':
+        specifier: workspace:*
+        version: link:../../packages/geo
       '@eidetic/matcher':
         specifier: workspace:*
         version: link:../../packages/matcher
@@ -206,6 +209,12 @@ importers:
 
   packages/contracts: {}
 
+  packages/geo:
+    dependencies:
+      '@eidetic/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
   packages/matcher:
     dependencies:
       '@eidetic/contracts':
@@ -259,6 +268,9 @@ importers:
       '@eidetic/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@eidetic/geo':
+        specifier: workspace:*
+        version: link:../geo
 
   packages/ui:
     dependencies:

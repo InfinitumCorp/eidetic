@@ -2,15 +2,22 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { DEV_AUDIT_SIGNING_KEY } from "@eidetic/audit";
 
 export interface Env {
   port: number;
   databaseUrl: string;
   biometricStorePath: string;
   matcherMode: "mock" | "insightface";
+  captureProvider: "local" | "opencv-mediapipe";
   milEnabled: boolean;
   demoMode: boolean;
   insightfaceLicenseAccepted: boolean;
+  insightfaceUrl?: string;
+  opencvMediapipeUrl?: string;
+  allowOperatorCaptures: boolean;
+  auditSigningKey: string;
+  auditSigningKeyIsDev: boolean;
   opaUrl?: string;
   fidesUrl?: string;
   presidioUrl?: string;
@@ -48,14 +55,25 @@ export function readEnv(): Env {
   if (matcherMode !== "mock" && matcherMode !== "insightface") {
     throw new Error("MATCHER_MODE must be mock or insightface");
   }
+  const captureProvider = process.env.CAPTURE_PROVIDER ?? "local";
+  if (captureProvider !== "local" && captureProvider !== "opencv-mediapipe") {
+    throw new Error("CAPTURE_PROVIDER must be local or opencv-mediapipe");
+  }
+  const auditSigningKey = process.env.AUDIT_SIGNING_KEY?.trim() || DEV_AUDIT_SIGNING_KEY;
   return {
     port: Number(process.env.PORT ?? 43110),
     databaseUrl: process.env.DATABASE_URL ?? "postgres://eidetic:eidetic@127.0.0.1:5432/eidetic",
     biometricStorePath: resolveStorePath(process.env.BIOMETRIC_STORE_PATH ?? "data/templates"),
     matcherMode,
+    captureProvider,
     milEnabled: process.env.MIL_ENABLED === "true",
     demoMode: process.env.DEMO_MODE !== "false",
     insightfaceLicenseAccepted: process.env.INSIGHTFACE_LICENSE_ACCEPTED === "true",
+    insightfaceUrl: emptyToUndefined(process.env.INSIGHTFACE_URL),
+    opencvMediapipeUrl: emptyToUndefined(process.env.OPENCV_MEDIAPIPE_URL),
+    allowOperatorCaptures: process.env.EIDETIC_ALLOW_OPERATOR_CAPTURES === "true",
+    auditSigningKey,
+    auditSigningKeyIsDev: !process.env.AUDIT_SIGNING_KEY?.trim(),
     opaUrl: emptyToUndefined(process.env.OPA_URL),
     fidesUrl: emptyToUndefined(process.env.FIDES_URL),
     presidioUrl: emptyToUndefined(process.env.PRESIDIO_URL),

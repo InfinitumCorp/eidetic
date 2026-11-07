@@ -11,7 +11,7 @@ import {
   seedReferenceData,
   type Repositories,
 } from "@eidetic/pipeline";
-import { LocalPolicyDecider, OpaPolicyDecider } from "@eidetic/policy";
+import { EmbeddedPolicyDecider, OpaPolicyDecider } from "@eidetic/policy";
 import type { Env } from "./env.js";
 import { migrate } from "./pg/migrate.js";
 import { asSql, createPool } from "./pg/pool.js";
@@ -26,17 +26,21 @@ export interface RunningApi {
 
 export async function createPgRuntime(env: Env, pool = createPool(env.databaseUrl)): Promise<RunningApi> {
   await migrate(pool, env.migrationsDir);
-  const repos = createRepositories(asSql(pool));
+  const repos = createRepositories(asSql(pool), env.auditSigningKey);
   await seedReferenceData(repos, { demoMode: env.demoMode });
   const service = new EideticService({
     repos,
-    transaction: (fn) => withTransaction(pool, fn),
+    transaction: (fn) => withTransaction(pool, fn, env.auditSigningKey),
     matcher: createMatcher({
       mode: env.matcherMode,
+      captureProvider: env.captureProvider,
       store: new FilesystemBiometricStore(env.biometricStorePath),
       licenseAccepted: env.insightfaceLicenseAccepted,
+      insightfaceUrl: env.insightfaceUrl,
+      opencvMediapipeUrl: env.opencvMediapipeUrl,
+      allowOperatorCaptures: env.allowOperatorCaptures,
     }),
-    policy: env.opaUrl ? new OpaPolicyDecider(env.opaUrl) : new LocalPolicyDecider(),
+    policy: env.opaUrl ? new OpaPolicyDecider(env.opaUrl) : new EmbeddedPolicyDecider(),
     redactor: new LocalPatternRedactor(),
     fides: env.fidesUrl ? new HttpFidesConsentPort(env.fidesUrl) : new LocalFidesConsentPort(),
     trillian: new LocalTrillianCheckpointPort(),

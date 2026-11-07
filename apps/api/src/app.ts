@@ -14,6 +14,7 @@ import {
 } from "@eidetic/contracts";
 import { syntheticFixture } from "@eidetic/matcher";
 import { seedSyntheticQueue, type EideticService, type Repositories } from "@eidetic/pipeline";
+import { describeSiteAsset } from "@eidetic/geo";
 import { SEAMS } from "@eidetic/seams";
 
 const allowedOrigins = new Set([
@@ -151,6 +152,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   );
 
   app.get("/v1/seams", (c) => c.json({ seams: SEAMS }));
+  app.get("/v1/sites/:assetId", (c) => c.json(describeSiteAsset(c.req.param("assetId"))));
   app.get("/v1/purposes", async (c) => c.json({ purposes: await deps.service.listPurposes() }));
   app.post("/v1/purposes", async (c) => {
     const body = parse(purposeBody, await readJson(c));
@@ -201,6 +203,27 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   app.get("/v1/audit", async (c) => c.json({ entries: await deps.service.listAudit() }));
   app.get("/v1/audit/verify", async (c) => c.json(await deps.service.verifyAudit()));
 
+  app.post("/v1/bias/fixture-evaluations", async (c) => {
+    const body = parse(
+      z.object({
+        releaseId: z.string().regex(/^[a-z0-9][a-z0-9._-]{1,64}$/),
+        cases: z
+          .array(
+            z.object({
+              id: z.string().min(1).max(40),
+              fixtureId: z.string().regex(/^[a-z0-9-]{3,64}$/),
+              expectedCid: z.string().min(8).max(120).nullable(),
+              predictedCid: z.string().min(8).max(120).nullable(),
+              confidence: z.number().min(0).max(1),
+            }),
+          )
+          .min(1)
+          .max(500),
+      }),
+      await readJson(c),
+    );
+    return c.json(await deps.service.runFixtureBias(c.get("actor"), body.releaseId, body.cases), 201);
+  });
   app.post("/v1/bias/evaluations", async (c) => {
     const body = parse(biasBody, await readJson(c));
     const report = await deps.service.runBias(c.get("actor"), body.releaseId, body.cases);

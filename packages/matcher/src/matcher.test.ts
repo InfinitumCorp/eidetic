@@ -8,6 +8,7 @@ import {
   InsightFaceAdapter,
   MemoryBiometricStore,
   MockMatcher,
+  createMatcher,
   syntheticFixture,
 } from "./index.js";
 
@@ -80,5 +81,46 @@ describe("mock matcher", () => {
     const open = new InsightFaceAdapter({ licenseAccepted: true, client });
     await expect(open.enroll(syntheticFixture("avery-quinn"))).resolves.toMatchObject({ templateRef: "templates/licensed" });
     expect(calls).toBe(1);
+  });
+
+  it("keeps mock as the default and refuses InsightFace or OpenCV without a license and a sidecar", () => {
+    const store = new MemoryBiometricStore();
+    expect(createMatcher({ mode: "mock", store }).model.mode).toBe("mock");
+    expect(() => createMatcher({ mode: "insightface", store, licenseAccepted: true })).toThrow(/noncommercial/);
+    expect(() => createMatcher({ mode: "mock", captureProvider: "opencv-mediapipe", store })).toThrow(/not bundled/);
+  });
+
+  it("sends only the synthetic fixture id to a licensed sidecar and drops embeddings", async () => {
+    const bodies: unknown[] = [];
+    const fetchImpl = async (_url: string, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body));
+      bodies.push(body);
+      if (body.embedding) return new Response(JSON.stringify({ embedding: [1, 2, 3] }), { status: 200 });
+      if (body.op === "quality") return new Response(JSON.stringify({ score: 0.88, accept: true, reasons: ["sidecar ok"] }), { status: 200 });
+      if (body.op === "enroll") return new Response(JSON.stringify({ quality: 0.91 }), { status: 200 });
+      return new Response(JSON.stringify({ scores: [{ cid: "cid://infinitum/fixture-avery-quinn", confidence: 0.93 }] }), { status: 200 });
+    };
+    const matcher = createMatcher({
+      mode: "insightface",
+      captureProvider: "opencv-mediapipe",
+      store: new MemoryBiometricStore(),
+      licenseAccepted: true,
+      insightfaceUrl: "http://sidecar.internal/insightface",
+      opencvMediapipeUrl: "http://sidecar.internal/quality",
+      fetchImpl,
+    });
+    await expect(matcher.enroll(new Uint8Array(80))).rejects.toThrow(/Public-figure/);
+    expect(bodies).toHaveLength(0);
+    const enrolled = await matcher.enroll(syntheticFixture("avery-quinn"));
+    const report = await matcher.match({
+      probe: syntheticFixture("avery-quinn"),
+      gallery: [{ cid: "cid://infinitum/fixture-avery-quinn", templateRef: enrolled.templateRef, recordAttributes: {} }],
+      topK: 1,
+    });
+    expect(report.candidates[0].confidence).toBe(0.93);
+    expect(report.quality.provider).toBe("opencv-mediapipe");
+    expect(keysOf(report)).not.toContain("embedding");
+    expect(JSON.stringify(bodies)).not.toContain("imageBase64");
+    expect(bodies.some((body) => JSON.stringify(body).includes("avery-quinn"))).toBe(true);
   });
 });

@@ -5,10 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "start": "tsx src/main.ts"
+    "start": "tsx src/main.ts",
+    "audit:verify": "tsx src/audit-cli.ts verify",
+    "audit:export": "tsx src/audit-cli.ts export"
   },
   "dependencies": {
     "@eidetic/audit": "workspace:*",
+    "@eidetic/geo": "workspace:*",
     "@eidetic/bias": "workspace:*",
     "@eidetic/consent": "workspace:*",
     "@eidetic/contracts": "workspace:*",

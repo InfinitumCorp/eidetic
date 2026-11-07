@@ -1,7 +1,7 @@
 // © Infinitum Corporation®. All rights reserved.
 
 import type { MerkleCheckpoint, TrillianCheckpointPort } from "@eidetic/audit";
-import { evaluateFairness, type EvaluationCase, type FairnessReport } from "@eidetic/bias";
+import { evaluateFairness, evaluateFixtureFairness, type EvaluationCase, type FairnessReport } from "@eidetic/bias";
 import { buildConsentReceipt, type FidesConsentPort } from "@eidetic/consent";
 import {
   CID_PATTERN,
@@ -343,6 +343,7 @@ export class EideticService {
       throw new EideticError("PURPOSE_REQUIRED", "Search refused. A purpose is required. The match did not run.", 403, false);
     }
     const purpose = await this.deps.repos.purposes.get(input.purposeCode);
+    const consent = await this.consentGate(input);
     const decision = await this.deps.policy.decide({
       actor: input.actor,
       purpose,
@@ -350,41 +351,11 @@ export class EideticService {
       datasetId: input.datasetId,
       edition: input.edition,
       milEnabled: this.deps.milEnabled,
+      consent,
     });
     if (!decision.allow) {
       await this.recordDenial(input, decision.code, decision.message);
       throw new EideticError(decision.code, decision.message, 403, false);
-    }
-
-    if (input.subjectCid) {
-      const subject = await this.deps.repos.subjects.get(input.subjectCid);
-      if (!subject) {
-        const message = "Search refused. That CID is not enrolled. The match did not run.";
-        await this.recordDenial(input, "SUBJECT_NOT_ENROLLED", message);
-        throw new EideticError("SUBJECT_NOT_ENROLLED", message, 403, false);
-      }
-      if (subject.status === "withdrawn") {
-        const message = `Search refused. ${subject.displayName} withdrew consent. The match did not run.`;
-        await this.recordDenial(input, "CONSENT_WITHDRAWN", message);
-        throw new EideticError("CONSENT_WITHDRAWN", message, 403, false);
-      }
-      const consents = await this.deps.repos.consents.listForSubject(subject.cid);
-      const granted = consents.some(
-        (consent) =>
-          consent.status === "granted" &&
-          consent.purposeCode === input.purposeCode &&
-          consent.legalBasis === input.legalBasis &&
-          consent.datasetIds.includes(input.datasetId),
-      );
-      if (!granted) {
-        const withdrawn = consents.some((consent) => consent.purposeCode === input.purposeCode && consent.status === "withdrawn");
-        const code: DenialCode = withdrawn ? "CONSENT_WITHDRAWN" : "CONSENT_REQUIRED";
-        const message = withdrawn
-          ? "Search refused. Consent for this purpose was withdrawn. The match did not run."
-          : "Search refused. This subject has not granted consent for this purpose and dataset. The match did not run.";
-        await this.recordDenial(input, code, message);
-        throw new EideticError(code, message, 403, false);
-      }
     }
 
     let eligible = await this.deps.repos.consents.listEligible(input.purposeCode, input.datasetId, input.legalBasis);
@@ -402,7 +373,7 @@ export class EideticService {
       throw new EideticError(code, message, 403, false);
     }
 
-    const quality = this.deps.matcher.assess(input.image);
+    const quality = await Promise.resolve(this.deps.matcher.assess(input.image));
     if (!quality.accept) {
       const message = clipMessage(quality.reasons.join(" "));
       await this.recordDenial(input, "CAPTURE_REJECTED", message);
@@ -672,6 +643,37 @@ export class EideticService {
     return report;
   }
 
+  async runFixtureBias(
+    actor: Actor,
+    releaseId: string,
+    cases: Array<{ id: string; fixtureId: string; expectedCid: string | null; predictedCid: string | null; confidence: number }>,
+  ): Promise<FairnessReport> {
+    this.requireRole(actor, "admin", "Only an admin can record a bias evaluation.");
+    const report = evaluateFixtureFairness({
+      releaseId,
+      model: `${this.deps.matcher.model.name}@${this.deps.matcher.model.version}`,
+      cases,
+    });
+    const now = this.deps.now().toISOString();
+    const checkpoint = await this.deps.transaction(async (tx) => {
+      await tx.bias.save(releaseId, report, now);
+      const recorded = await tx.audit.record({
+        actorId: actor.id,
+        action: "bias_evaluation",
+        recordedAt: now,
+        attestation: {
+          outcome: "recorded",
+          matchRan: false,
+          releaseId,
+          message: `Bias evaluation ${releaseId} used synthetic fixture cohort metadata. No face was classified.`,
+        },
+      });
+      return recorded.checkpoint;
+    });
+    await this.submit(checkpoint);
+    return report;
+  }
+
   async getBias(releaseId: string): Promise<FairnessReport> {
     const report = await this.deps.repos.bias.get(releaseId);
     if (!report) throw new EideticError("NOT_FOUND", "No bias evaluation is stored for that release.", 404, false);
@@ -788,6 +790,29 @@ export class EideticService {
       return recorded.checkpoint;
     });
     await this.submit(checkpoint);
+  }
+
+  private async consentGate(input: {
+    purposeCode: string;
+    legalBasis: LegalBasis;
+    datasetId: string;
+    subjectCid?: string;
+  }): Promise<{ state: "granted" | "withdrawn" | "missing" | "not_enrolled"; label?: string } | undefined> {
+    if (!input.subjectCid) return undefined;
+    const subject = await this.deps.repos.subjects.get(input.subjectCid);
+    if (!subject) return { state: "not_enrolled" };
+    if (subject.status === "withdrawn") return { state: "withdrawn", label: subject.displayName };
+    const consents = await this.deps.repos.consents.listForSubject(subject.cid);
+    const granted = consents.some(
+      (consent) =>
+        consent.status === "granted" &&
+        consent.purposeCode === input.purposeCode &&
+        consent.legalBasis === input.legalBasis &&
+        consent.datasetIds.includes(input.datasetId),
+    );
+    if (granted) return { state: "granted", label: subject.displayName };
+    const withdrawn = consents.some((consent) => consent.purposeCode === input.purposeCode && consent.status === "withdrawn");
+    return withdrawn ? { state: "withdrawn", label: subject.displayName } : { state: "missing", label: subject.displayName };
   }
 
   private async requirePurpose(code: string): Promise<PurposeDefinition> {

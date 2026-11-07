@@ -19,6 +19,8 @@ export interface PolicyInput {
   datasetId: string;
   edition: Edition;
   milEnabled: boolean;
+  /** Present when the caller already resolved a specific subject. Omitted for a 1:N gallery filter. */
+  consent?: { state: "granted" | "withdrawn" | "missing" | "not_enrolled"; label?: string };
 }
 
 export type PolicyDecision = { allow: true } | { allow: false; code: DenialCode; message: string };
@@ -77,7 +79,29 @@ export function authorizeSearch(input: PolicyInput): PolicyDecision {
       `Search refused. Dataset ${input.datasetId} is outside purpose ${input.purpose.code}. The match did not run.`,
     );
   }
+  if (input.consent?.state === "not_enrolled") {
+    return deny("SUBJECT_NOT_ENROLLED", "Search refused. That CID is not enrolled. The match did not run.");
+  }
+  if (input.consent?.state === "withdrawn") {
+    return deny(
+      "CONSENT_WITHDRAWN",
+      `Search refused. ${input.consent.label ?? "The subject"} withdrew consent. The match did not run.`,
+    );
+  }
+  if (input.consent?.state === "missing") {
+    return deny(
+      "CONSENT_REQUIRED",
+      "Search refused. This subject has not granted consent for this purpose and dataset. The match did not run.",
+    );
+  }
   return { allow: true };
+}
+
+/** Default in-process decider. Same rules as deploy/opa/eidetic.rego, evaluated here when OPA_URL is unset. */
+export class EmbeddedPolicyDecider implements PolicyDecider {
+  decide(input: PolicyInput): Promise<PolicyDecision> {
+    return Promise.resolve(authorizeSearch(input));
+  }
 }
 
 export class LocalPolicyDecider implements PolicyDecider {
@@ -138,6 +162,23 @@ const KEYCLOAK_ROLE_MAP: Record<string, Role> = {
  * JWT validation is intentionally not bundled. Bind a JWKS verifier before
  * KEYCLOAK_ISSUER replaces the local demo tokens.
  */
+export interface KeycloakAccessClaims {
+  iss?: string;
+  exp?: number;
+  realm_access?: { roles?: string[] };
+}
+
+/**
+ * Map claims that a Keycloak JWKS verifier has already signed-checked.
+ * This function does not validate a signature. Production must do that
+ * against the realm's JWKS before these claims are trusted.
+ */
+export function mapVerifiedKeycloakClaims(claims: KeycloakAccessClaims, expectedIssuer: string, nowMs = Date.now()): Role | null {
+  if (!claims.iss || claims.iss !== expectedIssuer) return null;
+  if (typeof claims.exp !== "number" || claims.exp * 1000 <= nowMs) return null;
+  return mapKeycloakRoles(claims.realm_access?.roles ?? []);
+}
+
 export function mapKeycloakRoles(realmRoles: readonly string[]): Role | null {
   const mapped = realmRoles
     .map((role) => KEYCLOAK_ROLE_MAP[role])

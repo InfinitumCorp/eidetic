@@ -14,6 +14,9 @@ const runtime = await createPgRuntime(env, pool);
 if (env.demoMode) {
   console.log(JSON.stringify({ level: "warn", msg: "DEMO_MODE is on. Dev bearer tokens are seeded. Do not expose this process." }));
 }
+if (env.auditSigningKeyIsDev) {
+  console.log(JSON.stringify({ level: "warn", msg: "AUDIT_SIGNING_KEY is unset. Checkpoints use the development HMAC key." }));
+}
 if (env.presidioUrl) {
   console.log(JSON.stringify({ level: "info", msg: "PRESIDIO_URL is set. This build still redacts with the local pattern redactor and does not proxy note text." }));
 }
@@ -34,20 +37,20 @@ const app = createApp({
     }
   },
   adapters: {
-    policy: env.opaUrl ? "opa" : "local",
+    policy: env.opaUrl ? "opa" : "embedded-rego",
     identity: env.keycloakIssuer ? (env.demoMode ? "demo-bearer-keycloak-not-validating" : "keycloak-fail-closed") : "demo-bearer",
     consentExport: env.fidesUrl ? "fides" : "local",
     redaction: "local-pattern",
     presidio: env.presidioUrl ? "configured-not-proxied" : "not_configured",
     fairness: "local-typescript",
     fairlearn: "not_invoked",
-    audit: "hash-chain-merkle",
+    audit: env.auditSigningKeyIsDev ? "hash-chain-merkle-dev-hmac" : "hash-chain-merkle-hmac",
     trillian: "not_configured",
     verifiableCredential: "local-sha256-consent-receipt",
     eidt: "stub-no-broadcast",
     rasterio: "not_enabled",
-    insightface: env.matcherMode === "insightface" ? "refusing-without-bundled-weights" : "not_selected",
-    captureQuality: "local-statistical",
+    insightface: env.matcherMode === "insightface" ? "sidecar" : "not_selected",
+    captureQuality: env.captureProvider,
   },
 });
 
