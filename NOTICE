@@ -6,7 +6,38 @@ This repository's source is proprietary. Dependencies installed with pnpm
 named in the README as optional references) stay under the licenses
 published by their authors. Those licenses are not changed by this NOTICE.
 
+Third-party components added for token verification, audit signing, and
+face embedding are used under the licenses below. This NOTICE does not
+relicense them.
+
+- jose (https://github.com/panva/jose), MIT, Copyright (c) 2018 Filip Skokan.
+  Used to verify Keycloak access-token signatures against a realm JWKS.
+- OpenBao (https://github.com/openbao/openbao), Mozilla Public License 2.0,
+  Copyright (c) 2015 HashiCorp, Inc. and later OpenBao contributors.
+  This repository does not vendor OpenBao. The optional audit signer speaks
+  the Transit HTTP API. The transit key must be type ed25519.
+- OpenCV Zoo YuNet, file license MIT, Copyright (c) 2020 Shiqi Yu.
+  Directory: https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet
+  The MIT grant covers the files in that directory, including the ONNX weights.
+  The weights are not committed here. `pnpm matcher:fetch-models` downloads them.
+- OpenCV Zoo SFace, file license Apache-2.0.
+  Directory: https://github.com/opencv/opencv_zoo/tree/main/models/face_recognition_sface
+  The Apache-2.0 grant covers the files in that directory, including the ONNX weights.
+  They are not committed here.
+- OpenCV itself, if you install opencv-python to run the sidecar, is Apache-2.0.
+  It is not a dependency of the Node package.
+
+Training-image caveat, stated plainly: opencv_zoo issues 318 and 320 ask
+whether the datasets used to train these checkpoints (WIDER FACE is a known
+noncommercial set; the SFace training set is not named on the model card)
+limit downstream use of the weights. The LICENSE files published next to the
+ONNX files are MIT for YuNet and Apache-2.0 for SFace, and both of those
+licenses allow commercial use of the files they cover. This project relies
+on those published file licenses. It does not claim the training images
+themselves are commercially licensed.
+
 InsightFace is not bundled. Its pretrained weights are often limited to
 noncommercial research use. Do not download them into this repository.
+MATCHER_MODE=insightface remains an explicit sidecar opt-in.
 
 Palantir and Flock Safety libraries and products are not bundled.

@@ -6,6 +6,7 @@ import { readEnv } from "./env.js";
 import { migrate } from "./pg/migrate.js";
 import { asSql, createPool } from "./pg/pool.js";
 import { createRepositories } from "./pg/stores.js";
+import { resolveAuditSigner } from "./startup.js";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -15,14 +16,14 @@ const env = readEnv();
 
 if (command === "verify" && fileAt >= 0) {
   const document = JSON.parse(readFileSync(args[fileAt + 1] ?? "", "utf8")) as unknown;
-  const result = verifyExportDocument(document, env.auditSigningKey);
+  const result = verifyExportDocument(document);
   console.log(JSON.stringify(result, null, 2));
   process.exit(result.ok ? 0 : 1);
 }
 
 const pool = createPool(env.databaseUrl);
 await migrate(pool, env.migrationsDir);
-const repos = createRepositories(asSql(pool), env.auditSigningKey);
+const repos = createRepositories(asSql(pool), resolveAuditSigner(env));
 
 if (command === "export") {
   const payload = await repos.audit.export();

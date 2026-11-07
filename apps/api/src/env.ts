@@ -2,26 +2,32 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { DEV_AUDIT_SIGNING_KEY } from "@eidetic/audit";
-
 export interface Env {
   port: number;
   databaseUrl: string;
   biometricStorePath: string;
-  matcherMode: "mock" | "insightface";
+  matcherMode: "mock" | "insightface" | "opencv-zoo";
   captureProvider: "local" | "opencv-mediapipe";
+  opencvZooModelDir: string;
   milEnabled: boolean;
   demoMode: boolean;
   insightfaceLicenseAccepted: boolean;
   insightfaceUrl?: string;
   opencvMediapipeUrl?: string;
   allowOperatorCaptures: boolean;
-  auditSigningKey: string;
-  auditSigningKeyIsDev: boolean;
+  auditSigner: "env" | "openbao";
+  openbaoAddr?: string;
+  openbaoToken?: string;
+  openbaoTransitKey: string;
+  auditPrivateKeyPem?: string;
+  auditKeyPath?: string;
+  demoKeyPath: string;
   opaUrl?: string;
   fidesUrl?: string;
   presidioUrl?: string;
   keycloakIssuer?: string;
+  keycloakAudience?: string;
+  keycloakJwksUrl?: string;
   migrationsDir: string;
 }
 
@@ -52,32 +58,40 @@ export function loadEnvFile(): void {
 export function readEnv(): Env {
   loadEnvFile();
   const matcherMode = process.env.MATCHER_MODE ?? "mock";
-  if (matcherMode !== "mock" && matcherMode !== "insightface") {
-    throw new Error("MATCHER_MODE must be mock or insightface");
+  if (matcherMode !== "mock" && matcherMode !== "insightface" && matcherMode !== "opencv-zoo") {
+    throw new Error("MATCHER_MODE must be mock, opencv-zoo, or insightface");
   }
   const captureProvider = process.env.CAPTURE_PROVIDER ?? "local";
   if (captureProvider !== "local" && captureProvider !== "opencv-mediapipe") {
     throw new Error("CAPTURE_PROVIDER must be local or opencv-mediapipe");
   }
-  const auditSigningKey = process.env.AUDIT_SIGNING_KEY?.trim() || DEV_AUDIT_SIGNING_KEY;
+  const auditSigner = process.env.AUDIT_SIGNER === "openbao" ? "openbao" : "env";
   return {
     port: Number(process.env.PORT ?? 43110),
     databaseUrl: process.env.DATABASE_URL ?? "postgres://eidetic:eidetic@127.0.0.1:5432/eidetic",
     biometricStorePath: resolveStorePath(process.env.BIOMETRIC_STORE_PATH ?? "data/templates"),
     matcherMode,
     captureProvider,
+    opencvZooModelDir: resolveStorePath(process.env.OPENCV_ZOO_MODEL_DIR ?? "data/models/opencv-zoo"),
     milEnabled: process.env.MIL_ENABLED === "true",
     demoMode: process.env.DEMO_MODE !== "false",
     insightfaceLicenseAccepted: process.env.INSIGHTFACE_LICENSE_ACCEPTED === "true",
     insightfaceUrl: emptyToUndefined(process.env.INSIGHTFACE_URL),
     opencvMediapipeUrl: emptyToUndefined(process.env.OPENCV_MEDIAPIPE_URL),
     allowOperatorCaptures: process.env.EIDETIC_ALLOW_OPERATOR_CAPTURES === "true",
-    auditSigningKey,
-    auditSigningKeyIsDev: !process.env.AUDIT_SIGNING_KEY?.trim(),
+    auditSigner,
+    openbaoAddr: emptyToUndefined(process.env.OPENBAO_ADDR),
+    openbaoToken: emptyToUndefined(process.env.OPENBAO_TOKEN),
+    openbaoTransitKey: process.env.OPENBAO_TRANSIT_KEY?.trim() || "eidetic-audit",
+    auditPrivateKeyPem: emptyToUndefined(process.env.AUDIT_ED25519_PRIVATE_KEY),
+    auditKeyPath: emptyToUndefined(process.env.AUDIT_ED25519_KEY_PATH),
+    demoKeyPath: resolveStorePath("data/audit-ed25519.pem"),
     opaUrl: emptyToUndefined(process.env.OPA_URL),
     fidesUrl: emptyToUndefined(process.env.FIDES_URL),
     presidioUrl: emptyToUndefined(process.env.PRESIDIO_URL),
     keycloakIssuer: emptyToUndefined(process.env.KEYCLOAK_ISSUER),
+    keycloakAudience: emptyToUndefined(process.env.KEYCLOAK_AUDIENCE),
+    keycloakJwksUrl: emptyToUndefined(process.env.KEYCLOAK_JWKS_URL),
     migrationsDir: process.env.MIGRATIONS_DIR ?? findMigrations(),
   };
 }

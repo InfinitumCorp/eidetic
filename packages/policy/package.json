@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@eidetic/contracts": "workspace:*",
-    "@eidetic/mil": "workspace:*"
+    "@eidetic/mil": "workspace:*",
+    "jose": "^5.9.6"
   }
 }

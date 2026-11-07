@@ -159,8 +159,7 @@ const KEYCLOAK_ROLE_MAP: Record<string, Role> = {
 
 /**
  * Maps one Keycloak realm role onto one ei·det·ic™ role.
- * JWT validation is intentionally not bundled. Bind a JWKS verifier before
- * KEYCLOAK_ISSUER replaces the local demo tokens.
+ * Call this only after verifyKeycloakAccessToken has checked the signature.
  */
 export interface KeycloakAccessClaims {
   iss?: string;
@@ -178,6 +177,8 @@ export function mapVerifiedKeycloakClaims(claims: KeycloakAccessClaims, expected
   if (typeof claims.exp !== "number" || claims.exp * 1000 <= nowMs) return null;
   return mapKeycloakRoles(claims.realm_access?.roles ?? []);
 }
+
+export { verifyKeycloakAccessToken } from "./keycloak-jwt.js";
 
 export function mapKeycloakRoles(realmRoles: readonly string[]): Role | null {
   const mapped = realmRoles

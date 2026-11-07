@@ -174,7 +174,7 @@ class MemoryAuditRepository implements AuditRepository {
   append(build: Parameters<AuditRepository["append"]>[0]) {
     const run = this.chain.then(async () => {
       const last = this.db.auditEntries.at(-1) ?? null;
-      const built = build({
+      const built = await build({
         last,
         nextSeq: (last?.seq ?? 0) + 1,
         hashes: this.db.auditEntries.map((entry) => entry.hash),
@@ -200,7 +200,7 @@ class MemoryAuditRepository implements AuditRepository {
 
   sealBlank(throughSeq: number, signature: string): Promise<void> {
     const checkpoint = this.db.checkpoints.find((item) => item.throughSeq === throughSeq);
-    if (checkpoint && checkpoint.signature === "") checkpoint.signature = signature;
+    if (checkpoint && !checkpoint.signature.startsWith("ed25519:")) checkpoint.signature = signature;
     return Promise.resolve();
   }
 }

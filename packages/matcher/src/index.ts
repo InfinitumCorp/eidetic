@@ -4,11 +4,12 @@ import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { EideticError, type EvidenceItem } from "@eidetic/contracts";
+import { OpenCvZooMatcher, pythonOpenCvZooInference, type ZooInference } from "./opencv-zoo.js";
 
 export interface MatcherModel {
   name: string;
   version: string;
-  mode: "mock" | "insightface";
+  mode: "mock" | "insightface" | "opencv-zoo";
 }
 
 export interface CaptureQuality {
@@ -507,21 +508,30 @@ export class InsightFaceAdapter implements MatcherAdapter {
 }
 
 export function createMatcher(options: {
-  mode: "mock" | "insightface";
+  mode: "mock" | "insightface" | "opencv-zoo";
   captureProvider?: "local" | "opencv-mediapipe";
   store: BiometricStore;
   licenseAccepted?: boolean;
   insightfaceUrl?: string;
   opencvMediapipeUrl?: string;
+  opencvZooModelDir?: string;
   allowOperatorCaptures?: boolean;
   fetchImpl?: FetchLike;
+  zooInfer?: ZooInference;
 }): MatcherAdapter {
   const capture = options.captureProvider ?? "local";
   if (capture === "opencv-mediapipe" && !options.opencvMediapipeUrl) {
     throw new EideticError("CAPTURE_REJECTED", OPENCV_MEDIAPIPE_NOTICE, 501, false);
   }
   let recognizer: MatcherAdapter;
-  if (options.mode === "insightface") {
+  if (options.mode === "opencv-zoo") {
+    const infer = options.zooInfer ?? pythonOpenCvZooInference(options.opencvZooModelDir ?? "data/models/opencv-zoo");
+    recognizer = new OpenCvZooMatcher({
+      store: options.store,
+      infer,
+      allowOperatorCaptures: options.allowOperatorCaptures,
+    });
+  } else if (options.mode === "insightface") {
     if (options.licenseAccepted !== true || !options.insightfaceUrl) {
       throw new EideticError("BIOMETRIC_PAYLOAD_REFUSED", INSIGHTFACE_LICENSE_WARNING, 501, false);
     }

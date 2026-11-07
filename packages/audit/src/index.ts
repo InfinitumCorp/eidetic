@@ -1,15 +1,26 @@
 // © Infinitum Corporation®. All rights reserved.
 
-import { createHmac } from "node:crypto";
 import {
   canonicalJson,
   sealAttestation,
   sha256Hex,
   type AuditAttestation,
 } from "@eidetic/contracts";
+import {
+  checkpointSigningBytes,
+  createEphemeralEd25519Signer,
+  verifyEd25519Signature,
+  type CheckpointSigner,
+} from "./signer.js";
 
-/** Local development key. Set AUDIT_SIGNING_KEY before any shared deployment. */
-export const DEV_AUDIT_SIGNING_KEY = "eidetic-dev-audit-key";
+export {
+  checkpointSigningBytes,
+  createEd25519SignerFromPem,
+  createEphemeralEd25519Signer,
+  createOpenBaoTransitSigner,
+  verifyEd25519Signature,
+  type CheckpointSigner,
+} from "./signer.js";
 
 export const GENESIS = "0".repeat(64);
 
@@ -42,7 +53,7 @@ export interface AuditAppendContext {
 
 export interface AuditRepository {
   append(
-    build: (context: AuditAppendContext) => { entry: AuditEntry; checkpoint: MerkleCheckpoint },
+    build: (context: AuditAppendContext) => Promise<{ entry: AuditEntry; checkpoint: MerkleCheckpoint }>,
   ): Promise<{ entry: AuditEntry; checkpoint: MerkleCheckpoint }>;
   list(): Promise<AuditEntry[]>;
   checkpoints(): Promise<MerkleCheckpoint[]>;
@@ -92,17 +103,7 @@ export interface VerifyResult {
   merkleRoot: string | null;
 }
 
-export function signCheckpoint(checkpoint: Omit<MerkleCheckpoint, "signature">, signingKey = DEV_AUDIT_SIGNING_KEY): string {
-  const body = {
-    computedAt: checkpoint.computedAt,
-    leafCount: checkpoint.leafCount,
-    merkleRoot: checkpoint.merkleRoot,
-    throughSeq: checkpoint.throughSeq,
-  };
-  return createHmac("sha256", signingKey).update(canonicalJson(body)).digest("hex");
-}
-
-export function verifyChain(entries: AuditEntry[], checkpoints: MerkleCheckpoint[], signingKey = DEV_AUDIT_SIGNING_KEY): VerifyResult {
+export function verifyChain(entries: AuditEntry[], checkpoints: MerkleCheckpoint[], publicKeyPem: string): VerifyResult {
   const errors: string[] = [];
   let previous = GENESIS;
   for (const entry of entries) {
@@ -131,8 +132,8 @@ export function verifyChain(entries: AuditEntry[], checkpoints: MerkleCheckpoint
     const leaves = entries.filter((entry) => entry.seq <= checkpoint.throughSeq).map((entry) => entry.hash);
     if (leaves.length !== checkpoint.leafCount) errors.push(`checkpoint ${checkpoint.throughSeq} leaf count mismatch`);
     if (merkleRoot(leaves) !== checkpoint.merkleRoot) errors.push(`checkpoint ${checkpoint.throughSeq} merkle root mismatch`);
-    const expected = signCheckpoint(checkpoint, signingKey);
-    if (checkpoint.signature !== expected) errors.push(`checkpoint ${checkpoint.throughSeq} signature mismatch`);
+    const signed = verifyEd25519Signature(checkpointSigningBytes(checkpoint), checkpoint.signature, publicKeyPem);
+    if (!signed) errors.push(`checkpoint ${checkpoint.throughSeq} signature mismatch`);
   }
   if (entries.length > 0 && checkpoints.length > 0) {
     const tip = checkpoints[checkpoints.length - 1];
@@ -151,16 +152,20 @@ export function verifyChain(entries: AuditEntry[], checkpoints: MerkleCheckpoint
 export interface AuditExport {
   version: 1;
   product: "ei·det·ic™";
+  algorithm: "ed25519";
+  publicKeyPem: string;
   entries: AuditEntry[];
   checkpoints: MerkleCheckpoint[];
 }
 
 const EXPORT_FORBIDDEN_KEY = /image|template|embedding|vector|biometric|pixel|photo|probe|face|weight|descriptor|gallery/i;
 
-export function exportAuditLog(entries: AuditEntry[], checkpoints: MerkleCheckpoint[]): AuditExport {
+export function exportAuditLog(entries: AuditEntry[], checkpoints: MerkleCheckpoint[], publicKeyPem: string): AuditExport {
   const payload: AuditExport = {
     version: 1,
     product: "ei·det·ic™",
+    algorithm: "ed25519",
+    publicKeyPem,
     entries: entries.map((entry) => ({ ...entry, attestation: sealAttestation(entry.attestation) })),
     checkpoints,
   };
@@ -168,13 +173,21 @@ export function exportAuditLog(entries: AuditEntry[], checkpoints: MerkleCheckpo
   return payload;
 }
 
-export function verifyExportDocument(document: unknown, signingKey = DEV_AUDIT_SIGNING_KEY): VerifyResult {
+export function verifyExportDocument(document: unknown, options?: { publicKeyPem?: string }): VerifyResult {
   if (!document || typeof document !== "object") {
     return { ok: false, errors: ["export is empty"], entries: 0, checkpoints: 0, head: null, merkleRoot: null };
   }
   rejectBiometricKeys(document);
   const body = document as Partial<AuditExport>;
-  return verifyChain(body.entries ?? [], body.checkpoints ?? [], signingKey);
+  const pinned = options?.publicKeyPem?.trim();
+  const embedded = body.publicKeyPem?.trim();
+  if (!embedded && !pinned) {
+    return { ok: false, errors: ["export has no Ed25519 public key"], entries: 0, checkpoints: 0, head: null, merkleRoot: null };
+  }
+  const errors: string[] = [];
+  if (pinned && embedded && pinned !== embedded) errors.push("export public key does not match the pinned verifier key");
+  const result = verifyChain(body.entries ?? [], body.checkpoints ?? [], pinned || embedded || "");
+  return { ...result, ok: result.ok && errors.length === 0, errors: [...errors, ...result.errors] };
 }
 
 function rejectBiometricKeys(value: unknown): void {
@@ -192,10 +205,11 @@ function rejectBiometricKeys(value: unknown): void {
 }
 
 export class AuditLog {
-  constructor(
-    private readonly repository: AuditRepository,
-    private readonly signingKey = DEV_AUDIT_SIGNING_KEY,
-  ) {}
+  private readonly signer: CheckpointSigner;
+
+  constructor(private readonly repository: AuditRepository, signer?: CheckpointSigner) {
+    this.signer = signer ?? createEphemeralEd25519Signer();
+  }
 
   async record(input: {
     actorId: string;
@@ -204,7 +218,7 @@ export class AuditLog {
     attestation: AuditAttestation;
   }): Promise<{ entry: AuditEntry; checkpoint: MerkleCheckpoint }> {
     const attestation = sealAttestation(input.attestation);
-    return this.repository.append(({ last, nextSeq, hashes }) => {
+    return this.repository.append(async ({ last, nextSeq, hashes }) => {
       const payloadHash = sha256Hex(canonicalJson(attestation));
       const prevHash = last?.hash ?? GENESIS;
       const core = {
@@ -223,28 +237,26 @@ export class AuditLog {
         merkleRoot: merkleRoot(leaves),
         computedAt: input.recordedAt,
       };
-      return {
-        entry,
-        checkpoint: { ...unsigned, signature: signCheckpoint(unsigned, this.signingKey) },
-      };
+      const signature = await this.signer.sign(checkpointSigningBytes(unsigned));
+      return { entry, checkpoint: { ...unsigned, signature } };
     });
   }
 
   async verify(): Promise<VerifyResult> {
-    return verifyChain(await this.repository.list(), await this.repository.checkpoints(), this.signingKey);
+    return verifyChain(await this.repository.list(), await this.repository.checkpoints(), await this.signer.publicKeyPem());
   }
 
   async export(): Promise<AuditExport> {
-    return exportAuditLog(await this.repository.list(), await this.repository.checkpoints());
+    return exportAuditLog(await this.repository.list(), await this.repository.checkpoints(), await this.signer.publicKeyPem());
   }
 
-  /** Fill signatures that were written before HMAC checkpoints existed. A non-empty signature cannot be replaced. */
+  /** Replace HMAC or blank checkpoint signatures with Ed25519. An existing Ed25519 signature is left untouched. */
   async signLegacy(): Promise<number> {
     const checkpoints = await this.repository.checkpoints();
     let signed = 0;
     for (const checkpoint of checkpoints) {
-      if (checkpoint.signature) continue;
-      await this.repository.sealBlank(checkpoint.throughSeq, signCheckpoint(checkpoint, this.signingKey));
+      if (checkpoint.signature.startsWith("ed25519:")) continue;
+      await this.repository.sealBlank(checkpoint.throughSeq, await this.signer.sign(checkpointSigningBytes(checkpoint)));
       signed += 1;
     }
     return signed;

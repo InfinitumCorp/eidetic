@@ -10,10 +10,11 @@ class MemoryAuditRepository implements AuditRepository {
 
   append(build: Parameters<AuditRepository["append"]>[0]) {
     const last = this.entries.at(-1) ?? null;
-    const built = build({ last, nextSeq: (last?.seq ?? 0) + 1, hashes: this.entries.map((entry) => entry.hash) });
-    this.entries.push(built.entry);
-    this.points.push(built.checkpoint);
-    return Promise.resolve(built);
+    return build({ last, nextSeq: (last?.seq ?? 0) + 1, hashes: this.entries.map((entry) => entry.hash) }).then((built) => {
+      this.entries.push(built.entry);
+      this.points.push(built.checkpoint);
+      return built;
+    });
   }
 
   list(): Promise<AuditEntry[]> {
@@ -26,7 +27,7 @@ class MemoryAuditRepository implements AuditRepository {
 
   sealBlank(throughSeq: number, signature: string): Promise<void> {
     const checkpoint = this.points.find((item) => item.throughSeq === throughSeq);
-    if (checkpoint && checkpoint.signature === "") checkpoint.signature = signature;
+    if (checkpoint && !checkpoint.signature.startsWith("ed25519:")) checkpoint.signature = signature;
     return Promise.resolve();
   }
 }
@@ -50,7 +51,7 @@ describe("hash-chained audit log", () => {
     expect(proof.merkleRoot).toMatch(/^[a-f0-9]{64}$/);
     const tampered = await repository.list();
     tampered[0].attestation.message = "rewritten";
-    expect(verifyChain(tampered, await repository.checkpoints()).ok).toBe(false);
+    expect(verifyChain(tampered, await repository.checkpoints(), "missing-public-key").ok).toBe(false);
   });
 
   it("refuses to append a biometric payload", async () => {
@@ -72,11 +73,15 @@ describe("hash-chained audit log", () => {
     const log = new AuditLog(repository);
     await log.record({ actorId: "actor-admin", action: "enroll", recordedAt: "2026-11-07T12:00:00.000Z", attestation: attestation("enrolled") });
     const exported = await log.export();
-    expect(exported.checkpoints[0].signature).toMatch(/^[a-f0-9]{64}$/);
+    expect(exported.checkpoints[0].signature.startsWith("ed25519:")).toBe(true);
+    expect(exported.algorithm).toBe("ed25519");
     expect(verifyExportDocument(exported).ok).toBe(true);
     const tampered = structuredClone(exported);
-    tampered.checkpoints[0].signature = "0".repeat(64);
+    tampered.checkpoints[0].signature = `ed25519:${"A".repeat(40)}`;
     expect(verifyExportDocument(tampered).ok).toBe(false);
-    expect(() => exportAuditLog([{ ...repository.entries[0], attestation: { ...attestation("x"), embedding: [1] } as AuditEntry["attestation"] }], [])).toThrow(/DoNotLog|refused/);
+    const swapped = structuredClone(exported);
+    swapped.publicKeyPem = "not-the-pinned-key";
+    expect(verifyExportDocument(swapped, { publicKeyPem: exported.publicKeyPem }).errors.join(" ")).toMatch(/pinned/);
+    expect(() => exportAuditLog([{ ...repository.entries[0], attestation: { ...attestation("x"), embedding: [1] } as AuditEntry["attestation"] }], [], "not-a-key")).toThrow(/DoNotLog|refused/);
   });
 });

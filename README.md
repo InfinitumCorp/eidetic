@@ -131,7 +131,17 @@ Unit tests cover the happy path and the denial paths without Postgres. `apps/api
 
 ## Vision adapters
 
-`MATCHER_MODE=mock` and `CAPTURE_PROVIDER=local` are the defaults. CI uses them. They score `EIDETIC-SYNTHETIC-v1` fixtures inside the process. No weights are downloaded.
+`MATCHER_MODE=mock` and `CAPTURE_PROVIDER=local` are the defaults. CI uses them. They score `EIDETIC-SYNTHETIC-v1` fixture tokens inside the process. No weights are downloaded.
+
+The recommended non-mock matcher is OpenCV Zoo YuNet plus SFace. YuNet's model files are MIT (Copyright Shiqi Yu). SFace's model files are Apache-2.0. Both licenses allow commercial use of those files. NOTICE records the training-data caveat. InsightFace is not the recommended path.
+
+```bash
+pnpm matcher:fetch-models
+pip install opencv-python-headless
+MATCHER_MODE=opencv-zoo pnpm --filter @eidetic/api dev
+```
+
+That path accepts `syntheticPortraitPng` images, which carry the marker `eidetic-synthetic-portrait`. A photograph without that marker is refused unless `EIDETIC_ALLOW_OPERATOR_CAPTURES=true`. Fixture tokens stay on the mock matcher. If YuNet finds no face, enroll stops. The embedding is written only into the sealed template file.
 
 [InsightFace](https://github.com/deepinsight/insightface) pretrained weights are often limited to noncommercial research. This repository does not ship those weights. To point at a sidecar you operate inside the sealed boundary:
 
@@ -156,7 +166,7 @@ Remote vision calls accept synthetic fixtures only. Set `EIDETIC_ALLOW_OPERATOR_
 
 The API uses the embedded policy decider, which applies the same denial order as `deploy/opa/eidetic.rego`: edition, purpose, role, legal basis, dataset, then consent when a subject CID is named. Set `OPA_URL` to hand that decision to [Open Policy Agent](https://www.openpolicyagent.org/). An unreachable OPA fails closed.
 
-[Keycloak](https://www.keycloak.org/) is the recommended production OpenID Connect identity provider. Verify the access token against the realm JWKS, then pass the claims to `mapVerifiedKeycloakClaims`. That function checks issuer and expiry and maps one `eidetic-*` realm role. It does not validate a signature. Demo bearer tokens exist only while `DEMO_MODE=true`. With `DEMO_MODE=false` and `KEYCLOAK_ISSUER` set, those demo tokens are rejected.
+[Keycloak](https://www.keycloak.org/) is the production OpenID Connect provider. With `DEMO_MODE=false`, the API verifies access tokens with [`jose`](https://github.com/panva/jose) (MIT) against the realm JWKS (`KEYCLOAK_JWKS_URL`, or `{issuer}/protocol/openid-connect/certs`). A bad signature, the wrong issuer, the wrong audience, or an expired token is rejected. `KEYCLOAK_ISSUER` and `KEYCLOAK_AUDIENCE` are required in that mode. Demo bearer tokens exist only while `DEMO_MODE=true`.
 
 ## Audit commands
 
@@ -166,7 +176,7 @@ pnpm audit:export -- --out audit-export.json
 pnpm audit:verify -- --file audit-export.json
 ```
 
-Set `AUDIT_SIGNING_KEY` before a shared deployment. When it is unset, checkpoints are signed with the documented development key and the API logs that fact.
+Checkpoints are signed with Ed25519. Verifiers need the public key, which is included in the export. Set `AUDIT_SIGNER=openbao` with `OPENBAO_ADDR`, `OPENBAO_TOKEN`, and an Ed25519 Transit key (`OPENBAO_TRANSIT_KEY`) to sign in [OpenBao](https://github.com/openbao/openbao) (MPL-2.0). Otherwise set `AUDIT_ED25519_KEY_PATH` or `AUDIT_ED25519_PRIVATE_KEY`. Demo mode writes `data/audit-ed25519.pem` when no key is configured. `DEMO_MODE=false` refuses to start without OpenBao or an explicit key, and it also refuses to start without Keycloak. The old HMAC development key is not accepted.
 
 ## Fixture fairness
 

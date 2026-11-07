@@ -3,6 +3,8 @@ dist
 .env
 data/templates/*
 !data/templates/.gitkeep
+data/audit-ed25519.pem
+data/models/
 *.log
 coverage
 .DS_Store

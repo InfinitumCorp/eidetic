@@ -11,6 +11,7 @@ import {
   createMatcher,
   syntheticFixture,
 } from "./index.js";
+import { syntheticPortraitPng } from "./opencv-zoo.js";
 
 function keysOf(value: unknown, found: string[] = []): string[] {
   if (Array.isArray(value)) value.forEach((item) => keysOf(item, found));
@@ -122,5 +123,38 @@ describe("mock matcher", () => {
     expect(keysOf(report)).not.toContain("embedding");
     expect(JSON.stringify(bodies)).not.toContain("imageBase64");
     expect(bodies.some((body) => JSON.stringify(body).includes("avery-quinn"))).toBe(true);
+  });
+
+  it("runs the OpenCV Zoo adapter on synthetic portraits and keeps the embedding sealed", async () => {
+    const store = new MemoryBiometricStore();
+    let calls = 0;
+    const matcher = createMatcher({
+      mode: "opencv-zoo",
+      store,
+      zooInfer: {
+        infer: async (image) => {
+          calls += 1;
+          const text = Buffer.from(image).toString("latin1");
+          const id = text.split("eidetic-synthetic-portrait:")[1]?.slice(0, 12) ?? "unknown";
+          const embedding = new Array(16).fill(0).map((_, index) => (id.charCodeAt(index % id.length) % 7) / 7);
+          return { faceFound: true, detectorScore: 0.84, embedding };
+        },
+      },
+    });
+    await expect(matcher.enroll(syntheticFixture("avery-quinn"))).rejects.toThrow(/Public-figure|synthetic portrait/i);
+    expect(calls).toBe(0);
+    await expect(matcher.enroll(Buffer.from([0xff, 0xd8, 0xff, 0x00]))).rejects.toThrow(/synthetic portrait|Public-figure/i);
+    const enrolled = await matcher.enroll(syntheticPortraitPng("avery-quinn"));
+    const report = await matcher.match({
+      probe: syntheticPortraitPng("avery-quinn"),
+      gallery: [{ cid: "cid://infinitum/fixture-avery-quinn", templateRef: enrolled.templateRef, recordAttributes: {} }],
+      topK: 1,
+    });
+    expect(report.model.name).toBe("opencv-zoo-sface");
+    expect(report.candidates[0].confidence).toBeGreaterThan(0.99);
+    expect(keysOf(report)).not.toContain("embedding");
+    const stored = JSON.parse(Buffer.from(await store.get(enrolled.templateRef)).toString("utf8")) as { embedding?: number[] };
+    expect(stored.embedding?.length).toBe(16);
+    expect(() => createMatcher({ mode: "opencv-zoo", store: new MemoryBiometricStore(), opencvZooModelDir: "/tmp/eidetic-missing-models" })).toThrow(/missing/);
   });
 });

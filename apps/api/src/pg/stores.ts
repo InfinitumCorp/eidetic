@@ -1,7 +1,7 @@
 // © Infinitum Corporation®. All rights reserved.
 
 import type { Pool, PoolClient } from "pg";
-import { AuditLog, DEV_AUDIT_SIGNING_KEY, type AuditEntry, type AuditRepository, type MerkleCheckpoint } from "@eidetic/audit";
+import { AuditLog, type AuditEntry, type AuditRepository, type CheckpointSigner, type MerkleCheckpoint } from "@eidetic/audit";
 import type { FairnessReport } from "@eidetic/bias";
 import type {
   Actor,
@@ -19,14 +19,14 @@ import type {
 import type { Repositories } from "@eidetic/pipeline";
 import { asSql, type Sql } from "./pool.js";
 
-export function createRepositories(sql: Sql, signingKey = DEV_AUDIT_SIGNING_KEY): Repositories {
+export function createRepositories(sql: Sql, signer: CheckpointSigner): Repositories {
   const audit: AuditRepository = {
     async append(build) {
       await sql.query("SELECT id FROM audit_lock WHERE id = 1 FOR UPDATE");
       const listed = await sql.query("SELECT * FROM audit_entries ORDER BY seq ASC");
       const entries = listed.rows.map(mapAudit);
       const last = entries.at(-1) ?? null;
-      const built = build({
+      const built = await build({
         last,
         nextSeq: (last?.seq ?? 0) + 1,
         hashes: entries.map((entry) => entry.hash),
@@ -61,7 +61,7 @@ export function createRepositories(sql: Sql, signingKey = DEV_AUDIT_SIGNING_KEY)
       return result.rows.map(mapCheckpoint);
     },
     async sealBlank(throughSeq, signature) {
-      await sql.query("UPDATE audit_checkpoints SET signature = $2 WHERE through_seq = $1 AND signature = ''", [throughSeq, signature]);
+      await sql.query("UPDATE audit_checkpoints SET signature = $2 WHERE through_seq = $1 AND signature NOT LIKE 'ed25519:%'", [throughSeq, signature]);
     },
   };
 
@@ -298,15 +298,15 @@ export function createRepositories(sql: Sql, signingKey = DEV_AUDIT_SIGNING_KEY)
         return result.rows[0] ? (jsonValue(result.rows[0].report) as FairnessReport) : null;
       },
     },
-    audit: new AuditLog(audit, signingKey),
+    audit: new AuditLog(audit, signer),
   };
 }
 
-export async function withTransaction<T>(pool: Pool, fn: (repos: Repositories) => Promise<T>, signingKey = DEV_AUDIT_SIGNING_KEY): Promise<T> {
+export async function withTransaction<T>(pool: Pool, fn: (repos: Repositories) => Promise<T>, signer: CheckpointSigner): Promise<T> {
   const client: PoolClient = await pool.connect();
   try {
     await client.query("BEGIN");
-    const result = await fn(createRepositories(asSql(client), signingKey));
+    const result = await fn(createRepositories(asSql(client), signer));
     await client.query("COMMIT");
     return result;
   } catch (error) {
