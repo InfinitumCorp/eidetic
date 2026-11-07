@@ -173,18 +173,22 @@ export function App() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-5">
-          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Infinitum Corporation®</p>
-          <h1 className="font-serif text-3xl">
-            ei·det·ic™ <span className="text-primary">purpose desk</span>
-          </h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.
-          </p>
-        </div>
+      <a className="skip-link" href="#main">Skip to content</a>
+      <header className="app-bar">
+        <a className="app-wordmark" href="/">
+          ei·det·ic<sup className="tm">™</sup>
+        </a>
+        <nav className="app-nav" aria-label="Main">
+          <a href="/" aria-current="page">Purpose desk</a>
+        </nav>
       </header>
-      <main className="mx-auto grid max-w-6xl gap-4 px-4 py-5">
+      <main id="main" className="app-main grid gap-4">
+        <div className="app-head">
+          <div>
+            <h1>Purpose desk</h1>
+            <p className="max-w-2xl">Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.</p>
+          </div>
+        </div>
         {health === "loading" && <p className="text-muted-foreground">Checking the API…</p>}
         {health === "down" && (
           <Card>
@@ -332,7 +336,7 @@ export function App() {
           </>
         )}
       </main>
-      <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-muted-foreground">
+      <footer className="app-footer">
         Infinitum Corporation® · 1629 K Street NW, Suite 300, Washington, D.C. · 202-729-9509 · info@theinfinitumcorporation.com
       </footer>
     </div>
