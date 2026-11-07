@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: eidetic
+      POSTGRES_PASSWORD: eidetic
+      POSTGRES_DB: eidetic
+    ports:
+      - "54329:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eidetic -d eidetic"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      PORT: "43110"
+      DATABASE_URL: postgres://eidetic:eidetic@db:5432/eidetic
+      BIOMETRIC_STORE_PATH: /data/templates
+      MATCHER_MODE: mock
+      MIL_ENABLED: "false"
+      DEMO_MODE: "true"
+      MIGRATIONS_DIR: /app/apps/api/migrations
+    ports:
+      - "43110:43110"
+    volumes:
+      - biometric:/data/templates
+    depends_on:
+      db:
+        condition: service_healthy
+
+  reviewer:
+    build:
+      context: .
+      dockerfile: apps/reviewer/Dockerfile
+    ports:
+      - "43111:80"
+    depends_on:
+      - api
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    ports:
+      - "43112:80"
+    depends_on:
+      - api
+
+volumes:
+  biometric:

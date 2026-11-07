@@ -1,0 +1,11 @@
+<View>
+  <Header value="ei·det·ic™ review task. A person decides. The score is not a decision."/>
+  <Text name="purpose" value="$purpose"/>
+  <Text name="evidence" value="$evidence"/>
+  <Choices name="decision" toName="purpose" choice="single" required="true">
+    <Choice value="confirm"/>
+    <Choice value="reject"/>
+    <Choice value="inconclusive"/>
+  </Choices>
+  <TextArea name="notes" toName="purpose" required="true" placeholder="Why are you deciding this way?"/>
+</View>

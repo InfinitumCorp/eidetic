@@ -1,0 +1,56 @@
+// © Infinitum Corporation®. All rights reserved.
+
+import { serve } from "@hono/node-server";
+import { COMPANY, MIL_PRODUCT, PRODUCT } from "@eidetic/contracts";
+import { createApp } from "./app.js";
+import { readEnv } from "./env.js";
+import { createPool } from "./pg/pool.js";
+import { createPgRuntime, waitForDatabase } from "./runtime.js";
+
+const env = readEnv();
+const pool = createPool(env.databaseUrl);
+await waitForDatabase(pool);
+const runtime = await createPgRuntime(env, pool);
+if (env.demoMode) {
+  console.log(JSON.stringify({ level: "warn", msg: "DEMO_MODE is on. Dev bearer tokens are seeded. Do not expose this process." }));
+}
+if (env.presidioUrl) {
+  console.log(JSON.stringify({ level: "info", msg: "PRESIDIO_URL is set. This build still redacts with the local pattern redactor and does not proxy note text." }));
+}
+
+const app = createApp({
+  service: runtime.service,
+  repos: runtime.repos,
+  authenticate: runtime.authenticate,
+  demoMode: env.demoMode,
+  matcherMode: env.matcherMode,
+  milEnabled: env.milEnabled,
+  dbPing: async () => {
+    try {
+      await pool.query("select 1");
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  adapters: {
+    policy: env.opaUrl ? "opa" : "local",
+    identity: env.keycloakIssuer ? (env.demoMode ? "demo-bearer-keycloak-not-validating" : "keycloak-fail-closed") : "demo-bearer",
+    consentExport: env.fidesUrl ? "fides" : "local",
+    redaction: "local-pattern",
+    presidio: env.presidioUrl ? "configured-not-proxied" : "not_configured",
+    fairness: "local-typescript",
+    fairlearn: "not_invoked",
+    audit: "hash-chain-merkle",
+    trillian: "not_configured",
+    verifiableCredential: "local-sha256-consent-receipt",
+    eidt: "stub-no-broadcast",
+    rasterio: "not_enabled",
+    insightface: env.matcherMode === "insightface" ? "refusing-without-bundled-weights" : "not_selected",
+    captureQuality: "local-statistical",
+  },
+});
+
+serve({ fetch: app.fetch, port: env.port, hostname: "0.0.0.0" }, (info) => {
+  console.log(JSON.stringify({ level: "info", product: PRODUCT, company: COMPANY, mil: MIL_PRODUCT, port: info.port }));
+});

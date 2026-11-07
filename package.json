@@ -1,0 +1,28 @@
+{
+  "name": "eidetic",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "pnpm@10.33.4",
+  "scripts": {
+    "dev": "concurrently -n api,review,admin -c cyan,green,yellow \"pnpm --filter @eidetic/api dev\" \"pnpm --filter @eidetic/reviewer dev\" \"pnpm --filter @eidetic/admin dev\"",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "demo": "tsx scripts/demo.ts",
+    "demo:http": "tsx scripts/demo.ts --http",
+    "build": "pnpm --filter @eidetic/reviewer build && pnpm --filter @eidetic/admin build"
+  },
+  "devDependencies": {
+    "@eidetic/contracts": "workspace:*",
+    "@eidetic/matcher": "workspace:*",
+    "@eidetic/pipeline": "workspace:*",
+    "@eidetic/seams": "workspace:*",
+    "@types/node": "^22.10.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "concurrently": "^9.1.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}

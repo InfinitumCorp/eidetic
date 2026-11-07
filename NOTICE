@@ -1,0 +1,12 @@
+ei·det·ic™
+Copyright © Infinitum Corporation®. All rights reserved.
+
+This repository's source is proprietary. Dependencies installed with pnpm
+(including React, Hono, PostgreSQL drivers, and the Apache-2.0 libraries
+named in the README as optional references) stay under the licenses
+published by their authors. Those licenses are not changed by this NOTICE.
+
+InsightFace is not bundled. Its pretrained weights are often limited to
+noncommercial research use. Do not download them into this repository.
+
+Palantir and Flock Safety libraries and products are not bundled.

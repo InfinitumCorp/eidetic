@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+data/templates/*
+!data/templates/.gitkeep
+*.log
+coverage
+.DS_Store
+apps/*/dist
+apps/api/dist
