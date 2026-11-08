@@ -1,4 +1,5 @@
 // © Infinitum Corporation®. All rights reserved.
+import { FirmSuite } from "./firm/FirmSuite";
 
 import { useEffect, useState, type FormEvent } from "react";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "@eidetic/ui";
@@ -333,6 +334,7 @@ export function App() {
         )}
       </main>
       <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-muted-foreground">
+        <FirmSuite product="eidetic" compact />
         Infinitum Corporation® · 1629 K Street NW, Suite 300, Washington, D.C. · 202-729-9509 · info@theinfinitumcorporation.com
       </footer>
     </div>
