@@ -16,6 +16,7 @@ import { syntheticFixture } from "@eidetic/matcher";
 import { seedSyntheticQueue, type EideticService, type Repositories } from "@eidetic/pipeline";
 import { describeSiteAsset } from "@eidetic/geo";
 import { SEAMS } from "@eidetic/seams";
+import type { ConjureRouteHandler } from "./conjure/conjure.mjs";
 
 const allowedOrigins = new Set([
   "http://127.0.0.1:43111",
@@ -91,6 +92,8 @@ export interface AppDeps {
   milEnabled: boolean;
   dbPing: () => Promise<boolean>;
   adapters: Record<string, string>;
+  /** @conjure live forecasts (prefix /v1/conjure). Off when unset and on MIL deployments. */
+  conjure?: ConjureRouteHandler | null;
 }
 
 type Variables = { actor: Actor };
@@ -140,6 +143,16 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     }
     c.set("actor", actor);
     return next();
+  });
+
+  // "@conjure <question>" from the operator consoles: a live Conjure forecast.
+  // Only the text the actor sends goes to Conjure; no subject, template or match data.
+  app.on(["GET", "POST"], ["/v1/conjure", "/v1/conjure/*"], async (c) => {
+    if (deps.milEnabled) {
+      return c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not available on MIL deployments.", matchRan: false } }, 403);
+    }
+    const res = deps.conjure ? await deps.conjure(c.req.raw, { user: c.get("actor").id }) : null;
+    return res ?? c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not configured here.", matchRan: false } }, 503);
   });
 
   app.get("/v1/edition", (c) =>
