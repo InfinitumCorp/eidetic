@@ -164,7 +164,7 @@ export function App() {
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Infinitum Corporation®</p>
             <h1 className="font-serif text-3xl">
-              ei·det·ic™ <span className="text-primary">review desk</span>
+              ei·det·ic<sup className="tm">™</sup> <span className="text-primary">review desk</span>
             </h1>
             <p className="mt-1 max-w-xl text-sm text-muted-foreground">
               A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.
