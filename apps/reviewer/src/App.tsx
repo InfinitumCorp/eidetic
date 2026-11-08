@@ -1,4 +1,5 @@
 // © Infinitum Corporation®. All rights reserved.
+import { FirmSuite } from "./firm/FirmSuite";
 
 import { useEffect, useState } from "react";
 import { Badge, Button, Card, CardContent, Label, Textarea } from "@eidetic/ui";
@@ -324,6 +325,7 @@ export function App() {
         )}
       </main>
       <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-muted-foreground">
+        <FirmSuite product="eidetic" compact />
         Infinitum Corporation® · 1629 K Street NW, Suite 300, Washington, D.C. · 202-729-9509 · info@theinfinitumcorporation.com
         <span className="mt-1 block">Local demo actors are prefilled. They are not production credentials. Templates never reach this desk.</span>
       </footer>
