@@ -1,6 +1,6 @@
 // © Infinitum Corporation®. All rights reserved.
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { sha256Hex } from "@eidetic/contracts";
 import { createMemoryRuntime, seedReferenceData } from "@eidetic/pipeline";
 import { createApp } from "./app.js";
@@ -95,5 +95,39 @@ describe("HTTP pipeline", () => {
     const proof = await app.request("/v1/audit/verify", { headers: { authorization: "Bearer dev-auditor" } });
     expect(proof.status).toBe(200);
     expect(await proof.json()).toMatchObject({ ok: true });
+  });
+
+  it("writes a cyber geo annotation without changing the response", async () => {
+    const runtime = createMemoryRuntime();
+    await seedReferenceData(runtime.repos, { demoMode: true });
+    const seen: { ip?: string; domain?: string }[] = [];
+    const app = createApp({
+      service: runtime.service,
+      repos: runtime.repos,
+      authenticate: async () => null,
+      demoMode: true,
+      matcherMode: "mock",
+      milEnabled: false,
+      dbPing: async () => true,
+      adapters: { policy: "local" },
+      geoAnnotate: (input) => {
+        seen.push(input);
+        return { country: "US", codes: ["US"], categories: ["example"] };
+      },
+    });
+    const lines: string[] = [];
+    const spy = vi.spyOn(console, "log").mockImplementation((line) => {
+      lines.push(String(line));
+    });
+    const health = await app.request("/v1/health", { headers: { host: "api.example.com" } });
+    const body = await health.json();
+    spy.mockRestore();
+    expect(health.status).toBe(200);
+    expect(body).toMatchObject({ ok: true, matcher: "mock", demoMode: true });
+    expect(JSON.stringify(body)).not.toMatch(/US|example/);
+    expect(seen).toEqual([{ ip: undefined, domain: "api.example.com" }]);
+    expect(lines).toEqual([
+      JSON.stringify({ level: "info", msg: "cyber geo annotation", country: "US", categories: ["example"] }),
+    ]);
   });
 });

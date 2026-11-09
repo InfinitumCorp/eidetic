@@ -14,7 +14,7 @@ import {
 } from "@eidetic/contracts";
 import { syntheticFixture } from "@eidetic/matcher";
 import { seedSyntheticQueue, type EideticService, type Repositories } from "@eidetic/pipeline";
-import { describeSiteAsset } from "@eidetic/geo";
+import { describeSiteAsset, type CyberGeoAnnotation } from "@eidetic/geo";
 import { SEAMS } from "@eidetic/seams";
 import type { ConjureRouteHandler } from "./conjure/conjure.mjs";
 
@@ -94,12 +94,35 @@ export interface AppDeps {
   adapters: Record<string, string>;
   /** @conjure live forecasts (prefix /v1/conjure). Off when unset and on MIL deployments. */
   conjure?: ConjureRouteHandler | null;
+  /** Process-log annotation. Absent unless INFINITUM_GEO_ENABLED=true. Not an authorization input. */
+  geoAnnotate?: (input: { ip?: string; domain?: string }) => CyberGeoAnnotation | null;
 }
 
 type Variables = { actor: Actor };
 
 export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   const app = new Hono<{ Variables: Variables }>();
+  if (deps.geoAnnotate) {
+    app.use("*", async (c, next) => {
+      let annotation: CyberGeoAnnotation | null = null;
+      try {
+        annotation = deps.geoAnnotate?.({ ip: peerAddress(c), domain: peerDomain(c) }) ?? null;
+      } catch {
+        console.error(JSON.stringify({ level: "error", msg: "cyber geo annotation failed" }));
+      }
+      if (annotation && (annotation.country || annotation.categories.length > 0)) {
+        console.log(
+          JSON.stringify({
+            level: "info",
+            msg: "cyber geo annotation",
+            country: annotation.country,
+            categories: annotation.categories,
+          }),
+        );
+      }
+      await next();
+    });
+  }
   app.use(
     "*",
     cors({
@@ -273,6 +296,23 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   });
 
   return app;
+}
+
+function peerAddress(c: { env: unknown }): string | undefined {
+  const incoming = (c.env as { incoming?: { socket?: { remoteAddress?: string | null } } } | null)?.incoming;
+  const address = incoming?.socket?.remoteAddress;
+  if (!address) return undefined;
+  return address.startsWith("::ffff:") ? address.slice("::ffff:".length) : address;
+}
+
+function peerDomain(c: { req: { header: (name: string) => string | undefined } }): string | undefined {
+  const host = c.req.header("host")?.trim().toLowerCase();
+  if (!host) return undefined;
+  const hostname = host.startsWith("[") ? host.slice(1, host.indexOf("]")) : host.replace(/:\d+$/, "");
+  if (!hostname || hostname === "localhost" || hostname.includes(":") || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname)) {
+    return undefined;
+  }
+  return hostname;
 }
 
 function errorStatus(status: number): 400 | 401 | 403 | 404 | 409 | 422 | 500 | 501 | 502 {

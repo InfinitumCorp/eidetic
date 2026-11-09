@@ -28,6 +28,8 @@ export interface Env {
   keycloakIssuer?: string;
   keycloakAudience?: string;
   keycloakJwksUrl?: string;
+  infinitumGeoEnabled: boolean;
+  geoDataDir: string;
   migrationsDir: string;
 }
 
@@ -92,6 +94,8 @@ export function readEnv(): Env {
     keycloakIssuer: emptyToUndefined(process.env.KEYCLOAK_ISSUER),
     keycloakAudience: emptyToUndefined(process.env.KEYCLOAK_AUDIENCE),
     keycloakJwksUrl: emptyToUndefined(process.env.KEYCLOAK_JWKS_URL),
+    infinitumGeoEnabled: process.env.INFINITUM_GEO_ENABLED === "true",
+    geoDataDir: resolveStorePath(process.env.INFINITUM_GEO_DATA_DIR ?? "data/geo"),
     migrationsDir: process.env.MIGRATIONS_DIR ?? findMigrations(),
   };
 }

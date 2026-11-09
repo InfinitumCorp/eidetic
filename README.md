@@ -186,6 +186,12 @@ Checkpoints are signed with Ed25519. Verifiers need the public key, which is inc
 
 `packages/geo` answers `GET /v1/sites/hq-washington` with the Washington office asset. Rasterio is not imported. Requests that ask to follow a person, drone, satellite, or plate are refused.
 
+## Cyber geo annotation
+
+`INFINITUM_GEO_ENABLED` defaults to off. Leaving it unset keeps every response, policy decision, and audit record the same. Set it to `true` only after `pnpm geo:fetch`. The API then writes a process log line with the connected peer's country and, when the Host header is a domain name, the matching domain categories. That line is not an authorization input and it is not written to the hash-chained audit log. The address and the domain stay out of the log line.
+
+The fetch checks each official `.sha256sum` asset against `data/geo/geo-dat.lock.json` and stops without writing the file if either hash disagrees. The binaries live in `data/geo/` and are not committed. The pinned lists are v2fly `geoip.dat` (CC-BY-SA-4.0) and `dlc.dat` saved as `geosite.dat` (MIT). Loyalsoldier and sing-box lists are not used. See `THIRD_PARTY_NOTICES`.
+
 ## Replacing the mock matcher
 
 Implement `MatcherAdapter` (`assess`, `enroll`, `match`, `purge`). Keep template bytes inside that class. `match` must return confidence and explainable evidence only. `createMatcher` is the env-flag factory.

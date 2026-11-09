@@ -22,4 +22,19 @@ describe("production startup guards", () => {
     env.keycloakAudience = "eidetic-api";
     expect(() => assertProductionConfig(env)).not.toThrow();
   });
+
+  it("keeps cyber geo off unless INFINITUM_GEO_ENABLED is true", () => {
+    const previous = process.env.INFINITUM_GEO_ENABLED;
+    try {
+      delete process.env.INFINITUM_GEO_ENABLED;
+      expect(readEnv().infinitumGeoEnabled).toBe(false);
+      process.env.INFINITUM_GEO_ENABLED = "false";
+      expect(readEnv().infinitumGeoEnabled).toBe(false);
+      process.env.INFINITUM_GEO_ENABLED = "true";
+      expect(readEnv().infinitumGeoEnabled).toBe(true);
+    } finally {
+      if (previous === undefined) delete process.env.INFINITUM_GEO_ENABLED;
+      else process.env.INFINITUM_GEO_ENABLED = previous;
+    }
+  });
 });

@@ -26,6 +26,17 @@ relicense them.
   They are not committed here.
 - OpenCV itself, if you install opencv-python to run the sidecar, is Apache-2.0.
   It is not a dependency of the Node package.
+- v2fly geoip.dat, CC-BY-SA-4.0, release tag 202611080027.
+  https://github.com/v2fly/geoip
+  The file is not committed. `pnpm geo:fetch` downloads it after the official checksum matches.
+  IP geolocation data by DB-IP (https://db-ip.com) is included under CC-BY-4.0.
+- v2fly domain-list-community dlc.dat, saved here as geosite.dat, MIT,
+  Copyright (c) 2018-2019 V2Ray. Release tag 20261108011013.
+  https://github.com/v2fly/domain-list-community
+  The file is not committed.
+- Loyalsoldier and sing-box geo lists are not fetched and not bundled.
+
+Full attribution is in THIRD_PARTY_NOTICES.
 
 Training-image caveat, stated plainly: opencv_zoo issues 318 and 320 ask
 whether the datasets used to train these checkpoints (WIDER FACE is a known

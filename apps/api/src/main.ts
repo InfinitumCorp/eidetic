@@ -2,6 +2,7 @@
 
 import { serve } from "@hono/node-server";
 import { COMPANY, MIL_PRODUCT, PRODUCT } from "@eidetic/contracts";
+import { createCyberGeoHook } from "@eidetic/geo";
 import { createApp } from "./app.js";
 import { conjureRoutesFromEnv } from "./conjure/conjure.mjs";
 import { readEnv } from "./env.js";
@@ -9,6 +10,7 @@ import { createPool } from "./pg/pool.js";
 import { createPgRuntime, waitForDatabase } from "./runtime.js";
 
 const env = readEnv();
+const geoHook = createCyberGeoHook({ enabled: env.infinitumGeoEnabled, dataDir: env.geoDataDir });
 const pool = createPool(env.databaseUrl);
 await waitForDatabase(pool);
 const runtime = await createPgRuntime(env, pool);
@@ -27,6 +29,7 @@ const app = createApp({
   matcherMode: env.matcherMode,
   milEnabled: env.milEnabled,
   conjure: env.milEnabled ? null : conjureRoutesFromEnv(process.env, { prefix: "/v1/conjure", source: "eidetic" }),
+  geoAnnotate: geoHook.enabled ? (input) => geoHook.annotate(input) : undefined,
   dbPing: async () => {
     try {
       await pool.query("select 1");
