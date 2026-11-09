@@ -160,16 +160,21 @@ export function App() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-4 px-4 py-5">
+      <a className="skip-link" href="#main">Skip to content</a>
+      <header className="app-bar">
+        <a className="app-wordmark" href="/">
+          ei·det·ic<sup className="tm">™</sup>
+        </a>
+        <nav className="app-nav" aria-label="Main">
+          <a href="/" aria-current="page">Review desk</a>
+        </nav>
+      </header>
+
+      <main id="main" className="app-main grid gap-4 lg:grid-cols-[320px_1fr]">
+        <div className="app-head lg:col-span-2">
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Infinitum Corporation®</p>
-            <h1 className="font-serif text-3xl">
-              ei·det·ic<sup className="tm">™</sup> <span className="text-primary">review desk</span>
-            </h1>
-            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-              A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.
-            </p>
+            <h1>Review desk</h1>
+            <p className="max-w-xl">A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.</p>
           </div>
           <label className="text-sm text-muted-foreground">
             Acting as
@@ -186,9 +191,6 @@ export function App() {
             </select>
           </label>
         </div>
-      </header>
-
-      <main className="mx-auto grid max-w-6xl gap-4 px-4 py-5 lg:grid-cols-[320px_1fr]">
         {health === "loading" && <p className="text-muted-foreground lg:col-span-2">Checking the API…</p>}
         {health === "down" && (
           <Card className="lg:col-span-2">
@@ -324,7 +326,7 @@ export function App() {
           </>
         )}
       </main>
-      <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-muted-foreground">
+      <footer className="app-footer">
         <FirmSuite product="eidetic" compact />
         Infinitum Corporation® · 1629 K Street NW, Suite 300, Washington, D.C. · 202-729-9509 · info@theinfinitumcorporation.com
         <span className="mt-1 block">Local demo actors are prefilled. They are not production credentials. Templates never reach this desk.</span>

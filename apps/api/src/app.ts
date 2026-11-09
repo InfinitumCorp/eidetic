@@ -27,7 +27,7 @@ const allowedOrigins = new Set([
 
 const code = z.string().regex(/^[a-z][a-z0-9_]{2,64}$/);
 const legalBasis = z.enum(["consent", "contract", "legal_obligation"]);
-const attributes = z.record(z.string().max(80)).optional();
+const attributes = z.record(z.string(), z.string().max(80)).optional();
 
 const enrollBody = z.object({
   displayName: z.string().min(1).max(80),
