@@ -14,6 +14,8 @@ export interface Env {
   insightfaceLicenseAccepted: boolean;
   insightfaceUrl?: string;
   opencvMediapipeUrl?: string;
+  opencvMediapipeModelPath: string;
+  opencvMediapipePython: string;
   allowOperatorCaptures: boolean;
   auditSigner: "env" | "openbao";
   openbaoAddr?: string;
@@ -78,6 +80,8 @@ export function readEnv(): Env {
     insightfaceLicenseAccepted: process.env.INSIGHTFACE_LICENSE_ACCEPTED === "true",
     insightfaceUrl: emptyToUndefined(process.env.INSIGHTFACE_URL),
     opencvMediapipeUrl: emptyToUndefined(process.env.OPENCV_MEDIAPIPE_URL),
+    opencvMediapipeModelPath: resolveStorePath(process.env.OPENCV_MEDIAPIPE_MODEL_PATH ?? "data/models/mediapipe/blaze_face_short_range.tflite"),
+    opencvMediapipePython: process.env.OPENCV_MEDIAPIPE_PYTHON?.trim() || "python3",
     allowOperatorCaptures: process.env.EIDETIC_ALLOW_OPERATOR_CAPTURES === "true",
     auditSigner,
     openbaoAddr: emptyToUndefined(process.env.OPENBAO_ADDR),

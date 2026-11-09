@@ -41,6 +41,8 @@ export async function createPgRuntime(env: Env, pool = createPool(env.databaseUr
       licenseAccepted: env.insightfaceLicenseAccepted,
       insightfaceUrl: env.insightfaceUrl,
       opencvMediapipeUrl: env.opencvMediapipeUrl,
+      opencvMediapipeModelPath: env.opencvMediapipeModelPath,
+      opencvMediapipePython: env.opencvMediapipePython,
       opencvZooModelDir: env.opencvZooModelDir,
       allowOperatorCaptures: env.allowOperatorCaptures,
     }),

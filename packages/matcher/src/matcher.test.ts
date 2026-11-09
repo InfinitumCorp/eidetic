@@ -84,11 +84,20 @@ describe("mock matcher", () => {
     expect(calls).toBe(1);
   });
 
-  it("keeps mock as the default and refuses InsightFace or OpenCV without a license and a sidecar", () => {
+  it("keeps mock as the default and refuses InsightFace or MediaPipe without a license, a model, or a sidecar", () => {
     const store = new MemoryBiometricStore();
-    expect(createMatcher({ mode: "mock", store }).model.mode).toBe("mock");
+    const matcher = createMatcher({ mode: "mock", store });
+    expect(matcher.model.mode).toBe("mock");
+    expect(matcher.assess(syntheticFixture("avery-quinn"))).toMatchObject({ provider: "local-statistical", accept: true });
     expect(() => createMatcher({ mode: "insightface", store, licenseAccepted: true })).toThrow(/noncommercial/);
-    expect(() => createMatcher({ mode: "mock", captureProvider: "opencv-mediapipe", store })).toThrow(/not bundled/);
+    expect(() =>
+      createMatcher({
+        mode: "mock",
+        captureProvider: "opencv-mediapipe",
+        store,
+        opencvMediapipeModelPath: path.join(os.tmpdir(), "eidetic-missing-blaze-face.tflite"),
+      }),
+    ).toThrow(/not bundled/);
   });
 
   it("sends only the synthetic fixture id to a licensed sidecar and drops embeddings", async () => {
