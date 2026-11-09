@@ -15,6 +15,15 @@ const runtime = await createPgRuntime(env, pool);
 if (env.demoMode) {
   console.log(JSON.stringify({ level: "warn", msg: "DEMO_MODE is on. Dev bearer tokens are seeded. Do not expose this process." }));
 }
+if (env.geoEnabled) {
+  console.log(
+    JSON.stringify({
+      level: "info",
+      msg: "INFINITUM_GEO_ENABLED is on. Geo routing still follows the persisted setting and is not used for identity matching.",
+      identityMatch: false,
+    }),
+  );
+}
 if (env.presidioUrl) {
   console.log(JSON.stringify({ level: "info", msg: "PRESIDIO_URL is set. This build still redacts with the local pattern redactor and does not proxy note text." }));
 }
@@ -22,6 +31,7 @@ if (env.presidioUrl) {
 const app = createApp({
   service: runtime.service,
   repos: runtime.repos,
+  geoRouting: runtime.geoRouting,
   authenticate: runtime.authenticate,
   demoMode: env.demoMode,
   matcherMode: env.matcherMode,
@@ -48,6 +58,7 @@ const app = createApp({
     verifiableCredential: "local-sha256-consent-receipt",
     eidt: "stub-no-broadcast",
     rasterio: "not_enabled",
+    geoRouting: runtime.geoRouting.active() ? "v2fly" : "off",
     insightface: env.matcherMode === "insightface" ? "sidecar" : "not_selected",
     opencvZoo: env.matcherMode === "opencv-zoo" ? "yunet-sface" : "not_selected",
     captureQuality: env.captureProvider,

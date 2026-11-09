@@ -181,4 +181,61 @@ describe("authorize, match, review, record", () => {
     expect(note).toContain("[redacted-phone]");
     expect(note).not.toContain("202-555-0199");
   });
+
+  it("keeps the match when a geo routing note is present and ignores a note that tries to change the decision", async () => {
+    const seen: Array<Record<string, string> | undefined> = [];
+    const inner = new MockMatcher(new MemoryBiometricStore());
+    const matcher: MatcherAdapter = {
+      get model() {
+        return inner.model;
+      },
+      assess: (image) => inner.assess(image),
+      enroll: (image) => inner.enroll(image),
+      purge: (templateRef) => inner.purge(templateRef),
+      match: (request) => {
+        seen.push(request.recordHints);
+        return inner.match(request);
+      },
+    };
+    const runtime = createMemoryRuntime({
+      matcher,
+      annotatePolicy: (decision, routing) => {
+        if (routing?.ip === "deny-me") {
+          return { allow: false, code: "FORBIDDEN", message: "Geo routing cannot deny a search.", geoRouting: { countryCode: "US", categories: ["google"], usedForIdentityMatch: false } };
+        }
+        if (!routing?.ip) return decision;
+        return { ...decision, geoRouting: { countryCode: "US", categories: ["google"], usedForIdentityMatch: false } };
+      },
+    });
+    await seedReferenceData(runtime.repos, { demoMode: true });
+    const admin = await runtime.repos.actors.get(DEMO_ACTORS[0].id);
+    const operator = await runtime.repos.actors.get(DEMO_ACTORS[1].id);
+    if (!admin || !operator) throw new Error("demo actors missing");
+    await seedSyntheticQueue(runtime.service, { admin, operator });
+    const search = await runtime.service.search({
+      actor: operator,
+      purposeCode: "record_reconciliation",
+      legalBasis: "consent",
+      datasetId: "workforce_records",
+      edition: "business",
+      image: syntheticFixture("avery-quinn"),
+      recordHints: { site: "Washington" },
+      routing: { ip: "1.2.3.4", domain: "www.google.com" },
+    });
+    expect(search.candidates[0]?.confidence).toBe(0.97);
+    expect(search.geoRouting).toEqual({ countryCode: "US", categories: ["google"], usedForIdentityMatch: false });
+    expect(seen.at(-1)).toEqual({ site: "Washington" });
+    expect(JSON.stringify(await runtime.service.listAudit())).not.toContain("1.2.3.4");
+    const deniedAttempt = await runtime.service.search({
+      actor: operator,
+      purposeCode: "record_reconciliation",
+      legalBasis: "consent",
+      datasetId: "workforce_records",
+      edition: "business",
+      image: syntheticFixture("avery-quinn"),
+      routing: { ip: "deny-me" },
+    });
+    expect(deniedAttempt.matchRan).toBe(true);
+    expect(deniedAttempt.geoRouting).toBeUndefined();
+  });
 });

@@ -77,7 +77,12 @@ describe("HTTP pipeline", () => {
     const body = await search.json();
     expect(body.finalDecision).toBeNull();
     expect(body.candidates[0].confidence).toBe(0.97);
+    expect(body.geoRouting).toBeUndefined();
     expect(JSON.stringify(body)).not.toMatch(/embedding|templateRef|storeKey/);
+    const settings = await app.request("/v1/settings/geo-routing", { headers: { authorization: "Bearer dev-admin" } });
+    expect(await settings.json()).toEqual({ geoRouting: false, processOptIn: false, active: false, identityMatch: false });
+    const unchanged = await app.request("/v1/edition", { headers: { authorization: "Bearer dev-admin" } });
+    expect((await unchanged.json()).adapters).toEqual({ policy: "local" });
 
     const decision = await app.request(`/v1/reviews/${body.reviewId}/decide`, {
       method: "POST",

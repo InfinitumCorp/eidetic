@@ -25,6 +25,24 @@ export interface PolicyInput {
 
 export type PolicyDecision = { allow: true } | { allow: false; code: DenialCode; message: string };
 
+export interface GeoRoutingAnnotation {
+  countryCode: string | null;
+  categories: string[];
+  usedForIdentityMatch: false;
+}
+
+/**
+ * Records a cyber routing label beside a decision.
+ * A null annotation returns the same decision object. Allow and deny do not change.
+ */
+export function attachGeoRoutingAnnotation<T extends PolicyDecision>(
+  decision: T,
+  annotation: GeoRoutingAnnotation | null,
+): T & { geoRouting?: GeoRoutingAnnotation } {
+  if (!annotation) return decision;
+  return { ...decision, geoRouting: { ...annotation, usedForIdentityMatch: false } };
+}
+
 export interface PolicyDecider {
   decide(input: PolicyInput): Promise<PolicyDecision>;
 }

@@ -11,6 +11,9 @@ export interface Env {
   opencvZooModelDir: string;
   milEnabled: boolean;
   demoMode: boolean;
+  geoEnabled: boolean;
+  geoDataDir: string;
+  geoSettingsPath: string;
   insightfaceLicenseAccepted: boolean;
   insightfaceUrl?: string;
   opencvMediapipeUrl?: string;
@@ -75,6 +78,9 @@ export function readEnv(): Env {
     opencvZooModelDir: resolveStorePath(process.env.OPENCV_ZOO_MODEL_DIR ?? "data/models/opencv-zoo"),
     milEnabled: process.env.MIL_ENABLED === "true",
     demoMode: process.env.DEMO_MODE !== "false",
+    geoEnabled: process.env.INFINITUM_GEO_ENABLED === "true",
+    geoDataDir: resolveStorePath(process.env.GEO_DATA_DIR ?? "data/geo"),
+    geoSettingsPath: resolveStorePath(process.env.GEO_SETTINGS_PATH ?? "data/settings.json"),
     insightfaceLicenseAccepted: process.env.INSIGHTFACE_LICENSE_ACCEPTED === "true",
     insightfaceUrl: emptyToUndefined(process.env.INSIGHTFACE_URL),
     opencvMediapipeUrl: emptyToUndefined(process.env.OPENCV_MEDIAPIPE_URL),

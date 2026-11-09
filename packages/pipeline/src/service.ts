@@ -25,7 +25,7 @@ import {
 } from "@eidetic/contracts";
 import type { MatcherAdapter } from "@eidetic/matcher";
 import { evaluateMilEdition } from "@eidetic/mil";
-import type { PolicyDecider } from "@eidetic/policy";
+import type { GeoRoutingAnnotation, PolicyDecider, PolicyDecision } from "@eidetic/policy";
 import type { Repositories } from "./repositories.js";
 
 export interface IdFactory {
@@ -73,6 +73,7 @@ export interface SearchResult {
     consentStatus: "granted";
   }>;
   audit: AuditReceipt;
+  geoRouting?: GeoRoutingAnnotation;
 }
 
 export interface ReviewSummary {
@@ -119,6 +120,14 @@ interface ServiceDeps {
   milEnabled: boolean;
   now: () => Date;
   ids: IdFactory;
+  /**
+   * Optional cyber-routing annotation. When omitted, search behaves as before.
+   * The callback must not change allow or deny. Identity matching ignores it.
+   */
+  annotatePolicy?: (
+    decision: PolicyDecision,
+    routing: { ip?: string; domain?: string } | undefined,
+  ) => PolicyDecision & { geoRouting?: GeoRoutingAnnotation };
 }
 
 export class EideticService {
@@ -336,6 +345,7 @@ export class EideticService {
     image: Uint8Array;
     subjectCid?: string;
     recordHints?: Record<string, string>;
+    routing?: { ip?: string; domain?: string };
   }): Promise<SearchResult> {
     const hints = assertRecordAttributes(input.recordHints);
     if (!input.purposeCode.trim()) {
@@ -353,6 +363,9 @@ export class EideticService {
       milEnabled: this.deps.milEnabled,
       consent,
     });
+    const annotated = this.deps.annotatePolicy?.(decision, input.routing) ?? decision;
+    const note = (annotated as PolicyDecision & { geoRouting?: GeoRoutingAnnotation }).geoRouting;
+    const geoRouting = annotated.allow === decision.allow && note?.usedForIdentityMatch === false ? note : undefined;
     if (!decision.allow) {
       await this.recordDenial(input, decision.code, decision.message);
       throw new EideticError(decision.code, decision.message, 403, false);
@@ -460,6 +473,7 @@ export class EideticService {
       finalDecision: null,
       matchRan: true,
       message: "Match results are unconfirmed. A reviewer has to decide. Confidence is not a final decision.",
+      ...(geoRouting ? { geoRouting } : {}),
       model: report.model,
       candidates: report.candidates.map((candidate) => ({
         cid: candidate.cid,

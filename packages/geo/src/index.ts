@@ -52,3 +52,20 @@ export class RasterioSiteContextPort {
     return describeSiteAsset(assetId);
   }
 }
+
+export {
+  buildSyntheticGeoFixtures,
+  loadV2RayDataset,
+  normalizeDomain,
+  parseGeoIpList,
+  parseGeoSiteList,
+  parseIp,
+  V2RayGeoDataset,
+} from "./dat.js";
+export type { Cidr, DomainRule, DomainType, GeoIpEntry, GeoSiteEntry } from "./dat.js";
+export { annotateRouting, geoRoutingActive, infinitumGeoEnabled } from "./hook.js";
+export type { GeoRoutingAnnotation, RoutingHint } from "./hook.js";
+export { assertChecksumMatch, assertV2FlyUrl, loadGeoLock, parseOfficialSha256Sum, sha256Hex } from "./lock.js";
+export type { GeoLockFile, GeoLockFileEntry } from "./lock.js";
+export { defaultGeoDataDir, defaultGeoSettingsPath, readGeoRoutingSettings, writeGeoRoutingSettings } from "./settings.js";
+export type { GeoRoutingSettings } from "./settings.js";
