@@ -19,7 +19,7 @@ export default {
       fontFamily: {
         serif: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
         sans: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
-        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
+        mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",

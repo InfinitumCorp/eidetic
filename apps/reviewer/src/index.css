@@ -1,29 +1,31 @@
 /* Shared Infinitum app shell first (copy of infinitum-nexus packages/ui/app-shell.css), then Tailwind. */
 @import "./app-shell.css";
+@import "@fontsource/ibm-plex-mono/400.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* shadcn tokens mapped onto the five RULES colors (paper, ink, muted, line, accent). */
+  /* //RULES// brand: paper, ink, muted, line, accent.
+     Token values follow the brand already on main. The shell supplies layout. */
   --background: 0 0% 100%;
-  --foreground: 212 31% 10%;
+  --foreground: 213 31% 10%;
   --card: 0 0% 100%;
-  --card-foreground: 212 31% 10%;
-  --primary: 212 31% 10%;
+  --card-foreground: 213 31% 10%;
+  --primary: 213 31% 10%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 100%;
-  --secondary-foreground: 212 31% 10%;
-  --muted: 0 0% 100%;
+  --secondary: 210 20% 96%;
+  --secondary-foreground: 213 31% 10%;
+  --muted: 210 20% 96%;
   --muted-foreground: 206 13% 37%;
-  --accent: 0 0% 100%;
-  --accent-foreground: 224 73% 50%;
-  --destructive: 212 31% 10%;
+  --accent: 224 72% 50%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 66% 47%;
   --destructive-foreground: 0 0% 100%;
   --border: 207 15% 86%;
   --input: 207 15% 86%;
-  --ring: 224 73% 50%;
+  --ring: 213 31% 10%;
   --radius: 0px;
 }
 
@@ -40,4 +42,12 @@ body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--font);
+  letter-spacing: -0.011em;
+}
+
+sup.tm {
+  font-size: 0.38em;
+  vertical-align: super;
+  line-height: 0;
+  margin-left: 0.08em;
 }
