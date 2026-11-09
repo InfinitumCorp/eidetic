@@ -3,6 +3,7 @@
 import { serve } from "@hono/node-server";
 import { COMPANY, MIL_PRODUCT, PRODUCT } from "@eidetic/contracts";
 import { createApp } from "./app.js";
+import { conjureRoutesFromEnv } from "./conjure/conjure.mjs";
 import { readEnv } from "./env.js";
 import { createPool } from "./pg/pool.js";
 import { createPgRuntime, waitForDatabase } from "./runtime.js";
@@ -25,6 +26,7 @@ const app = createApp({
   demoMode: env.demoMode,
   matcherMode: env.matcherMode,
   milEnabled: env.milEnabled,
+  conjure: env.milEnabled ? null : conjureRoutesFromEnv(process.env, { prefix: "/v1/conjure", source: "eidetic" }),
   dbPing: async () => {
     try {
       await pool.query("select 1");
