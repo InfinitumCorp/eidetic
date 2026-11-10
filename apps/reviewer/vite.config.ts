@@ -5,7 +5,10 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { "@eidetic/ui": path.resolve(__dirname, "../../packages/ui/src/index.ts") },
+    alias: {
+      "@eidetic/ui": path.resolve(__dirname, "../../packages/ui/src/index.ts"),
+      "@eidetic/analytics": path.resolve(__dirname, "../../packages/analytics/src/index.ts"),
+    },
     dedupe: ["react", "react-dom"],
   },
   server: {
