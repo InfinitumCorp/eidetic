@@ -9,6 +9,7 @@
     "preview": "vite preview --host 0.0.0.0 --port 43111 --strictPort"
   },
   "dependencies": {
+    "@eidetic/analytics": "workspace:*",
     "@eidetic/ui": "workspace:*",
     "@fontsource/ibm-plex-mono": "^5.1.0",
     "@fontsource/ibm-plex-sans": "^5.1.0",
