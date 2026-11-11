@@ -44,7 +44,7 @@ flowchart LR
 - Gallery search only considers subjects who granted the requested purpose, legal basis, and dataset.
 - Review notes are redacted for email addresses, phone numbers, and SSN-shaped strings before they enter the audit attestation. The case file kept for the reviewer desk can still hold the original note.
 - Log fields are classed safe, unsafe, or DoNotLog. Biometric names (`template`, `embedding`, `image`, and the rest of that list) are DoNotLog. The vocabulary follows Palantir's public [safe-logging](https://github.com/palantir/safe-logging) projects. Those libraries are not dependencies. See [Reference vendors](#reference-vendors).
-- Demo bearer tokens exist only while `DEMO_MODE` is true. They are not an identity provider. With `DEMO_MODE=false` and `KEYCLOAK_ISSUER` set, every token is rejected until a JWKS verifier is bound.
+- People sign in to both desks with [Cumulus ID](https://id.cumuluscloud.app). The API checks each bearer at the issuer and maps the Cumulus ID to a role from `CID_ADMINS`, `CID_OPERATORS`, `CID_REVIEWERS` and `CID_AUDITORS`. The seeded `dev-*` tokens work only with `EIDETIC_DEV_BEARER=true` and `DEMO_MODE=true`, for local development.
 - `$EIDT` on Base is a marketing stub. `attestConsentHash` accepts a 64-character sha256 and returns `broadcast: false`. Biometric payloads are refused.
 - This MVP does not scrape social networks, run plate recognition, build watchlists, or track people from overhead imagery.
 
@@ -95,7 +95,9 @@ pnpm dev
 - Review desk: [http://127.0.0.1:43111](http://127.0.0.1:43111)
 - Purpose desk: [http://127.0.0.1:43112](http://127.0.0.1:43112)
 
-Local demo tokens, only while `DEMO_MODE=true`:
+Sign in to each desk with **Sign in with Cumulus ID**. No Cumulus ID yet? **Create a Cumulus ID** is in the same flow and returns you to the desk signed in. Put your Cumulus ID in `CID_ADMINS` (purpose desk) or `CID_REVIEWERS` (review desk) in `.env`.
+
+Local development without Cumulus ID: set `EIDETIC_DEV_BEARER=true` for the API and `VITE_EIDETIC_DEV_BEARER=dev-admin` (or `dev-reviewer`) for `pnpm dev`. The API refuses this flag when `DEMO_MODE=false` or `NODE_ENV=production`, and production builds of the desks ignore it. `pnpm demo:http` needs it too. Seeded tokens:
 
 | Person | Role | Token |
 | --- | --- | --- |
@@ -166,7 +168,9 @@ Remote vision calls accept synthetic fixtures only. Set `EIDETIC_ALLOW_OPERATOR_
 
 The API uses the embedded policy decider, which applies the same denial order as `deploy/opa/eidetic.rego`: edition, purpose, role, legal basis, dataset, then consent when a subject CID is named. Set `OPA_URL` to hand that decision to [Open Policy Agent](https://www.openpolicyagent.org/). An unreachable OPA fails closed.
 
-[Keycloak](https://www.keycloak.org/) is the production OpenID Connect provider. With `DEMO_MODE=false`, the API verifies access tokens with [`jose`](https://github.com/panva/jose) (MIT) against the realm JWKS (`KEYCLOAK_JWKS_URL`, or `{issuer}/protocol/openid-connect/certs`). A bad signature, the wrong issuer, the wrong audience, or an expired token is rejected. `KEYCLOAK_ISSUER` and `KEYCLOAK_AUDIENCE` are required in that mode. Demo bearer tokens exist only while `DEMO_MODE=true`.
+People sign in with Cumulus ID (OAuth 2.0 code + PKCE in the desk, `/cumulus-id.js`). The API calls `{CID_ISSUER}/api/id/userinfo` with the bearer, caches the answer for a minute, and maps the CID to a role. A Cumulus ID that is on no role list gets 403. `CID_ISSUER` (default `https://id.cumuluscloud.app`) and `CID_ISSUER_MIRROR` (tried only when the issuer cannot be reached) let a mirror that loads in Russia be used; build the desks with `VITE_CID_ISSUER` to match. With `DEMO_MODE=false`, `CID_ADMINS` is required.
+
+Machines can still use [Keycloak](https://www.keycloak.org/) client tokens: with `KEYCLOAK_ISSUER` and `KEYCLOAK_AUDIENCE` set, the API also verifies access tokens with [`jose`](https://github.com/panva/jose) (MIT) against the realm JWKS (`KEYCLOAK_JWKS_URL`, or `{issuer}/protocol/openid-connect/certs`).
 
 ## Audit commands
 
@@ -197,7 +201,7 @@ Leave the URLs unset unless that service is actually running beside this API.
 | Variable | Adapter | Public project |
 | --- | --- | --- |
 | `OPA_URL` | External purpose, legal-basis, and consent decision. Embedded rules run when this is unset | [Open Policy Agent](https://www.openpolicyagent.org/) |
-| `KEYCLOAK_ISSUER` | Recommended production IdP. Signature verification stays in your JWKS client | [Keycloak](https://www.keycloak.org/) |
+| `KEYCLOAK_ISSUER` | Optional machine-to-machine tokens. People sign in with Cumulus ID | [Keycloak](https://www.keycloak.org/) |
 | `FIDES_URL` | Export of a consent receipt. Local consent stays authoritative | [Fides](https://github.com/ethyca/fides) |
 | `PRESIDIO_URL` | Recognized, not proxied. Local pattern redaction stays on so notes are not shipped out | [Presidio](https://github.com/microsoft/presidio) |
 | Fairlearn | Metric names match `demographic_parity_difference` and `equalized_odds_difference`. The Python library is not called | [Fairlearn](https://fairlearn.org/) |
