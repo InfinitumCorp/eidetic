@@ -1,3 +1,5 @@
+/* Shared Infinitum app shell first (copy of infinitum-nexus packages/ui/app-shell.css), then Tailwind. */
+@import "./app-shell.css";
 @import "@fontsource/ibm-plex-mono/400.css";
 
 @tailwind base;
@@ -5,7 +7,8 @@
 @tailwind utilities;
 
 :root {
-  /* //RULES// brand: paper, ink, muted, line, accent */
+  /* //RULES// brand: paper, ink, muted, line, accent.
+     Token values follow the brand already on main. The shell supplies layout. */
   --background: 0 0% 100%;
   --foreground: 213 31% 10%;
   --card: 0 0% 100%;
@@ -26,18 +29,20 @@
   --radius: 0px;
 }
 
+/* Tailwind preflight resets heading sizes; restore the shell's type scale. */
+@layer base {
+  h1 { font-size: var(--title); line-height: 1.02; letter-spacing: -.055em; font-weight: 400; }
+  h2 { font-size: var(--heading); line-height: 1.1; letter-spacing: -.04em; font-weight: 400; }
+  h3 { font-size: var(--text-lg); letter-spacing: -.02em; font-weight: 400; }
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   background: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: var(--font);
   letter-spacing: -0.011em;
-}
-
-h1, h2, h3 {
-  font-weight: 400;
-  letter-spacing: -0.03em;
 }
 
 sup.tm {

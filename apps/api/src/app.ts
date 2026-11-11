@@ -27,7 +27,7 @@ const allowedOrigins = new Set([
 
 const code = z.string().regex(/^[a-z][a-z0-9_]{2,64}$/);
 const legalBasis = z.enum(["consent", "contract", "legal_obligation"]);
-const attributes = z.record(z.string().max(80)).optional();
+const attributes = z.record(z.string(), z.string().max(80)).optional();
 
 const enrollBody = z.object({
   displayName: z.string().min(1).max(80),
@@ -86,7 +86,7 @@ const biasBody = z.object({
 export interface AppDeps {
   service: EideticService;
   repos: Repositories;
-  authenticate: (header: string | undefined) => Promise<Actor | null>;
+  authenticate: (header: string | undefined) => Promise<Actor | { noRole: { cid: string } } | null>;
   demoMode: boolean;
   matcherMode: string;
   milEnabled: boolean;
@@ -134,16 +134,31 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
         {
           error: {
             code: "UNAUTHENTICATED",
-            message: "Send a bearer token for a local demo actor.",
+            message: "Sign in with Cumulus ID.",
             matchRan: false,
           },
         },
         401,
       );
     }
+    if ("noRole" in actor) {
+      return c.json(
+        {
+          error: {
+            code: "FORBIDDEN",
+            message: `Cumulus ID ${actor.noRole.cid} has no ei·det·ic™ role. Ask an admin to add it.`,
+            matchRan: false,
+          },
+        },
+        403,
+      );
+    }
     c.set("actor", actor);
     return next();
   });
+
+  // Who is signed in, and with which role. The desks use it to show the right controls.
+  app.get("/v1/me", (c) => c.json({ actor: c.get("actor"), demoMode: deps.demoMode }));
 
   // "@conjure <question>" from the operator consoles: a live Conjure forecast.
   // Only the text the actor sends goes to Conjure; no subject, template or match data.
