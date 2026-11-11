@@ -17,6 +17,7 @@ import { seedSyntheticQueue, type EideticService, type Repositories } from "@eid
 import { describeSiteAsset } from "@eidetic/geo";
 import { SEAMS } from "@eidetic/seams";
 import type { ConjureRouteHandler } from "./conjure/conjure.mjs";
+import type { OpenClawRouteHandler } from "./openclaw/openclaw.mjs";
 
 const allowedOrigins = new Set([
   "http://127.0.0.1:43111",
@@ -94,6 +95,8 @@ export interface AppDeps {
   adapters: Record<string, string>;
   /** @conjure live forecasts (prefix /v1/conjure). Off when unset and on MIL deployments. */
   conjure?: ConjureRouteHandler | null;
+  /** @scalvs / @scalus: the SCALVS agent on an OpenClaw gateway (prefix /v1/openclaw). Off when unset and on MIL deployments. */
+  openclaw?: OpenClawRouteHandler | null;
 }
 
 type Variables = { actor: Actor };
@@ -168,6 +171,16 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     }
     const res = deps.conjure ? await deps.conjure(c.req.raw, { user: c.get("actor").id }) : null;
     return res ?? c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not configured here.", matchRan: false } }, 503);
+  });
+
+  // "@scalvs <task>" (or "@scalus") from the operator consoles: the SCALVS agent on OpenClaw answers.
+  // Same rule as @conjure: only the text the actor sends goes out; no subject, template or match data.
+  app.on(["GET", "POST"], "/v1/openclaw", async (c) => {
+    if (deps.milEnabled) {
+      return c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not available on MIL deployments.", matchRan: false } }, 403);
+    }
+    const res = deps.openclaw ? await deps.openclaw(c.req.raw, { user: c.get("actor").id }) : null;
+    return res ?? c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not configured here.", matchRan: false } }, 503);
   });
 
   app.get("/v1/edition", (c) =>
