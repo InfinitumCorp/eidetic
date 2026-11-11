@@ -37,7 +37,7 @@ const app = createApp({
   },
   adapters: {
     policy: env.opaUrl ? "opa" : "embedded-rego",
-    identity: env.keycloakIssuer ? (env.demoMode ? "demo-bearer-keycloak-not-validating" : "keycloak-fail-closed") : "demo-bearer",
+    identity: `cumulus-id ${env.cid.issuers.join(" ")}${env.devBearer ? " + dev-bearer (local only)" : ""}${env.keycloakIssuer ? " + keycloak machines" : ""}`,
     consentExport: env.fidesUrl ? "fides" : "local",
     redaction: "local-pattern",
     presidio: env.presidioUrl ? "configured-not-proxied" : "not_configured",

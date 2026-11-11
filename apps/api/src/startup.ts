@@ -11,6 +11,12 @@ import {
 import type { Env } from "./env.js";
 
 export function assertProductionConfig(env: Env): void {
+  if (env.devBearer && !env.demoMode) {
+    throw new Error("EIDETIC_DEV_BEARER is a local development bypass. It is refused while DEMO_MODE is false.");
+  }
+  if (env.devBearer && process.env.NODE_ENV === "production") {
+    throw new Error("EIDETIC_DEV_BEARER is a local development bypass. It is refused when NODE_ENV=production.");
+  }
   if (env.demoMode) return;
   const hasOpenBao = env.auditSigner === "openbao" && Boolean(env.openbaoAddr && env.openbaoToken);
   const hasKey = Boolean(env.auditPrivateKeyPem || env.auditKeyPath);
@@ -19,8 +25,8 @@ export function assertProductionConfig(env: Env): void {
       "DEMO_MODE is false. Refusing to start without OpenBao Transit or an Ed25519 private key. The development HMAC key is not accepted.",
     );
   }
-  if (!env.keycloakIssuer || !env.keycloakAudience) {
-    throw new Error("DEMO_MODE is false. Set KEYCLOAK_ISSUER and KEYCLOAK_AUDIENCE. Access tokens are verified with jose against the realm JWKS.");
+  if (![...env.cid.roles.values()].includes("admin")) {
+    throw new Error("DEMO_MODE is false. People sign in with Cumulus ID: set CID_ADMINS (and CID_REVIEWERS, CID_OPERATORS, CID_AUDITORS) to their Cumulus IDs.");
   }
 }
 

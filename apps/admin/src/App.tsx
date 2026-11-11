@@ -3,6 +3,14 @@ import { FirmSuite } from "./firm/FirmSuite";
 
 import { useEffect, useState, type FormEvent } from "react";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "@eidetic/ui";
+import { CidAccount, CidSignIn } from "./CidSignIn";
+import { cidToken, useCumulusId } from "./cid";
+
+interface Me {
+  id: string;
+  displayName: string;
+  role: string;
+}
 
 interface Purpose {
   code: string;
@@ -41,7 +49,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
     headers: {
-      authorization: "Bearer dev-admin",
+      authorization: `Bearer ${cidToken() ?? ""}`,
       ...(init?.body ? { "content-type": "application/json" } : {}),
     },
   });
@@ -62,6 +70,9 @@ export function App() {
   const [biasNote, setBiasNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [withdrawing, setWithdrawing] = useState<string | null>(null);
+  const { profile, token } = useCumulusId();
+  const [me, setMe] = useState<Me | null>(null);
+  const [meError, setMeError] = useState<string | null>(null);
   const [form, setForm] = useState({ displayName: "Avery Quinn", fixtureId: "avery-quinn", purposeCode: "record_reconciliation" });
 
   async function reload() {
@@ -89,9 +100,21 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (health !== "up") return;
+    setMe(null);
+    setMeError(null);
+    if (health !== "up" || !token) return;
+    api<{ actor: Me }>("/v1/me")
+      .then((body) => {
+        if (body.actor.role !== "admin") throw new Error(`This Cumulus ID is a ${body.actor.role}. The purpose desk needs the admin role.`);
+        setMe(body.actor);
+      })
+      .catch((reason: Error) => setMeError(reason.message));
+  }, [health, token]);
+
+  useEffect(() => {
+    if (!me) return;
     reload().catch((reason: Error) => setError(reason.message));
-  }, [health]);
+  }, [me]);
 
   async function enroll(event: FormEvent) {
     event.preventDefault();
@@ -182,6 +205,7 @@ export function App() {
         <nav className="app-nav" aria-label="Main">
           <a href="/" aria-current="page">Purpose desk</a>
         </nav>
+        <CidAccount profile={profile} />
       </header>
       <main id="main" className="app-main grid gap-4">
         <div className="app-head">
@@ -196,7 +220,8 @@ export function App() {
             <CardContent className="pt-5">The API is not reachable. Start Postgres and <code className="font-mono">pnpm dev</code>, then reload.</CardContent>
           </Card>
         )}
-        {health === "up" && (
+        {health === "up" && !me && <CidSignIn desk="purpose desk" error={meError} signedIn={Boolean(token)} />}
+        {health === "up" && me && (
           <>
             {error && <p className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm">{error}</p>}
             <section className="grid gap-4 md:grid-cols-2">

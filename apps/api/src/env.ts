@@ -2,6 +2,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { readCidConfig, type CidConfig } from "./cid.js";
 export interface Env {
   port: number;
   databaseUrl: string;
@@ -28,6 +29,10 @@ export interface Env {
   keycloakIssuer?: string;
   keycloakAudience?: string;
   keycloakJwksUrl?: string;
+  /** People sign in with Cumulus ID. Issuer and CID-to-role lists. */
+  cid: CidConfig;
+  /** Local development only: accept the seeded dev-* bearer tokens. Needs DEMO_MODE=true. */
+  devBearer: boolean;
   migrationsDir: string;
 }
 
@@ -92,6 +97,8 @@ export function readEnv(): Env {
     keycloakIssuer: emptyToUndefined(process.env.KEYCLOAK_ISSUER),
     keycloakAudience: emptyToUndefined(process.env.KEYCLOAK_AUDIENCE),
     keycloakJwksUrl: emptyToUndefined(process.env.KEYCLOAK_JWKS_URL),
+    cid: readCidConfig(process.env),
+    devBearer: process.env.EIDETIC_DEV_BEARER === "true",
     migrationsDir: process.env.MIGRATIONS_DIR ?? findMigrations(),
   };
 }

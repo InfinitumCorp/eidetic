@@ -3,14 +3,14 @@ import { FirmSuite } from "./firm/FirmSuite";
 
 import { useEffect, useState } from "react";
 import { Badge, Button, Card, CardContent, Label, Textarea } from "@eidetic/ui";
+import { CidAccount, CidSignIn } from "./CidSignIn";
+import { useCumulusId } from "./cid";
 
-const ACTORS = [
-  { id: "reviewer", name: "Helen Cho", role: "Reviewer", token: "dev-reviewer" },
-  { id: "operator", name: "Mira Calder", role: "Operator", token: "dev-operator" },
-  { id: "auditor", name: "Noor Patel", role: "Auditor", token: "dev-auditor" },
-] as const;
-
-type ActorId = (typeof ACTORS)[number]["id"];
+interface Me {
+  id: string;
+  displayName: string;
+  role: "admin" | "operator" | "reviewer" | "auditor";
+}
 
 interface ReviewSummary {
   reviewId: string;
@@ -64,8 +64,10 @@ async function api<T>(path: string, token: string, init?: RequestInit): Promise<
 }
 
 export function App() {
-  const [actorId, setActorId] = useState<ActorId>("reviewer");
-  const actor = ACTORS.find((item) => item.id === actorId) ?? ACTORS[0];
+  const { profile, token: cidToken } = useCumulusId();
+  const token = cidToken ?? "";
+  const [me, setMe] = useState<Me | null>(null);
+  const [meError, setMeError] = useState<string | null>(null);
   const [health, setHealth] = useState<"loading" | "up" | "down">("loading");
   const [demoMode, setDemoMode] = useState(false);
   const [queue, setQueue] = useState<ReviewSummary[]>([]);
@@ -90,22 +92,31 @@ export function App() {
   }, []);
 
   async function loadQueue(nextFilter = filter) {
-    const body = await api<{ reviews: ReviewSummary[] }>(`/v1/reviews?status=${nextFilter}`, actor.token);
+    const body = await api<{ reviews: ReviewSummary[] }>(`/v1/reviews?status=${nextFilter}`, token);
     setQueue(body.reviews);
     return body.reviews;
   }
 
   useEffect(() => {
-    if (health !== "up") return;
-    setError(null);
-    loadQueue().catch((reason: ApiError) => setError(reason.message));
-    // actor token and filter are the real dependencies
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [health, actor.token, filter]);
+    setMe(null);
+    setMeError(null);
+    if (health !== "up" || !token) return;
+    api<{ actor: Me }>("/v1/me", token)
+      .then((body) => setMe(body.actor))
+      .catch((reason: ApiError) => setMeError(reason.message));
+  }, [health, token]);
 
   useEffect(() => {
-    if (!selectedId || health !== "up") return;
-    api<ReviewDetail>(`/v1/reviews/${selectedId}`, actor.token)
+    if (!me) return;
+    setError(null);
+    loadQueue().catch((reason: ApiError) => setError(reason.message));
+    // the signed-in actor and filter are the real dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [me, filter]);
+
+  useEffect(() => {
+    if (!selectedId || !me) return;
+    api<ReviewDetail>(`/v1/reviews/${selectedId}`, token)
       .then((body) => {
         setDetail(body);
         setSelectedCid(body.candidates[0]?.cid ?? null);
@@ -113,15 +124,15 @@ export function App() {
         setReceipt(null);
       })
       .catch((reason: ApiError) => setError(reason.message));
-  }, [selectedId, actor.token, health]);
+  }, [selectedId, me]);
 
   async function seed() {
     setBusy(true);
     setError(null);
     try {
-      const seeded = await api<{ reviewId: string }>("/v1/demo/seed", "dev-admin", { method: "POST", body: "{}" });
+      const seeded = await api<{ reviewId: string }>("/v1/demo/seed", token, { method: "POST", body: "{}" });
       setFilter("pending");
-      const reviews = await api<{ reviews: ReviewSummary[] }>("/v1/reviews?status=pending", actor.token);
+      const reviews = await api<{ reviews: ReviewSummary[] }>("/v1/reviews?status=pending", token);
       setQueue(reviews.reviews);
       setSelectedId(seeded.reviewId);
     } catch (reason) {
@@ -136,7 +147,7 @@ export function App() {
     setBusy(true);
     setError(null);
     try {
-      const result = await api<{ audit: { hash: string }; message: string }>(`/v1/reviews/${detail.reviewId}/decide`, actor.token, {
+      const result = await api<{ audit: { hash: string }; message: string }>(`/v1/reviews/${detail.reviewId}/decide`, token, {
         method: "POST",
         body: JSON.stringify({
           decision,
@@ -146,7 +157,7 @@ export function App() {
       });
       setReceipt(`${result.message} Audit hash ${result.audit.hash}.`);
       await loadQueue();
-      const refreshed = await api<ReviewDetail>(`/v1/reviews/${detail.reviewId}`, actor.token);
+      const refreshed = await api<ReviewDetail>(`/v1/reviews/${detail.reviewId}`, token);
       setDetail(refreshed);
     } catch (reason) {
       const apiError = reason as ApiError;
@@ -156,7 +167,7 @@ export function App() {
     }
   }
 
-  const canDecide = actor.id === "reviewer" && detail?.status === "pending" && detail.searchedBy.id !== "actor-reviewer";
+  const canDecide = me?.role === "reviewer" && detail?.status === "pending" && detail.searchedBy.id !== me.id;
 
   return (
     <div className="min-h-screen">
@@ -168,6 +179,7 @@ export function App() {
         <nav className="app-nav" aria-label="Main">
           <a href="/" aria-current="page">Review desk</a>
         </nav>
+        <CidAccount profile={profile} />
       </header>
 
       <main id="main" className="app-main grid gap-4 lg:grid-cols-[320px_1fr]">
@@ -176,20 +188,6 @@ export function App() {
             <h1>Review desk</h1>
             <p className="max-w-xl">A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.</p>
           </div>
-          <label className="text-sm text-muted-foreground">
-            Acting as
-            <select
-              className="mt-1 block h-10 rounded-md border border-input bg-background px-3 text-foreground"
-              value={actorId}
-              onChange={(event) => setActorId(event.target.value as ActorId)}
-            >
-              {ACTORS.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name} · {item.role}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
         {health === "loading" && <p className="text-muted-foreground lg:col-span-2">Checking the API…</p>}
         {health === "down" && (
@@ -199,7 +197,12 @@ export function App() {
             </CardContent>
           </Card>
         )}
-        {health === "up" && (
+        {health === "up" && !me && (
+          <div className="lg:col-span-2">
+            <CidSignIn desk="review desk" error={meError} signedIn={Boolean(token)} />
+          </div>
+        )}
+        {health === "up" && me && (
           <>
             <section className="space-y-3">
               <div className="flex gap-2">
@@ -214,7 +217,7 @@ export function App() {
                 <Card>
                   <CardContent className="space-y-3 pt-5 text-sm">
                     <p>Nothing is in this queue. Searches appear here only after purpose and consent both pass.</p>
-                    {demoMode && filter === "pending" && (
+                    {demoMode && me?.role === "admin" && filter === "pending" && (
                       <Button onClick={seed} disabled={busy}>
                         Load synthetic demo
                       </Button>
@@ -313,7 +316,7 @@ export function App() {
                             Inconclusive
                           </Button>
                         </div>
-                        {actor.id !== "reviewer" && <p className="text-sm text-muted-foreground">Switch to Helen Cho to record a decision.</p>}
+                        {me?.role !== "reviewer" && <p className="text-sm text-muted-foreground">Only a Cumulus ID with the reviewer role can record a decision.</p>}
                       </div>
                     )}
                     {detail.notes && <p className="text-sm">Recorded note: {detail.notes}</p>}
@@ -329,7 +332,7 @@ export function App() {
       <footer className="app-footer">
         <FirmSuite product="eidetic" compact />
         Infinitum Corporation® · 1629 K Street NW, Suite 300, Washington, D.C. · 202-729-9509 · info@theinfinitumcorporation.com
-        <span className="mt-1 block">Local demo actors are prefilled. They are not production credentials. Templates never reach this desk.</span>
+        <span className="mt-1 block">Signed in with Cumulus ID. Templates never reach this desk.</span>
       </footer>
     </div>
   );
