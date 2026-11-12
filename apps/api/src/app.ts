@@ -404,6 +404,11 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json(await deps.service.pageAudit({ limit: query.limit, beforeSeq: query.before, action: query.action }));
   });
   app.get("/v1/audit/verify", async (c) => c.json(await deps.service.verifyAudit()));
+  // Usage over the last ?hours= (1-2160, default 24): searches run and refused, refusal codes, review decisions.
+  app.get("/v1/stats/usage", async (c) => {
+    const query = parse(z.object({ hours: z.coerce.number().int().min(1).max(2160).optional() }), c.req.query());
+    return c.json(await deps.service.usageStats(c.get("actor"), query.hours));
+  });
 
   app.post("/v1/bias/fixture-evaluations", async (c) => {
     const body = parse(

@@ -135,5 +135,17 @@
   "Show": "عرض",
   "Subject access reports": "تقارير وصول صاحب البيانات",
   "Withdrawals": "عمليات السحب",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
+  "Usage": "الاستخدام",
+  "Last 24 hours": "آخر 24 ساعة",
+  "Last 7 days": "آخر 7 أيام",
+  "Last 30 days": "آخر 30 يومًا",
+  "Searches run": "عمليات البحث المنفذة",
+  "Searches refused": "عمليات البحث المرفوضة",
+  "Waiting for a reviewer": "بانتظار مراجع",
+  "Confirmed {0} · rejected {1} · inconclusive {2} · refused at review {3}": "مؤكد {0} · مرفوض {1} · غير حاسم {2} · رُفض عند المراجعة {3}",
+  "By purpose": "حسب الغرض",
+  "{0} run · {1} refused": "منفذ {0} · مرفوض {1}",
+  "Why searches were refused": "أسباب رفض عمليات البحث",
+  "No searches in this window.": "لا توجد عمليات بحث في هذه الفترة."
 }

@@ -135,5 +135,17 @@
   "Show": "Mostrar",
   "Subject access reports": "Informes de acceso del titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
+  "Usage": "Uso",
+  "Last 24 hours": "Últimas 24 horas",
+  "Last 7 days": "Últimos 7 días",
+  "Last 30 days": "Últimos 30 días",
+  "Searches run": "Búsquedas ejecutadas",
+  "Searches refused": "Búsquedas rechazadas",
+  "Waiting for a reviewer": "Esperando a un revisor",
+  "Confirmed {0} · rejected {1} · inconclusive {2} · refused at review {3}": "Confirmadas {0} · rechazadas {1} · no concluyentes {2} · denegadas en revisión {3}",
+  "By purpose": "Por finalidad",
+  "{0} run · {1} refused": "{0} ejecutadas · {1} rechazadas",
+  "Why searches were refused": "Por qué se rechazaron búsquedas",
+  "No searches in this window.": "No hubo búsquedas en este periodo."
 }

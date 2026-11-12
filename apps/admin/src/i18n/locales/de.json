@@ -135,5 +135,17 @@
   "Show": "Anzeigen",
   "Subject access reports": "Auskunftsberichte",
   "Withdrawals": "Widerrufe",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze.",
+  "Usage": "Nutzung",
+  "Last 24 hours": "Letzte 24 Stunden",
+  "Last 7 days": "Letzte 7 Tage",
+  "Last 30 days": "Letzte 30 Tage",
+  "Searches run": "Ausgeführte Suchen",
+  "Searches refused": "Abgelehnte Suchen",
+  "Waiting for a reviewer": "Warten auf einen Prüfer",
+  "Confirmed {0} · rejected {1} · inconclusive {2} · refused at review {3}": "Bestätigt {0} · abgelehnt {1} · nicht eindeutig {2} · bei Prüfung verweigert {3}",
+  "By purpose": "Nach Zweck",
+  "{0} run · {1} refused": "{0} ausgeführt · {1} abgelehnt",
+  "Why searches were refused": "Warum Suchen abgelehnt wurden",
+  "No searches in this window.": "Keine Suchen in diesem Zeitraum."
 }

@@ -135,5 +135,17 @@
   "Show": "Show",
   "Subject access reports": "Subject access reports",
   "Withdrawals": "Withdrawals",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
+  "Usage": "Usage",
+  "Last 24 hours": "Last 24 hours",
+  "Last 7 days": "Last 7 days",
+  "Last 30 days": "Last 30 days",
+  "Searches run": "Searches run",
+  "Searches refused": "Searches refused",
+  "Waiting for a reviewer": "Waiting for a reviewer",
+  "Confirmed {0} · rejected {1} · inconclusive {2} · refused at review {3}": "Confirmed {0} · rejected {1} · inconclusive {2} · refused at review {3}",
+  "By purpose": "By purpose",
+  "{0} run · {1} refused": "{0} run · {1} refused",
+  "Why searches were refused": "Why searches were refused",
+  "No searches in this window.": "No searches in this window."
 }

@@ -106,6 +106,17 @@ export interface SubjectAccessReport {
   note: string;
 }
 
+/** Counts over a recent window, read from the audit log. No subject identifiers, only codes and totals. */
+export interface UsageStats {
+  since: string;
+  hours: number;
+  searches: { total: number; ran: number; refused: number };
+  byPurpose: Array<{ purposeCode: string; ran: number; refused: number }>;
+  refusalsByCode: Array<{ code: string; count: number }>;
+  decisions: { confirm: number; reject: number; inconclusive: number; refused: number };
+  pendingReviews: number;
+}
+
 export interface ConsentSweepResult {
   checkedAt: string;
   /** Subjects whose sealed template was purged because no consent grant is live any more. */
@@ -815,6 +826,54 @@ export class EideticService {
     const review = await this.deps.repos.reviews.get(reviewId);
     const candidates = await this.candidateViews(summary.searchId);
     return { ...summary, notes: review?.notes ?? null, selectedCid: review?.selectedCid ?? null, candidates };
+  }
+
+  /**
+   * How the desk was used over the last `hours`: searches that ran or were refused (by purpose and by refusal
+   * code), review decisions, and the open review queue. Read from the audit log, so it counts what was recorded.
+   */
+  async usageStats(actor: Actor, hours = 24): Promise<UsageStats> {
+    if (actor.role !== "admin" && actor.role !== "auditor") {
+      throw new EideticError("FORBIDDEN", "Usage figures are for admins and auditors.", 403, false);
+    }
+    const window = Math.min(Math.max(Math.trunc(hours), 1), 24 * 90);
+    const since = new Date(this.deps.now().getTime() - window * 60 * 60 * 1000).toISOString();
+    const entries = (await this.deps.repos.audit.list()).filter((entry) => entry.recordedAt >= since);
+    const purposes = new Map<string, { ran: number; refused: number }>();
+    const codes = new Map<string, number>();
+    const searches = { total: 0, ran: 0, refused: 0 };
+    const decisions = { confirm: 0, reject: 0, inconclusive: 0, refused: 0 };
+    for (const entry of entries) {
+      const attestation = entry.attestation;
+      if (entry.action === "search") {
+        searches.total += 1;
+        const ran = attestation.outcome === "allowed";
+        if (ran) searches.ran += 1;
+        else searches.refused += 1;
+        const key = attestation.purposeCode ?? "(none)";
+        const row = purposes.get(key) ?? { ran: 0, refused: 0 };
+        if (ran) row.ran += 1;
+        else row.refused += 1;
+        purposes.set(key, row);
+        if (!ran && attestation.code) codes.set(attestation.code, (codes.get(attestation.code) ?? 0) + 1);
+      } else if (entry.action === "review") {
+        if (attestation.outcome === "denied") decisions.refused += 1;
+        else if (attestation.decision === "confirm" || attestation.decision === "reject" || attestation.decision === "inconclusive") {
+          decisions[attestation.decision] += 1;
+        }
+      }
+    }
+    return {
+      since,
+      hours: window,
+      searches,
+      byPurpose: [...purposes.entries()]
+        .map(([purposeCode, row]) => ({ purposeCode, ...row }))
+        .sort((a, b) => b.ran + b.refused - (a.ran + a.refused) || a.purposeCode.localeCompare(b.purposeCode)),
+      refusalsByCode: [...codes.entries()].map(([code, count]) => ({ code, count })).sort((a, b) => b.count - a.count || a.code.localeCompare(b.code)),
+      decisions,
+      pendingReviews: (await this.listReviews("pending")).length,
+    };
   }
 
   async listAudit() {

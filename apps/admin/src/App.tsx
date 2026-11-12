@@ -6,6 +6,7 @@ import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, 
 import { CidAccount, CidSignIn } from "./CidSignIn";
 import { cidToken, useCumulusId } from "./cid";
 import { Billing } from "./Billing";
+import { Usage } from "./Usage";
 
 interface Me {
   id: string;
@@ -668,6 +669,8 @@ export function App() {
                 ))}
               </CardContent>
             </Card>
+
+            <Usage api={api} refresh={entries} />
 
             <section className="grid gap-4 md:grid-cols-2">
               <Card>

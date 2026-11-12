@@ -135,5 +135,17 @@
   "Show": "显示",
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。"
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "Usage": "使用情况",
+  "Last 24 hours": "过去 24 小时",
+  "Last 7 days": "过去 7 天",
+  "Last 30 days": "过去 30 天",
+  "Searches run": "已执行的搜索",
+  "Searches refused": "被拒绝的搜索",
+  "Waiting for a reviewer": "等待审查员",
+  "Confirmed {0} · rejected {1} · inconclusive {2} · refused at review {3}": "确认 {0} · 拒绝 {1} · 无定论 {2} · 审查时被拒 {3}",
+  "By purpose": "按用途",
+  "{0} run · {1} refused": "执行 {0} · 拒绝 {1}",
+  "Why searches were refused": "搜索被拒绝的原因",
+  "No searches in this window.": "此时间段内没有搜索。"
 }
