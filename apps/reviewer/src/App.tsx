@@ -2,7 +2,7 @@
 import { FirmSuite } from "./firm/FirmSuite";
 
 import { useEffect, useState } from "react";
-import { Badge, Button, Card, CardContent, Label, Textarea } from "@eidetic/ui";
+import { Badge, Button, Card, CardContent, Label, RavenMark, Textarea } from "@eidetic/ui";
 import { CidAccount, CidSignIn } from "./CidSignIn";
 import { useCumulusId } from "./cid";
 
@@ -174,6 +174,7 @@ export function App() {
       <a className="skip-link" href="#main">Skip to content</a>
       <header className="app-bar">
         <a className="app-wordmark" href="/">
+          <RavenMark className="raven-mark" />
           ei·det·ic<sup className="tm">™</sup>
         </a>
         <nav className="app-nav" aria-label="Main">
