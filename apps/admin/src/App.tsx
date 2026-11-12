@@ -5,6 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "@eidetic/ui";
 import { CidAccount, CidSignIn } from "./CidSignIn";
 import { cidToken, useCumulusId } from "./cid";
+import { Billing } from "./Billing";
 
 interface Me {
   id: string;
@@ -61,6 +62,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 export function App() {
   const [health, setHealth] = useState<"loading" | "up" | "down">("loading");
   const [edition, setEdition] = useState<string>("");
+  const [milEnabled, setMilEnabled] = useState(true); // billing stays hidden until the API says this is not a MIL deployment
   const [purposes, setPurposes] = useState<Purpose[]>([]);
   const [subjects, setSubjects] = useState<SubjectView[]>([]);
   const [entries, setEntries] = useState<AuditEntry[]>([]);
@@ -87,6 +89,7 @@ export function App() {
     setSubjects(subjectBody.subjects);
     setEntries(auditBody.entries);
     setSeams(seamBody.seams);
+    setMilEnabled(editionBody.mil.enabled);
     setEdition(`${editionBody.mil.product} flag ${editionBody.mil.enabled ? "on" : "off"} · ${editionBody.mil.workflows}`);
   }
 
@@ -339,6 +342,7 @@ export function App() {
                   </ul>
                 </CardContent>
               </Card>
+              {!milEnabled && <Billing signedIn={Boolean(token)} />}
               <Card>
                 <CardHeader>
                   <CardTitle>Bias hook and boundaries</CardTitle>
