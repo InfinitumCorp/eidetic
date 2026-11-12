@@ -178,6 +178,9 @@ export function App() {
   }
 
   const canDecide = me?.role === "reviewer" && detail?.status === "pending" && detail.searchedBy.id !== me.id;
+  // The API wants a note of at least 8 characters, and a selected candidate to confirm. Say so before the click.
+  const NOTE_MIN = 8;
+  const noteShort = Math.max(0, NOTE_MIN - notes.trim().length);
 
   return (
     <div className="min-h-screen">
@@ -332,16 +335,24 @@ export function App() {
                           placeholder="Why are you confirming, rejecting, or leaving this inconclusive?"
                         />
                         <div className="flex flex-wrap gap-2">
-                          <Button disabled={!canDecide || busy} onClick={() => decide("confirm")}>
+                          <Button disabled={!canDecide || busy || noteShort > 0 || !selectedCid} onClick={() => decide("confirm")}>
                             Confirm
                           </Button>
-                          <Button variant="outline" disabled={!canDecide || busy} onClick={() => decide("reject")}>
+                          <Button variant="outline" disabled={!canDecide || busy || noteShort > 0} onClick={() => decide("reject")}>
                             Reject
                           </Button>
-                          <Button variant="secondary" disabled={!canDecide || busy} onClick={() => decide("inconclusive")}>
+                          <Button variant="secondary" disabled={!canDecide || busy || noteShort > 0} onClick={() => decide("inconclusive")}>
                             Inconclusive
                           </Button>
                         </div>
+                        {canDecide && noteShort > 0 && (
+                          <p data-testid="note-hint" className="text-xs text-muted-foreground">
+                            {noteShort === 1 ? "Write 1 more character in the note to decide." : `Write ${noteShort} more characters in the note to decide.`}
+                          </p>
+                        )}
+                        {canDecide && noteShort === 0 && !selectedCid && (
+                          <p className="text-xs text-muted-foreground">Select a candidate to confirm. Reject and inconclusive need no selection.</p>
+                        )}
                         {me?.role !== "reviewer" && <p className="text-sm text-muted-foreground">Only a Cumulus ID with the reviewer role can record a decision.</p>}
                       </div>
                     )}

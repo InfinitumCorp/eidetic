@@ -87,7 +87,10 @@ export default {
   "Sign in to the purpose desk": "Sign in to the purpose desk",
   "Consent expired": "Consent expired",
   "Consent withdrawn": "Consent withdrawn",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.",
+  "Write 1 more character in the note to decide.": "Write 1 more character in the note to decide.",
+  "Write {0} more characters in the note to decide.": "Write {0} more characters in the note to decide.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "Select a candidate to confirm. Reject and inconclusive need no selection."
  },
  "ru": {
   "{0} Audit hash {1}.": "{0} Хеш аудита {1}.",
@@ -176,7 +179,10 @@ export default {
   "Sign in to the purpose desk": "Войдите в деск назначения",
   "Consent expired": "Срок согласия истёк",
   "Consent withdrawn": "Согласие отозвано",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную.",
+  "Write 1 more character in the note to decide.": "Допишите в заметку ещё 1 символ, чтобы принять решение.",
+  "Write {0} more characters in the note to decide.": "Допишите в заметку ещё символов: {0}, чтобы принять решение.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "Чтобы подтвердить, выберите кандидата. Для отклонения и «без вывода» выбор не нужен."
  },
  "uk": {
   "{0} Audit hash {1}.": "{0} Аудит хеш {1}.",
@@ -265,7 +271,10 @@ export default {
   "Sign in to the purpose desk": "Увійдіть у деск цілей",
   "Consent expired": "Термін згоди минув",
   "Consent withdrawn": "Згоду відкликано",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий.",
+  "Write 1 more character in the note to decide.": "Допишіть у нотатку ще 1 символ, щоб ухвалити рішення.",
+  "Write {0} more characters in the note to decide.": "Допишіть у нотатку ще символів: {0}, щоб ухвалити рішення.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "Щоб підтвердити, виберіть кандидата. Для відхилення й «без висновку» вибір не потрібен."
  },
  "es": {
   "{0} Audit hash {1}.": "{0} Hash de auditoría {1}.",
@@ -354,7 +363,10 @@ export default {
   "Sign in to the purpose desk": "Inicia sesión en el escritorio de propósito",
   "Consent expired": "Consentimiento caducado",
   "Consent withdrawn": "Consentimiento retirado",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente.",
+  "Write 1 more character in the note to decide.": "Escriba 1 carácter más en la nota para decidir.",
+  "Write {0} more characters in the note to decide.": "Escriba {0} caracteres más en la nota para decidir.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "Seleccione un candidato para confirmar. Rechazar y no concluyente no requieren selección."
  },
  "fr": {
   "{0} Audit hash {1}.": "{0} Hachage d'audit {1}.",
@@ -443,7 +455,10 @@ export default {
   "Sign in to the purpose desk": "Connectez-vous au bureau des finalités",
   "Consent expired": "Consentement expiré",
   "Consent withdrawn": "Consentement retiré",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Le consentement de cette personne ne couvre plus cette recherche : une confirmation serait refusée. Rejetez ou marquez l’examen comme non concluant."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Le consentement de cette personne ne couvre plus cette recherche : une confirmation serait refusée. Rejetez ou marquez l’examen comme non concluant.",
+  "Write 1 more character in the note to decide.": "Écrivez encore 1 caractère dans la note pour décider.",
+  "Write {0} more characters in the note to decide.": "Écrivez encore {0} caractères dans la note pour décider.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "Sélectionnez un candidat pour confirmer. Rejeter et non concluant ne demandent aucune sélection."
  },
  "de": {
   "{0} Audit hash {1}.": "{0} Prüf‑Hash {1}.",
@@ -532,7 +547,10 @@ export default {
   "Sign in to the purpose desk": "Beim Zweck‑Desk anmelden",
   "Consent expired": "Einwilligung abgelaufen",
   "Consent withdrawn": "Einwilligung widerrufen",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Die Einwilligung dieser Person deckt diese Suche nicht mehr ab, eine Bestätigung würde abgelehnt. Lehnen Sie ab oder markieren Sie die Prüfung als nicht eindeutig."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Die Einwilligung dieser Person deckt diese Suche nicht mehr ab, eine Bestätigung würde abgelehnt. Lehnen Sie ab oder markieren Sie die Prüfung als nicht eindeutig.",
+  "Write 1 more character in the note to decide.": "Schreiben Sie noch 1 Zeichen in die Notiz, um zu entscheiden.",
+  "Write {0} more characters in the note to decide.": "Schreiben Sie noch {0} Zeichen in die Notiz, um zu entscheiden.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "Wählen Sie zum Bestätigen einen Kandidaten. Ablehnen und nicht eindeutig brauchen keine Auswahl."
  },
  "pt": {
   "{0} Audit hash {1}.": "{0} Hash de auditoria {1}.",
@@ -621,7 +639,10 @@ export default {
   "Sign in to the purpose desk": "Entre no desk de propósito",
   "Consent expired": "Consentimento expirado",
   "Consent withdrawn": "Consentimento retirado",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "O consentimento desta pessoa não cobre mais esta pesquisa, então uma confirmação seria recusada. Rejeite ou marque a revisão como inconclusiva."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "O consentimento desta pessoa não cobre mais esta pesquisa, então uma confirmação seria recusada. Rejeite ou marque a revisão como inconclusiva.",
+  "Write 1 more character in the note to decide.": "Escreva mais 1 caractere na nota para decidir.",
+  "Write {0} more characters in the note to decide.": "Escreva mais {0} caracteres na nota para decidir.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "Selecione um candidato para confirmar. Rejeitar e inconclusivo não exigem seleção."
  },
  "zh": {
   "{0} Audit hash {1}.": "{0} 审计哈希 {1}。",
@@ -710,7 +731,10 @@ export default {
   "Sign in to the purpose desk": "登录目的桌面",
   "Consent expired": "同意已过期",
   "Consent withdrawn": "同意已撤回",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。"
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。",
+  "Write 1 more character in the note to decide.": "请在备注中再写 1 个字符后再作决定。",
+  "Write {0} more characters in the note to decide.": "请在备注中再写 {0} 个字符后再作决定。",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "请选择一个候选人以确认。拒绝和无定论无需选择。"
  },
  "ar": {
   "{0} Audit hash {1}.": "{0} تجزئة التدقيق {1}.",
@@ -799,6 +823,9 @@ export default {
   "Sign in to the purpose desk": "سجّل الدخول إلى مكتب الهدف",
   "Consent expired": "انتهت صلاحية الموافقة",
   "Consent withdrawn": "سُحبت الموافقة",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "لم تعد موافقة هذا الشخص تشمل هذا البحث، لذا سيُرفض أي تأكيد. ارفض أو علّم المراجعة على أنها غير حاسمة."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "لم تعد موافقة هذا الشخص تشمل هذا البحث، لذا سيُرفض أي تأكيد. ارفض أو علّم المراجعة على أنها غير حاسمة.",
+  "Write 1 more character in the note to decide.": "اكتب حرفًا واحدًا إضافيًا في الملاحظة لاتخاذ القرار.",
+  "Write {0} more characters in the note to decide.": "اكتب {0} أحرف إضافية في الملاحظة لاتخاذ القرار.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "اختر مرشحًا للتأكيد. الرفض وغير الحاسم لا يتطلبان اختيارًا."
  }
 };
