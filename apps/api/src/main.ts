@@ -27,6 +27,7 @@ const app = createApp({
   demoMode: env.demoMode,
   matcherMode: env.matcherMode,
   milEnabled: env.milEnabled,
+  allowedOrigins: env.allowedOrigins,
   conjure: env.milEnabled ? null : conjureRoutesFromEnv(process.env, { prefix: "/v1/conjure", source: "eidetic" }),
   openclaw: env.milEnabled ? null : openClawRoutesFromEnv(process.env, { prefix: "/v1/openclaw", product: "eidetic" }),
   dbPing: async () => {
