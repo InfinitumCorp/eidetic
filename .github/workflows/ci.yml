@@ -45,7 +45,7 @@ jobs:
       # The Postgres test skips itself when the database is unreachable. Fail CI instead.
       - name: Postgres integration test must run
         run: |
-          pnpm vitest run apps/api/src/pg/pg.integration.test.ts 2>&1 | tee pg.log
-          grep -Eq "Tests +1 passed" pg.log
+          pnpm vitest run apps/api/src/pg/pg.integration.test.ts --reporter=default --reporter=json --outputFile.json=pg.json
+          node -e 'const r=require("./pg.json"); if (r.numPassedTests<1 || r.numPendingTests>0) { console.error("Postgres integration test skipped or did not pass"); process.exit(1) }'
       - run: pnpm build
       - run: pnpm demo
