@@ -75,6 +75,29 @@ export interface SearchResult {
   audit: AuditReceipt;
 }
 
+export interface SubjectAccessReport {
+  generatedAt: string;
+  generatedBy: { id: string; role: Role };
+  subject: SubjectView;
+  /** Audit entries that name this subject or list them as a match candidate, oldest first. */
+  activity: Array<{
+    seq: number;
+    recordedAt: string;
+    action: string;
+    actorId: string;
+    involvement: "named" | "candidate";
+    outcome: string;
+    message: string;
+    purposeCode?: string;
+    datasetId?: string;
+    decision?: string;
+    hash: string;
+  }>;
+  /** The audit entry that records this export. */
+  audit: { seq: number; hash: string };
+  note: string;
+}
+
 export interface ReviewSummary {
   reviewId: string;
   status: "pending" | "decided";
@@ -283,6 +306,77 @@ export class EideticService {
     });
     await this.submit(checkpoint);
     return this.subjectView(cid);
+  }
+
+  /**
+   * Everything ei·det·ic™ holds about one person, for a subject access request: their consents and every
+   * audit entry that names them or lists them as a match candidate. Templates are reported as present or
+   * absent only. The export itself is written to the audit log.
+   */
+  async subjectAccess(actor: Actor, cid: string): Promise<SubjectAccessReport> {
+    if (actor.role !== "admin" && actor.role !== "auditor") {
+      throw new EideticError("FORBIDDEN", "Only an admin or an auditor can export a subject access report.", 403, false);
+    }
+    const subject = await this.subjectView(cid);
+    const entries = await this.deps.repos.audit.list();
+    const candidateSearches = new Map<string, boolean>();
+    const wasCandidate = async (searchId: string | undefined): Promise<boolean> => {
+      if (!searchId) return false;
+      let hit = candidateSearches.get(searchId);
+      if (hit === undefined) {
+        hit = (await this.deps.repos.candidates.listForSearch(searchId)).some((candidate) => candidate.cid === cid);
+        candidateSearches.set(searchId, hit);
+      }
+      return hit;
+    };
+    const activity: SubjectAccessReport["activity"] = [];
+    for (const entry of entries) {
+      const attestation = entry.attestation;
+      let involvement: "named" | "candidate" | null = null;
+      if (attestation.subjectCid === cid) involvement = "named";
+      else if ((entry.action === "search" || entry.action === "review") && (await wasCandidate(attestation.searchId))) {
+        involvement = "candidate";
+      }
+      if (!involvement) continue;
+      activity.push({
+        seq: entry.seq,
+        recordedAt: entry.recordedAt,
+        action: entry.action,
+        actorId: entry.actorId,
+        involvement,
+        outcome: attestation.outcome,
+        message: attestation.message,
+        purposeCode: attestation.purposeCode,
+        datasetId: attestation.datasetId,
+        decision: attestation.decision,
+        hash: entry.hash,
+      });
+    }
+    const now = this.deps.now().toISOString();
+    const checkpoint = await this.deps.transaction(async (tx) => {
+      const recorded = await tx.audit.record({
+        actorId: actor.id,
+        action: "subject_access",
+        recordedAt: now,
+        attestation: {
+          outcome: "recorded",
+          matchRan: false,
+          subjectCid: cid,
+          message: "Subject access report exported. It lists consents and audit activity. No template or image left the sealed store.",
+        },
+      });
+      return recorded.checkpoint;
+    });
+    await this.submit(checkpoint);
+    const head = (await this.deps.repos.audit.list()).at(-1);
+    return {
+      generatedAt: now,
+      generatedBy: { id: actor.id, role: actor.role },
+      subject,
+      activity,
+      audit: { seq: head?.seq ?? 0, hash: head?.hash ?? "" },
+      note: "Biometric templates are reported as present or absent. Their bytes are never exported.",
+    };
   }
 
   async createPurpose(actor: Actor, purpose: PurposeDefinition): Promise<PurposeDefinition> {
