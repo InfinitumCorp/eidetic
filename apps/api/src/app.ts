@@ -18,6 +18,7 @@ import { describeSiteAsset } from "@eidetic/geo";
 import { SEAMS } from "@eidetic/seams";
 import type { ConjureRouteHandler } from "./conjure/conjure.mjs";
 import type { OpenClawRouteHandler } from "./openclaw/openclaw.mjs";
+import type { SearchRoutes } from "./search/search.mjs";
 
 const allowedOrigins = new Set([
   "http://127.0.0.1:43111",
@@ -97,6 +98,8 @@ export interface AppDeps {
   conjure?: ConjureRouteHandler | null;
   /** @scalvs / @scalus: the SCALVS agent on an OpenClaw gateway (prefix /v1/openclaw). Off when unset and on MIL deployments. */
   openclaw?: OpenClawRouteHandler | null;
+  /** @search: Infinitum Search, a web answer with numbered sources (prefix /v1/search). Off when unset and on MIL deployments. */
+  search?: SearchRoutes | null;
 }
 
 type Variables = { actor: Actor };
@@ -181,6 +184,16 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     }
     const res = deps.openclaw ? await deps.openclaw(c.req.raw, { user: c.get("actor").id }) : null;
     return res ?? c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not configured here.", matchRan: false } }, 503);
+  });
+
+  // "@search <question>" from the operator consoles: Infinitum Search reads the public web and answers
+  // with numbered sources. Only the question the actor types goes out; never subject, template or match data.
+  app.on(["GET", "POST"], "/v1/search", async (c) => {
+    if (deps.milEnabled) {
+      return c.json({ error: { code: "SEARCH_UNAVAILABLE", message: "@search is not available on MIL deployments.", matchRan: false } }, 403);
+    }
+    const res = deps.search ? await deps.search(c.req.raw, { user: c.get("actor").id }) : null;
+    return res ?? c.json({ error: { code: "SEARCH_UNAVAILABLE", message: "@search is not configured here.", matchRan: false } }, 503);
   });
 
   app.get("/v1/edition", (c) =>
