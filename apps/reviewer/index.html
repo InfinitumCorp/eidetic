@@ -2,11 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ei·det·ic review desk</title>
   </head>
   <body>
     <div id="root"></div>
+    <!-- The Cumulus://ID account bar (sign-in, account menu, product launcher). A copy of
+         https://id.cumuluscloud.app/id/bar.js; data-issuer is set from VITE_CID_ISSUER at build time
+         (e.g. a mirror that loads in Russia). -->
+    <script src="/cumulus-bar.js" data-client="eidetic-reviewer" data-issuer="%CID_ISSUER%" data-product="eidetic" defer></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

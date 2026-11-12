@@ -24,6 +24,9 @@ services:
       MATCHER_MODE: mock
       MIL_ENABLED: "false"
       DEMO_MODE: "true"
+      CID_ISSUER: ${CID_ISSUER:-https://id.cumuluscloud.app}
+      CID_ADMINS: ${CID_ADMINS:-}
+      CID_REVIEWERS: ${CID_REVIEWERS:-}
       MIGRATIONS_DIR: /app/apps/api/migrations
     ports:
       - "43110:43110"

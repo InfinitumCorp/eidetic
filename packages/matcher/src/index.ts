@@ -1,9 +1,11 @@
 // © Infinitum Corporation®. All rights reserved.
 
 import { randomUUID } from "node:crypto";
+import { existsSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { EideticError, type EvidenceItem } from "@eidetic/contracts";
+import { DEFAULT_MEDIAPIPE_MODEL_PATH, LocalOpenCvMediaPipeQualityGate, pythonMediaPipeSignals } from "./opencv-mediapipe.js";
 import { OpenCvZooMatcher, pythonOpenCvZooInference, type ZooInference } from "./opencv-zoo.js";
 
 export interface MatcherModel {
@@ -149,7 +151,7 @@ export const INSIGHTFACE_LICENSE_WARNING =
   "InsightFace pretrained weights are often limited to noncommercial research. ei·det·ic™ does not download or ship those weights. MATCHER_MODE stays mock for CI. Set INSIGHTFACE_LICENSE_ACCEPTED=true only when you hold a license, and set INSIGHTFACE_URL to a sidecar inside the sealed boundary.";
 
 export const OPENCV_MEDIAPIPE_NOTICE =
-  "OpenCV and MediaPipe are not bundled. Set CAPTURE_PROVIDER=opencv-mediapipe and OPENCV_MEDIAPIPE_URL to a sidecar you operate. Remote vision calls accept EIDETIC-SYNTHETIC-v1 fixtures unless EIDETIC_ALLOW_OPERATOR_CAPTURES=true. Real public-figure biometrics are refused.";
+  "OpenCV and MediaPipe are not bundled in the Node process. Set CAPTURE_PROVIDER=opencv-mediapipe after pnpm matcher:fetch-mediapipe-model and pip install -r packages/matcher/python/requirements-mediapipe.txt. BlazeFace short-range runs from a local file and does not call Google Cloud. Or set OPENCV_MEDIAPIPE_URL to a sidecar you operate. Synthetic fixtures are accepted. Other photographs are refused unless EIDETIC_ALLOW_OPERATOR_CAPTURES=true. Real public-figure biometrics are refused.";
 
 type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -514,15 +516,15 @@ export function createMatcher(options: {
   licenseAccepted?: boolean;
   insightfaceUrl?: string;
   opencvMediapipeUrl?: string;
+  opencvMediapipeModelPath?: string;
+  opencvMediapipePython?: string;
   opencvZooModelDir?: string;
   allowOperatorCaptures?: boolean;
   fetchImpl?: FetchLike;
   zooInfer?: ZooInference;
+  mediapipeSignals?: (image: Uint8Array) => Promise<unknown>;
 }): MatcherAdapter {
   const capture = options.captureProvider ?? "local";
-  if (capture === "opencv-mediapipe" && !options.opencvMediapipeUrl) {
-    throw new EideticError("CAPTURE_REJECTED", OPENCV_MEDIAPIPE_NOTICE, 501, false);
-  }
   let recognizer: MatcherAdapter;
   if (options.mode === "opencv-zoo") {
     const infer = options.zooInfer ?? pythonOpenCvZooInference(options.opencvZooModelDir ?? "data/models/opencv-zoo");
@@ -545,18 +547,32 @@ export function createMatcher(options: {
     recognizer = new MockMatcher(options.store);
   }
   if (capture !== "opencv-mediapipe") return recognizer;
-  const gate = new OpenCvMediaPipeQualityGate({
-    endpoint: options.opencvMediapipeUrl,
-    fetchImpl: options.fetchImpl,
-    allowOperatorCaptures: options.allowOperatorCaptures,
-  });
+  const gate = options.opencvMediapipeUrl
+    ? new OpenCvMediaPipeQualityGate({
+        endpoint: options.opencvMediapipeUrl,
+        fetchImpl: options.fetchImpl,
+        allowOperatorCaptures: options.allowOperatorCaptures,
+      })
+    : new LocalOpenCvMediaPipeQualityGate({
+        signals: options.mediapipeSignals ?? requireLocalMediaPipe(options),
+        allowOperatorCaptures: options.allowOperatorCaptures,
+        readFixtureId,
+      });
   return new QualityGuardedMatcher(recognizer, gate);
+}
+
+function requireLocalMediaPipe(options: { opencvMediapipeModelPath?: string; opencvMediapipePython?: string }): (image: Uint8Array) => Promise<unknown> {
+  const modelPath = options.opencvMediapipeModelPath ?? DEFAULT_MEDIAPIPE_MODEL_PATH;
+  if (!existsSync(modelPath)) {
+    throw new EideticError("CAPTURE_REJECTED", `${OPENCV_MEDIAPIPE_NOTICE} Model file not found at ${modelPath}.`, 501, false);
+  }
+  return pythonMediaPipeSignals(modelPath, options.opencvMediapipePython ?? "python3");
 }
 
 class QualityGuardedMatcher implements MatcherAdapter {
   constructor(
     private readonly inner: MatcherAdapter,
-    private readonly gate: OpenCvMediaPipeQualityGate,
+    private readonly gate: { assess(image: Uint8Array): Promise<CaptureQuality> },
   ) {}
 
   get model() {
@@ -570,14 +586,24 @@ class QualityGuardedMatcher implements MatcherAdapter {
   async enroll(image: Uint8Array): Promise<EnrollResult> {
     const quality = await this.gate.assess(image);
     if (!quality.accept) throw new EideticError("CAPTURE_REJECTED", quality.reasons.join(" "), 422, false);
-    return this.inner.enroll(image);
+    const enrolled = await this.inner.enroll(image);
+    return { templateRef: enrolled.templateRef, quality: quality.score };
   }
 
   async match(request: MatchRequest): Promise<MatchReport> {
     const quality = await this.gate.assess(request.probe);
     if (!quality.accept) throw new EideticError("CAPTURE_REJECTED", quality.reasons.join(" "), 422, false);
     const report = await this.inner.match(request);
-    return { ...report, quality };
+    return {
+      ...report,
+      quality,
+      candidates: report.candidates.map((candidate) => ({
+        ...candidate,
+        evidence: candidate.evidence.map((item) =>
+          item.kind === "capture_quality" ? { ...item, summary: quality.reasons[0] ?? item.summary, weight: quality.score } : item,
+        ),
+      })),
+    };
   }
 
   purge(templateRef: string) {

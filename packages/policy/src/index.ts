@@ -20,7 +20,7 @@ export interface PolicyInput {
   edition: Edition;
   milEnabled: boolean;
   /** Present when the caller already resolved a specific subject. Omitted for a 1:N gallery filter. */
-  consent?: { state: "granted" | "withdrawn" | "missing" | "not_enrolled"; label?: string };
+  consent?: { state: "granted" | "withdrawn" | "expired" | "missing" | "not_enrolled"; label?: string };
 }
 
 export type PolicyDecision = { allow: true } | { allow: false; code: DenialCode; message: string };
@@ -104,6 +104,12 @@ export function authorizeSearch(input: PolicyInput): PolicyDecision {
     return deny(
       "CONSENT_WITHDRAWN",
       `Search refused. ${input.consent.label ?? "The subject"} withdrew consent. The match did not run.`,
+    );
+  }
+  if (input.consent?.state === "expired") {
+    return deny(
+      "CONSENT_EXPIRED",
+      `Search refused. ${input.consent.label ?? "The subject"}'s consent for this purpose has expired. The match did not run.`,
     );
   }
   if (input.consent?.state === "missing") {

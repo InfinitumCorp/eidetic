@@ -4,6 +4,8 @@ import { serve } from "@hono/node-server";
 import { COMPANY, MIL_PRODUCT, PRODUCT } from "@eidetic/contracts";
 import { createApp } from "./app.js";
 import { conjureRoutesFromEnv } from "./conjure/conjure.mjs";
+import { openClawRoutesFromEnv } from "./openclaw/openclaw.mjs";
+import { searchRoutesFromEnv } from "./search/search.mjs";
 import { readEnv } from "./env.js";
 import { createPool } from "./pg/pool.js";
 import { createPgRuntime, waitForDatabase } from "./runtime.js";
@@ -36,7 +38,11 @@ const app = createApp({
   demoMode: env.demoMode,
   matcherMode: env.matcherMode,
   milEnabled: env.milEnabled,
+  accessLog: (line) => console.log(JSON.stringify(line)),
+  allowedOrigins: env.allowedOrigins,
   conjure: env.milEnabled ? null : conjureRoutesFromEnv(process.env, { prefix: "/v1/conjure", source: "eidetic" }),
+  openclaw: env.milEnabled ? null : openClawRoutesFromEnv(process.env, { prefix: "/v1/openclaw", product: "eidetic" }),
+  search: env.milEnabled ? null : searchRoutesFromEnv(process.env, { prefix: "/v1/search" }),
   dbPing: async () => {
     try {
       await pool.query("select 1");
@@ -47,7 +53,7 @@ const app = createApp({
   },
   adapters: {
     policy: env.opaUrl ? "opa" : "embedded-rego",
-    identity: env.keycloakIssuer ? (env.demoMode ? "demo-bearer-keycloak-not-validating" : "keycloak-fail-closed") : "demo-bearer",
+    identity: `cumulus-id ${env.cid.issuers.join(" ")}${env.devBearer ? " + dev-bearer (local only)" : ""}${env.keycloakIssuer ? " + keycloak machines" : ""}`,
     consentExport: env.fidesUrl ? "fides" : "local",
     redaction: "local-pattern",
     presidio: env.presidioUrl ? "configured-not-proxied" : "not_configured",

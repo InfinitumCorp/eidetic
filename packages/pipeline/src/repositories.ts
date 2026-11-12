@@ -37,7 +37,8 @@ export interface ConsentRepository {
   insert(consent: ConsentGrant): Promise<void>;
   listForSubject(cid: string): Promise<ConsentGrant[]>;
   withdrawAll(cid: string, at: string): Promise<void>;
-  listEligible(purposeCode: string, datasetId: string, legalBasis: LegalBasis): Promise<SubjectRecord[]>;
+  /** Active subjects with a live grant (granted and not expired at `at`). */
+  listEligible(purposeCode: string, datasetId: string, legalBasis: LegalBasis, at: string): Promise<SubjectRecord[]>;
 }
 
 export interface TemplateRepository {
@@ -51,6 +52,8 @@ export interface SearchRepository {
   insert(search: SearchRecord): Promise<void>;
   get(id: string): Promise<SearchRecord | null>;
   markDecided(id: string): Promise<void>;
+  /** Searches this actor started at or after `since`: those that counted, and those refused for the rate limit. */
+  countSince(actorId: string, since: string): Promise<{ counted: number; rateLimited: number }>;
 }
 
 export interface CandidateRepository {

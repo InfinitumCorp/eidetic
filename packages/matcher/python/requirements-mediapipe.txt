@@ -1,0 +1,8 @@
+# Local capture-quality runtime. Apache-2.0.
+# MediaPipe Face Detector runs on this machine from a .tflite file.
+# No API key and no Google Cloud project.
+#
+# mediapipe depends on opencv-contrib-python. Do not also install
+# opencv-python or opencv-python-headless in this same environment.
+# On Debian/Ubuntu the native library needs libegl1 and libgl1.
+mediapipe==1.2.2

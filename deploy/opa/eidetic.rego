@@ -62,6 +62,10 @@ deny contains "CONSENT_WITHDRAWN" if {
   input.consent.state == "withdrawn"
 }
 
+deny contains "CONSENT_EXPIRED" if {
+  input.consent.state == "expired"
+}
+
 deny contains "CONSENT_REQUIRED" if {
   input.consent.state == "missing"
 }
