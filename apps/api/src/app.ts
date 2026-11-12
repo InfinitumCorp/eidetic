@@ -221,6 +221,9 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json({ subject });
   });
 
+  // Purge sealed templates for subjects whose consent has all lapsed. Admin only, audited per subject.
+  app.post("/v1/consents/sweep", async (c) => c.json(await deps.service.sweepLapsedConsent(c.get("actor"))));
+
   app.post("/v1/searches", async (c) => {
     const body = parse(searchBody, await readJson(c));
     const image = probeBytes(body.fixtureId, body.imageBase64, deps.demoMode);
