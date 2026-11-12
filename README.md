@@ -137,6 +137,10 @@ The review and purpose desks proxy `/v1` to the API, so they are same-origin. A 
 
 `pnpm demo:http` talks to a running API. The review desk also has **Load synthetic demo**, which re-enrolls those two fixtures and queues a new unconfirmed review.
 
+### API reference
+
+[`docs/openapi.json`](docs/openapi.json) describes every route as OpenAPI 3.1. A running API serves the same document at `GET /v1/openapi.json` (any signed-in role). It is generated from the zod schemas the routes validate with. A test fails if a route is missing from it or the committed file is stale, so run `pnpm openapi` after changing a route.
+
 ### Tests
 
 ```bash
