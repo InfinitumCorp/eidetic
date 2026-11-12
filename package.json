@@ -14,6 +14,7 @@
     "audit:verify": "pnpm --filter @eidetic/api audit:verify",
     "audit:export": "pnpm --filter @eidetic/api audit:export",
     "matcher:fetch-models": "tsx scripts/fetch-opencv-zoo-models.ts",
+    "matcher:fetch-mediapipe-model": "tsx scripts/fetch-mediapipe-model.ts",
     "build": "pnpm --filter @eidetic/reviewer build && pnpm --filter @eidetic/admin build"
   },
   "devDependencies": {
