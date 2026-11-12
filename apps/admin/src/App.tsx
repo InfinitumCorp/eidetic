@@ -123,7 +123,7 @@ export function App() {
   const { token } = useCumulusId();
   const [me, setMe] = useState<Me | null>(null);
   const [meError, setMeError] = useState<string | null>(null);
-  const [form, setForm] = useState({ displayName: "Avery Quinn", fixtureId: "avery-quinn", purposeCode: "record_reconciliation", validDays: "0" });
+  const [form, setForm] = useState({ displayName: "Avery Quinn", fixtureId: "avery-quinn", purposeCodes: ["record_reconciliation"] as string[], validDays: "0" });
 
   async function reload() {
     const [purposeBody, subjectBody, auditBody, seamBody, editionBody] = await Promise.all([
@@ -184,6 +184,12 @@ export function App() {
 
   async function enroll(event: FormEvent) {
     event.preventDefault();
+    if (form.purposeCodes.length === 0) {
+      setError("Choose at least one purpose the person is consenting to.");
+      return;
+    }
+    // "0" means the consent lasts until the subject withdraws it.
+    const expiresAt = form.validDays === "0" ? undefined : new Date(Date.now() + Number(form.validDays) * 86_400_000).toISOString();
     setBusy(true);
     setError(null);
     try {
@@ -192,15 +198,12 @@ export function App() {
         body: JSON.stringify({
           displayName: form.displayName,
           legalBasis: "consent",
-          purposes: [
-            {
-              purposeCode: form.purposeCode,
-              // Consent covers the datasets the purpose was published with.
-              datasetIds: purposes.find((purpose) => purpose.code === form.purposeCode)?.datasetIds ?? [],
-              // "0" means the consent lasts until the subject withdraws it.
-              expiresAt: form.validDays === "0" ? undefined : new Date(Date.now() + Number(form.validDays) * 86_400_000).toISOString(),
-            },
-          ],
+          // One grant per purpose, each covering the datasets that purpose was published with.
+          purposes: form.purposeCodes.map((purposeCode) => ({
+            purposeCode,
+            datasetIds: purposes.find((purpose) => purpose.code === purposeCode)?.datasetIds ?? [],
+            expiresAt,
+          })),
           fixtureId: form.fixtureId,
           recordAttributes: { site: "Washington" },
         }),
@@ -610,21 +613,24 @@ export function App() {
                       <Label htmlFor="fixture">Synthetic fixture</Label>
                       <Input id="fixture" value={form.fixtureId} onChange={(event) => setForm({ ...form, fixtureId: event.target.value })} />
                     </div>
-                    <div>
-                      <Label htmlFor="purpose">Purpose</Label>
-                      <select
-                        id="purpose"
-                        className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3"
-                        value={form.purposeCode}
-                        onChange={(event) => setForm({ ...form, purposeCode: event.target.value })}
-                      >
-                        {purposes.filter((purpose) => purpose.active).map((purpose) => (
-                          <option key={purpose.code} value={purpose.code}>
-                            {purpose.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <fieldset>
+                      <legend className="text-sm font-medium">Purposes the person consents to</legend>
+                      <div className="mt-1 space-y-1 text-sm">
+                        {purposes
+                          .filter((purpose) => purpose.active && purpose.legalBases.includes("consent"))
+                          .map((purpose) => (
+                            <label key={purpose.code} className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={form.purposeCodes.includes(purpose.code)}
+                                onChange={() => setForm({ ...form, purposeCodes: toggle(form.purposeCodes, purpose.code) })}
+                              />
+                              {purpose.title}
+                            </label>
+                          ))}
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">Each purpose gets its own receipt and can be withdrawn on its own.</p>
+                    </fieldset>
                     <div>
                       <Label htmlFor="valid">Consent lasts</Label>
                       <select
@@ -639,7 +645,7 @@ export function App() {
                         <option value="365">For 1 year</option>
                       </select>
                     </div>
-                    <Button type="submit" disabled={busy}>
+                    <Button type="submit" disabled={busy || form.purposeCodes.length === 0}>
                       Record consent
                     </Button>
                   </form>
