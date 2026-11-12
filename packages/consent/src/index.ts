@@ -13,6 +13,7 @@ export interface ConsentReceiptCredential {
     datasetIds: string[];
     legalBasis: LegalBasis;
     status: "granted" | "withdrawn";
+    expiresAt?: string;
   };
   proof: {
     type: "Sha256Attestation";
@@ -30,13 +31,16 @@ export function buildConsentReceipt(input: {
   legalBasis: LegalBasis;
   status: "granted" | "withdrawn";
   at: string;
+  expiresAt?: string | null;
 }): ConsentReceiptCredential {
-  const credentialSubject = {
+  const credentialSubject: ConsentReceiptCredential["credentialSubject"] = {
     id: input.cid,
     purposeCode: input.purposeCode,
     datasetIds: [...input.datasetIds].sort(),
     legalBasis: input.legalBasis,
     status: input.status,
+    // Only present when set, so receipts without an expiry keep their earlier hashes.
+    ...(input.expiresAt ? { expiresAt: input.expiresAt } : {}),
   };
   return {
     "@context": ["https://www.w3.org/2018/credentials/v1"],

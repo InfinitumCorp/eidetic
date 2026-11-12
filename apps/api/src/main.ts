@@ -5,6 +5,7 @@ import { COMPANY, MIL_PRODUCT, PRODUCT } from "@eidetic/contracts";
 import { createApp } from "./app.js";
 import { conjureRoutesFromEnv } from "./conjure/conjure.mjs";
 import { openClawRoutesFromEnv } from "./openclaw/openclaw.mjs";
+import { searchRoutesFromEnv } from "./search/search.mjs";
 import { readEnv } from "./env.js";
 import { createPool } from "./pg/pool.js";
 import { createPgRuntime, waitForDatabase } from "./runtime.js";
@@ -27,8 +28,10 @@ const app = createApp({
   demoMode: env.demoMode,
   matcherMode: env.matcherMode,
   milEnabled: env.milEnabled,
+  allowedOrigins: env.allowedOrigins,
   conjure: env.milEnabled ? null : conjureRoutesFromEnv(process.env, { prefix: "/v1/conjure", source: "eidetic" }),
   openclaw: env.milEnabled ? null : openClawRoutesFromEnv(process.env, { prefix: "/v1/openclaw", product: "eidetic" }),
+  search: env.milEnabled ? null : searchRoutesFromEnv(process.env, { prefix: "/v1/search" }),
   dbPing: async () => {
     try {
       await pool.query("select 1");
