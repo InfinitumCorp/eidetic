@@ -79,6 +79,12 @@ export interface SearchResult {
   audit: AuditReceipt;
 }
 
+export interface ConsentSweepResult {
+  checkedAt: string;
+  /** Subjects whose sealed template was purged because no consent grant is live any more. */
+  purged: Array<{ cid: string; seq: number; hash: string }>;
+}
+
 export interface ReviewSummary {
   reviewId: string;
   status: "pending" | "decided";
@@ -303,6 +309,42 @@ export class EideticService {
     });
     await this.submit(checkpoint);
     return this.subjectView(cid);
+  }
+
+  /**
+   * Purge the sealed template of every active subject whose consent grants have all lapsed or been withdrawn.
+   * The subject record and consent history stay, so the person can re-enroll. Each purge is audited.
+   */
+  async sweepLapsedConsent(actor: Actor): Promise<ConsentSweepResult> {
+    this.requireRole(actor, "admin", "Only an admin can purge templates for lapsed consent.");
+    const at = this.deps.now().toISOString();
+    const purged: ConsentSweepResult["purged"] = [];
+    for (const subject of await this.deps.repos.subjects.list()) {
+      if (subject.status !== "active") continue;
+      const template = await this.deps.repos.templates.activeForCid(subject.cid);
+      if (!template) continue;
+      const consents = await this.deps.repos.consents.listForSubject(subject.cid);
+      if (consents.some((consent) => consentIsLive(consent, at))) continue;
+      await this.deps.matcher.purge(template.storeKey);
+      const recorded = await this.deps.transaction(async (tx) => {
+        await tx.templates.markPurged(subject.cid, at);
+        return tx.audit.record({
+          actorId: actor.id,
+          action: "consent_lapsed",
+          recordedAt: at,
+          attestation: {
+            outcome: "recorded",
+            matchRan: false,
+            subjectCid: subject.cid,
+            sealedStorePurged: true,
+            message: "Every consent grant for this subject has lapsed. The sealed template was purged. Re-enrollment needs fresh consent.",
+          },
+        });
+      });
+      await this.submit(recorded.checkpoint);
+      purged.push({ cid: subject.cid, seq: recorded.entry.seq, hash: recorded.entry.hash });
+    }
+    return { checkedAt: at, purged };
   }
 
   async createPurpose(actor: Actor, purpose: PurposeDefinition): Promise<PurposeDefinition> {

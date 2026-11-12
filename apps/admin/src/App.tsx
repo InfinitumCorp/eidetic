@@ -65,6 +65,7 @@ export function App() {
   const [subjects, setSubjects] = useState<SubjectView[]>([]);
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [verify, setVerify] = useState<string>("Audit chain has not been checked this session.");
+  const [swept, setSwept] = useState<string | null>(null);
   const [seams, setSeams] = useState<Seam[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [biasNote, setBiasNote] = useState<string | null>(null);
@@ -152,6 +153,21 @@ export function App() {
     try {
       await api(`/v1/subjects/${encodeURIComponent(subject.cid)}/withdraw`, { method: "POST", body: "{}" });
       setWithdrawing(null);
+      await reload();
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Purge sealed templates for people whose consent has all lapsed. The API audits each purge.
+  async function sweepLapsed() {
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await api<{ purged: Array<{ cid: string }> }>("/v1/consents/sweep", { method: "POST", body: "{}" });
+      setSwept(result.purged.length === 0 ? "No lapsed consent. Nothing was purged." : `Purged ${result.purged.length} template(s) with lapsed consent.`);
       await reload();
     } catch (reason) {
       setError((reason as Error).message);
@@ -305,9 +321,15 @@ export function App() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Consent ledger</CardTitle>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <CardTitle>Consent ledger</CardTitle>
+                  <Button variant="outline" disabled={busy} onClick={sweepLapsed}>
+                    Purge lapsed templates
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
+                {swept && <p className="text-sm text-muted-foreground">{swept}</p>}
                 {subjects.length === 0 && <p className="text-sm text-muted-foreground">No one is enrolled. Consent is required before a search can run.</p>}
                 {subjects.map((subject) => (
                   <div key={subject.cid} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3">
