@@ -225,6 +225,10 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     const enrolled = await deps.service.enroll({ actor: c.get("actor"), ...body, image });
     return c.json(enrolled, 201);
   });
+  // Subject access request: one person's consents and audit activity. The export is itself audited.
+  app.get("/v1/subjects/:cid/access-report", async (c) =>
+    c.json(await deps.service.subjectAccess(c.get("actor"), c.req.param("cid"))),
+  );
   app.post("/v1/subjects/:cid/withdraw", async (c) => {
     const subject = await deps.service.withdraw(c.get("actor"), c.req.param("cid"));
     return c.json({ subject });

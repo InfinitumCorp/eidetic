@@ -41,6 +41,7 @@ flowchart LR
 
 - Subjects are enrolled under a Cumulus://ID™ style identifier, `cid://infinitum/...`. The VEIL seam is the named place a production enrollment capture would plug in. This MVP records consent locally.
 - A subject can withdraw. Withdrawal marks consent withdrawn and deletes the sealed template. Later searches for that CID fail closed.
+- A subject access report (`GET /v1/subjects/{cid}/access-report`, or **Access report** on the purpose desk) lists one person's consents and every audit entry that names them or lists them as a match candidate. Templates show as present or absent only. Admins and auditors can export it, and each export is written to the audit log as `subject_access`.
 - Gallery search only considers subjects who granted the requested purpose, legal basis, and dataset.
 - Review notes are redacted for email addresses, phone numbers, and SSN-shaped strings before they enter the audit attestation. The case file kept for the reviewer desk can still hold the original note.
 - Log fields are classed safe, unsafe, or DoNotLog. Biometric names (`template`, `embedding`, `image`, and the rest of that list) are DoNotLog. The vocabulary follows Palantir's public [safe-logging](https://github.com/palantir/safe-logging) projects. Those libraries are not dependencies. See [Reference vendors](#reference-vendors).

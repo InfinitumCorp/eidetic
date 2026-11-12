@@ -153,6 +153,27 @@ export function App() {
     }
   }
 
+  // Subject access request: download one person's consents and audit activity as JSON. The API audits the export.
+  async function downloadAccessReport(subject: SubjectView) {
+    setBusy(true);
+    setError(null);
+    try {
+      const report = await api<unknown>(`/v1/subjects/${encodeURIComponent(subject.cid)}/access-report`);
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `access-report-${subject.cid.replace(/^cid:\/\/infinitum\//, "")}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      await reload();
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function checkChain() {
     setBusy(true);
     try {
@@ -298,6 +319,10 @@ export function App() {
                         {subject.consents.map((consent) => `${consent.purposeCode} ${consent.status}`).join(", ") || "no consent"}
                       </p>
                     </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                    <Button variant="outline" disabled={busy} onClick={() => downloadAccessReport(subject)}>
+                      Access report
+                    </Button>
                     {subject.status === "withdrawn" ? (
                       <Badge variant="danger">Withdrawn</Badge>
                     ) : withdrawing === subject.cid ? (
@@ -314,6 +339,7 @@ export function App() {
                         Withdraw consent
                       </Button>
                     )}
+                    </div>
                   </div>
                 ))}
               </CardContent>
