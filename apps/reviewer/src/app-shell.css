@@ -99,6 +99,7 @@ sup.tm { font-size: .38em; vertical-align: super; line-height: 0; margin-left: .
   white-space: nowrap;
 }
 .app-wordmark:hover { color: var(--ink); }
+.app-wordmark .raven-mark { display: inline-block; width: 1.15em; height: 1.15em; margin-right: .1em; vertical-align: -.2em; }
 
 .app-nav {
   display: flex;

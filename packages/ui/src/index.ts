@@ -5,5 +5,6 @@ export { Button } from "./components/button";
 export { Card, CardContent, CardHeader, CardTitle } from "./components/card";
 export { Input } from "./components/input";
 export { Label } from "./components/label";
+export { RAVEN_PATH, RavenMark } from "./components/raven-mark";
 export { Textarea } from "./components/textarea";
 export { cn } from "./lib/utils";
