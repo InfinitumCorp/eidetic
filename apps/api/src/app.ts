@@ -20,6 +20,7 @@ import { seedSyntheticQueue, type EideticService, type Repositories } from "@eid
 import { describeSiteAsset } from "@eidetic/geo";
 import { SEAMS } from "@eidetic/seams";
 import type { ConjureRouteHandler } from "./conjure/conjure.mjs";
+import type { GeoRoutingService } from "./geo-routing.js";
 import type { OpenClawRouteHandler } from "./openclaw/openclaw.mjs";
 import type { SearchRoutes } from "./search/search.mjs";
 
@@ -64,6 +65,18 @@ const searchBody = z.object({
   recordHints: attributes,
   fixtureId: z.string().regex(/^[a-z0-9-]{3,64}$/).optional(),
   imageBase64: z.string().max(700_000).optional(),
+  routing: z
+    .object({
+      ip: z.string().min(1).max(64).optional(),
+      domain: z.string().min(1).max(253).optional(),
+    })
+    .optional(),
+});
+
+const geoSettingsBody = z.object({ geoRouting: z.boolean() });
+const geoLookupBody = z.object({
+  ip: z.string().min(1).max(64).optional(),
+  domain: z.string().min(1).max(253).optional(),
 });
 
 const purposeBody = z.object({
@@ -108,6 +121,7 @@ export interface AppDeps {
   milEnabled: boolean;
   dbPing: () => Promise<boolean>;
   adapters: Record<string, string>;
+  geoRouting?: GeoRoutingService;
   /** @conjure live forecasts (prefix /v1/conjure). Off when unset and on MIL deployments. */
   conjure?: ConjureRouteHandler | null;
   /** @scalvs / @scalus: the SCALVS agent on an OpenClaw gateway (prefix /v1/openclaw). Off when unset and on MIL deployments. */
@@ -274,9 +288,37 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
       product: PRODUCT,
       company: COMPANY,
       mil: { product: MIL_PRODUCT, enabled: deps.milEnabled, workflows: "not_implemented" },
-      adapters: deps.adapters,
+      adapters: deps.geoRouting
+        ? { ...deps.adapters, geoRouting: deps.geoRouting.active() ? "v2fly" : "off" }
+        : deps.adapters,
     }),
   );
+
+  app.get("/v1/settings/geo-routing", (c) => c.json(deps.geoRouting?.read() ?? geoRoutingOff()));
+  app.put("/v1/settings/geo-routing", async (c) => {
+    if (c.get("actor").role !== "admin") {
+      throw new EideticError("FORBIDDEN", "Only an admin can change geo routing.", 403, false);
+    }
+    if (!deps.geoRouting) {
+      throw new EideticError("POLICY_UNAVAILABLE", "Geo routing settings are not configured on this process.", 501, false);
+    }
+    const body = parse(geoSettingsBody, await readJson(c));
+    return c.json(deps.geoRouting.write(body.geoRouting));
+  });
+  app.post("/v1/geo/lookup", async (c) => {
+    if (c.get("actor").role !== "admin") {
+      throw new EideticError("FORBIDDEN", "Only an admin can look up a geo routing label.", 403, false);
+    }
+    if (!deps.geoRouting?.active()) {
+      throw new EideticError("FORBIDDEN", "Geo routing is off. Country and site-category labels stay unused.", 403, false);
+    }
+    const body = parse(geoLookupBody, await readJson(c));
+    if (!body.ip && !body.domain) {
+      throw new EideticError("VALIDATION", "Provide an IP address or a domain.", 422, false);
+    }
+    const note = deps.geoRouting.lookup(body);
+    return c.json(note ?? { countryCode: null, categories: [], usedForIdentityMatch: false });
+  });
 
   app.get("/v1/seams", (c) => c.json({ seams: SEAMS }));
   app.get("/v1/sites/:assetId", (c) => c.json(describeSiteAsset(c.req.param("assetId"))));
@@ -317,6 +359,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
       edition: body.edition ?? "business",
       subjectCid: body.subjectCid,
       recordHints: body.recordHints,
+      routing: body.routing,
       image,
     });
     return c.json(result, 201);
@@ -422,6 +465,10 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   });
 
   return app;
+}
+
+function geoRoutingOff() {
+  return { geoRouting: false, processOptIn: false, active: false, identityMatch: false as const };
 }
 
 function allow(actor: Actor, roles: Role[], what: string): void {

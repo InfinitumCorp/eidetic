@@ -46,6 +46,13 @@ interface Seam {
   summary: string;
 }
 
+interface GeoRoutingView {
+  geoRouting: boolean;
+  processOptIn: boolean;
+  active: boolean;
+  identityMatch: false;
+}
+
 const LEGAL_BASIS_OPTIONS = ["consent", "contract", "legal_obligation"] as const;
 const ROLE_OPTIONS = ["operator", "reviewer", "admin", "auditor"] as const;
 const EMPTY_PURPOSE = {
@@ -87,6 +94,7 @@ export function App() {
   const [seams, setSeams] = useState<Seam[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [biasNote, setBiasNote] = useState<string | null>(null);
+  const [geoRouting, setGeoRouting] = useState<GeoRoutingView | null>(null);
   const [busy, setBusy] = useState(false);
   const [withdrawing, setWithdrawing] = useState<string | null>(null);
   const [draft, setDraft] = useState<typeof EMPTY_PURPOSE | null>(null);
@@ -110,6 +118,11 @@ export function App() {
     setSeams(seamBody.seams);
     setMilEnabled(editionBody.mil.enabled);
     setEdition(`${editionBody.mil.product} flag ${editionBody.mil.enabled ? "on" : "off"} · ${editionBody.mil.workflows}`);
+    try {
+      setGeoRouting(await api<GeoRoutingView>("/v1/settings/geo-routing"));
+    } catch {
+      setGeoRouting({ geoRouting: false, processOptIn: false, active: false, identityMatch: false });
+    }
   }
 
   useEffect(() => {
@@ -256,6 +269,23 @@ export function App() {
     try {
       const proof = await api<{ ok: boolean; entries: number; head: string | null }>("/v1/audit/verify");
       setVerify(proof.ok ? `Chain intact across ${proof.entries} entries. Head ${proof.head ?? "empty"}.` : "Chain verification failed.");
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function toggleGeoRouting() {
+    if (!geoRouting) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const next = await api<GeoRoutingView>("/v1/settings/geo-routing", {
+        method: "PUT",
+        body: JSON.stringify({ geoRouting: !geoRouting.geoRouting }),
+      });
+      setGeoRouting(next);
     } catch (reason) {
       setError((reason as Error).message);
     } finally {
@@ -576,6 +606,26 @@ export function App() {
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   <p className="text-muted-foreground">{edition}. Military workflows are not implemented.</p>
+                  <div className="rounded-md border border-border p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <Label htmlFor="geo-routing">Geo routing</Label>
+                      <Button
+                        id="geo-routing"
+                        type="button"
+                        variant={geoRouting?.geoRouting ? "secondary" : "outline"}
+                        aria-pressed={geoRouting?.geoRouting ?? false}
+                        disabled={busy || !geoRouting}
+                        onClick={() => void toggleGeoRouting()}
+                      >
+                        {geoRouting?.geoRouting ? "On" : "Off"}
+                      </Button>
+                    </div>
+                    <p className="mt-2 text-muted-foreground">
+                      Default off. Country and site-category labels for cyber routing. Not used for identity matching.
+                      {geoRouting && !geoRouting.processOptIn ? " INFINITUM_GEO_ENABLED is off, so the hook stays inactive." : ""}
+                      {geoRouting?.active ? " The hook is active for routing labels only." : ""}
+                    </p>
+                  </div>
                   <Button variant="outline" disabled={busy} onClick={runBias}>
                     Run sample cohort evaluation
                   </Button>

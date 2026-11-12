@@ -53,3 +53,7 @@ noncommercial research use. Do not download them into this repository.
 MATCHER_MODE=insightface remains an explicit sidecar opt-in.
 
 Palantir and Flock Safety libraries and products are not bundled.
+
+Optional v2fly geo routing datasets are not committed. geoip.dat is
+CC-BY-SA-4.0 and geosite.dat (published as dlc.dat) is MIT. See
+THIRD_PARTY_NOTICES. Loyalsoldier and sing-box geo datasets are not used.

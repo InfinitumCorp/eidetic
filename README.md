@@ -213,6 +213,20 @@ Checkpoints are signed with Ed25519. Verifiers need the public key, which is inc
 
 `packages/geo` answers `GET /v1/sites/hq-washington` with the Washington office asset. Rasterio is not imported. Requests that ask to follow a person, drone, satellite, or plate are refused.
 
+## Geo routing
+
+Country and site-category labels are optional and off by default. They are a cyber routing annotation. They are not used for identity matching, and they do not change who can be searched.
+
+Both switches have to be on. `INFINITUM_GEO_ENABLED=true` is the process opt-in. The persisted toggle lives in `data/settings.json` and defaults to false. Set it from the purpose desk, or with `pnpm geo:routing -- --on` and `--off`. `pnpm geo:routing -- --status` prints both switches.
+
+```bash
+pnpm geo:fetch
+```
+
+That downloads pinned v2fly releases into `data/geo/` and checks them against the official `.sha256sum` files and `packages/geo/geo.lock.json`. The binaries are not committed. The lists are v2fly `geoip.dat` (CC-BY-SA-4.0) and `dlc.dat` saved as `geosite.dat` (MIT). Loyalsoldier and sing-box datasets are not used.
+
+A search can include `routing: { ip, domain }`. When the hook is active, the response and the process log gain a country code and site categories. The raw address is not written to the audit log. The matcher does not see it. When either switch is off, the search response is unchanged.
+
 ## Replacing the mock matcher
 
 Implement `MatcherAdapter` (`assess`, `enroll`, `match`, `purge`). Keep template bytes inside that class. `match` must return confidence and explainable evidence only. `createMatcher` is the env-flag factory.

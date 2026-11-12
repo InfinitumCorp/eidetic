@@ -1,0 +1,38 @@
+Third-party notices for ei·det·ic™
+
+The geo routing datasets are optional. They are not committed to this
+repository. `pnpm geo:fetch` downloads the pinned releases into data/geo/
+and checks the official .sha256sum files. The hook is off unless
+INFINITUM_GEO_ENABLED=true and the persisted geo-routing setting is on.
+These labels are for cyber routing. They are not used for identity matching.
+
+v2fly geoip
+  Project: https://github.com/v2fly/geoip
+  Asset: geoip.dat
+  Release tag: 202611080027
+  URL: https://github.com/v2fly/geoip/releases/tag/202611080027
+  SHA-256: eedb24b3b9fcba27e06b92c0428dab90d9496083091ae4cf39e11387fd99d0e2
+  License: Creative Commons Attribution-ShareAlike 4.0 International
+  (CC-BY-SA-4.0). https://creativecommons.org/licenses/by-sa/4.0/
+  Copyright: the v2fly geoip authors and the data sources named in that project.
+  If you redistribute the downloaded geoip.dat file, keep this attribution
+  and follow CC-BY-SA-4.0. This repository does not modify the file.
+
+v2fly domain-list-community
+  Project: https://github.com/v2fly/domain-list-community
+  Asset: dlc.dat, stored locally as geosite.dat
+  Release tag: 20261108011013
+  URL: https://github.com/v2fly/domain-list-community/releases/tag/20261108011013
+  SHA-256: dc4192dd1b644a38276ed06136d26e729fa674d25785adb38c87e040e92376b2
+  License: MIT
+  Copyright: the domain-list-community authors.
+  Permission is granted to use, copy, modify, merge, publish, distribute,
+  sublicense, and/or sell copies of the dataset, subject to the MIT terms
+  published with that project. The binary is not vendored here.
+
+Not used
+  Loyalsoldier and sing-box geo datasets are GPL-3.0. This repository does
+  not download, ship, or link those files.
+
+Other third-party software already named in NOTICE stays under the licenses
+published by its authors.

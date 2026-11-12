@@ -4,7 +4,14 @@ import { describe, expect, it } from "vitest";
 import type { Actor, PurposeDefinition } from "@eidetic/contracts";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { OpaPolicyDecider, authorizeSearch, mapKeycloakRoles, mapVerifiedKeycloakClaims, type PolicyInput } from "./index.js";
+import {
+  OpaPolicyDecider,
+  attachGeoRoutingAnnotation,
+  authorizeSearch,
+  mapKeycloakRoles,
+  mapVerifiedKeycloakClaims,
+  type PolicyInput,
+} from "./index.js";
 
 const operator: Actor = { id: "actor-operator", displayName: "Mira Calder", role: "operator" };
 const admin: Actor = { id: "actor-admin", displayName: "Idris Hale", role: "admin" };
@@ -31,6 +38,21 @@ function input(overrides: Partial<PolicyInput> = {}): PolicyInput {
     ...overrides,
   };
 }
+
+describe("geo routing annotation", () => {
+  it("leaves the decision object unchanged when geo routing is off", () => {
+    const decision = authorizeSearch(input());
+    expect(attachGeoRoutingAnnotation(decision, null)).toBe(decision);
+    const noted = attachGeoRoutingAnnotation(decision, {
+      countryCode: "US",
+      categories: ["example"],
+      usedForIdentityMatch: false,
+    });
+    expect(noted.allow).toBe(true);
+    expect(noted.geoRouting).toEqual({ countryCode: "US", categories: ["example"], usedForIdentityMatch: false });
+    expect(decision).toEqual({ allow: true });
+  });
+});
 
 describe("authorizeSearch", () => {
   it("allows an operator with an approved purpose, basis, and dataset", () => {

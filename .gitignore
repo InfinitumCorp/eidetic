@@ -5,6 +5,9 @@ data/templates/*
 !data/templates/.gitkeep
 data/audit-ed25519.pem
 data/models/
+data/geo/*
+!data/geo/.gitkeep
+data/settings.json
 *.log
 coverage
 .DS_Store
