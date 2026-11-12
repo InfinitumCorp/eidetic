@@ -54,6 +54,14 @@ describe("request ids and the access log", () => {
     });
     const body = (await invalid.json()) as { error: { requestId: string } };
     expect(body.error.requestId).toBe(invalid.headers.get("x-request-id"));
+
+    const oversized = await app.request("/v1/searches", {
+      method: "POST",
+      headers: { authorization: "Bearer dev-operator", "content-type": "application/json", "x-request-id": "big-body-0001" },
+      body: JSON.stringify({ pad: "x".repeat(1_100_000) }),
+    });
+    expect(oversized.status).toBe(413);
+    expect(((await oversized.json()) as { error: { requestId: string } }).error.requestId).toBe("big-body-0001");
   });
 
   it("logs the route pattern, never the CID in the path, the query, or the token", async () => {
