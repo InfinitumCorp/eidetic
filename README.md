@@ -126,7 +126,7 @@ Starts the API with in-memory stores and the mock matcher, plus both desks signe
 docker compose up --build
 ```
 
-The review and purpose desks proxy `/v1` to the API. Postgres is on host port 54329. Set `DEMO_MODE=false` before any shared deployment, and do not rely on the dev tokens.
+The review and purpose desks proxy `/v1` to the API, so they are same-origin. A desk served from another origin needs that origin in `ALLOWED_ORIGINS`. The API sends standard security headers, marks every `/v1` response `Cache-Control: no-store`, and refuses request bodies over 1MB. Postgres is on host port 54329. Set `DEMO_MODE=false` before any shared deployment, and do not rely on the dev tokens.
 
 ### Demo
 

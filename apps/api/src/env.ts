@@ -34,6 +34,8 @@ export interface Env {
   /** Local development only: accept the seeded dev-* bearer tokens. Needs DEMO_MODE=true. */
   devBearer: boolean;
   migrationsDir: string;
+  /** ALLOWED_ORIGINS: comma-separated browser origins for CORS. Unset keeps the local desks. */
+  allowedOrigins?: string[];
 }
 
 export function loadEnvFile(): void {
@@ -100,7 +102,25 @@ export function readEnv(): Env {
     cid: readCidConfig(process.env),
     devBearer: process.env.EIDETIC_DEV_BEARER === "true",
     migrationsDir: process.env.MIGRATIONS_DIR ?? findMigrations(),
+    allowedOrigins: readAllowedOrigins(process.env.ALLOWED_ORIGINS),
   };
+}
+
+export function readAllowedOrigins(value: string | undefined): string[] | undefined {
+  const items = (value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
+  if (items.length === 0) return undefined;
+  for (const item of items) {
+    let url: URL;
+    try {
+      url = new URL(item);
+    } catch {
+      throw new Error(`ALLOWED_ORIGINS has an entry that is not a URL: ${item}`);
+    }
+    if ((url.protocol !== "https:" && url.protocol !== "http:") || url.origin !== item) {
+      throw new Error(`ALLOWED_ORIGINS entries must be bare origins like https://desk.example.com, not ${item}`);
+    }
+  }
+  return items;
 }
 
 function resolveStorePath(value: string): string {

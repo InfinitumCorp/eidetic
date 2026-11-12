@@ -1,7 +1,9 @@
 // © Infinitum Corporation®. All rights reserved.
 
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
+import { secureHeaders } from "hono/secure-headers";
 import { z } from "zod";
 import {
   COMPANY,
@@ -21,12 +23,15 @@ import type { ConjureRouteHandler } from "./conjure/conjure.mjs";
 import type { OpenClawRouteHandler } from "./openclaw/openclaw.mjs";
 import type { SearchRoutes } from "./search/search.mjs";
 
-const allowedOrigins = new Set([
+export const DEFAULT_ALLOWED_ORIGINS = [
   "http://127.0.0.1:43111",
   "http://localhost:43111",
   "http://127.0.0.1:43112",
   "http://localhost:43112",
-]);
+];
+
+/** Largest request body the API reads: a 512KB image, base64-encoded, plus the JSON around it. */
+export const MAX_BODY_BYTES = 1024 * 1024;
 
 const code = z.string().regex(/^[a-z][a-z0-9_]{2,64}$/);
 const legalBasis = z.enum(["consent", "contract", "legal_obligation"]);
@@ -107,6 +112,8 @@ export interface AppDeps {
   conjure?: ConjureRouteHandler | null;
   /** @scalvs / @scalus: the SCALVS agent on an OpenClaw gateway (prefix /v1/openclaw). Off when unset and on MIL deployments. */
   openclaw?: OpenClawRouteHandler | null;
+  /** Browser origins allowed to call the API cross-origin. Defaults to the local desks. */
+  allowedOrigins?: string[];
   /** @search: Infinitum Search, a web answer with numbered sources (prefix /v1/search). Off when unset and on MIL deployments. */
   search?: SearchRoutes | null;
 }
@@ -115,6 +122,8 @@ type Variables = { actor: Actor };
 
 export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   const app = new Hono<{ Variables: Variables }>();
+  const allowedOrigins = new Set(deps.allowedOrigins ?? DEFAULT_ALLOWED_ORIGINS);
+  app.use("*", secureHeaders({ crossOriginResourcePolicy: "same-site" }));
   app.use(
     "*",
     cors({
@@ -122,6 +131,19 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
       allowHeaders: ["Authorization", "Content-Type"],
     }),
   );
+  app.use(
+    "/v1/*",
+    bodyLimit({
+      maxSize: MAX_BODY_BYTES,
+      onError: (c) =>
+        c.json({ error: { code: "VALIDATION", message: "Request body is larger than 1MB.", matchRan: false } }, 413),
+    }),
+  );
+  // Subject, review and audit responses must not sit in browser or proxy caches.
+  app.use("/v1/*", async (c, next) => {
+    await next();
+    c.header("Cache-Control", "no-store");
+  });
 
   app.get("/v1/health", async (c) => {
     const db = await deps.dbPing();
