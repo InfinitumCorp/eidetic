@@ -63,7 +63,25 @@ const EMPTY_PURPOSE = {
   legalBases: ["consent"] as string[],
   datasets: "",
   allowedRoles: ["operator"] as string[],
+  // Set when the form edits an existing purpose: the code is fixed and its active state is kept.
+  editing: false,
+  active: true,
 };
+
+const AUDIT_ACTIONS = [
+  { value: "enroll", label: "Enrollments" },
+  { value: "withdraw", label: "Withdrawals" },
+  { value: "search", label: "Searches" },
+  { value: "review", label: "Review decisions" },
+  { value: "purpose_upsert", label: "Purpose changes" },
+  { value: "subject_access", label: "Subject access reports" },
+  { value: "consent_lapsed", label: "Lapsed-consent purges" },
+  { value: "bias_evaluation", label: "Bias evaluations" },
+];
+
+function auditPath(action: string, limit: number): string {
+  return `/v1/audit?limit=${limit}${action ? `&action=${action}` : ""}`;
+}
 
 function toggle(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
@@ -90,7 +108,9 @@ export function App() {
   const [subjects, setSubjects] = useState<SubjectView[]>([]);
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [olderThan, setOlderThan] = useState<number | null>(null);
+  const [auditAction, setAuditAction] = useState("");
   const [verify, setVerify] = useState<string>("Audit chain has not been checked this session.");
+  const [swept, setSwept] = useState<string | null>(null);
   const [seams, setSeams] = useState<Seam[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [biasNote, setBiasNote] = useState<string | null>(null);
@@ -107,7 +127,7 @@ export function App() {
     const [purposeBody, subjectBody, auditBody, seamBody, editionBody] = await Promise.all([
       api<{ purposes: Purpose[] }>("/v1/purposes"),
       api<{ subjects: SubjectView[] }>("/v1/subjects"),
-      api<{ entries: AuditEntry[]; nextBefore: number | null }>("/v1/audit?limit=8"),
+      api<{ entries: AuditEntry[]; nextBefore: number | null }>(auditPath(auditAction, 8)),
       api<{ seams: Seam[] }>("/v1/seams"),
       api<{ mil: { enabled: boolean; workflows: string; product: string } }>("/v1/edition"),
     ]);
@@ -210,7 +230,7 @@ export function App() {
       legalBases: draft.legalBases,
       datasetIds,
       allowedRoles: draft.allowedRoles,
-      active: true,
+      active: draft.active,
     });
     if (saved) setDraft(null);
   }
@@ -229,11 +249,27 @@ export function App() {
     }
   }
 
+  // Show only one kind of audit entry. The API filters, so paging stays exact.
+  async function filterAudit(action: string) {
+    setAuditAction(action);
+    setBusy(true);
+    setError(null);
+    try {
+      const page = await api<{ entries: AuditEntry[]; nextBefore: number | null }>(auditPath(action, 8));
+      setEntries(page.entries);
+      setOlderThan(page.nextBefore);
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function loadOlder() {
     if (olderThan === null) return;
     setBusy(true);
     try {
-      const page = await api<{ entries: AuditEntry[]; nextBefore: number | null }>(`/v1/audit?limit=20&before=${olderThan}`);
+      const page = await api<{ entries: AuditEntry[]; nextBefore: number | null }>(`${auditPath(auditAction, 20)}&before=${olderThan}`);
       setEntries((current) => [...current, ...page.entries]);
       setOlderThan(page.nextBefore);
     } catch (reason) {
@@ -256,6 +292,21 @@ export function App() {
       link.download = `access-report-${subject.cid.replace("cid://infinitum/", "")}.json`;
       link.click();
       URL.revokeObjectURL(url);
+      await reload();
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Purge sealed templates for people whose consent has all lapsed. The API audits each purge.
+  async function sweepLapsed() {
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await api<{ purged: Array<{ cid: string }> }>("/v1/consents/sweep", { method: "POST", body: "{}" });
+      setSwept(result.purged.length === 0 ? "No lapsed consent. Nothing was purged." : `Purged ${result.purged.length} template(s) with lapsed consent.`);
       await reload();
     } catch (reason) {
       setError((reason as Error).message);
@@ -382,7 +433,26 @@ export function App() {
                       <p className="mt-2 font-mono text-xs text-muted-foreground">
                         {purpose.code} · {purpose.legalBases.join(", ")} · {purpose.datasetIds.join(", ")} · {purpose.allowedRoles.join(", ")}
                       </p>
-                      <div className="mt-2">
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Button
+                          variant="outline"
+                          disabled={busy || Boolean(draft)}
+                          onClick={() =>
+                            setDraft({
+                              code: purpose.code,
+                              title: purpose.title,
+                              description: purpose.description,
+                              edition: purpose.edition,
+                              legalBases: [...purpose.legalBases],
+                              datasets: purpose.datasetIds.join(", "),
+                              allowedRoles: [...purpose.allowedRoles],
+                              editing: true,
+                              active: purpose.active,
+                            })
+                          }
+                        >
+                          Edit
+                        </Button>
                         <Button variant="outline" disabled={busy} onClick={() => savePurpose({ ...purpose, active: !purpose.active })}>
                           {purpose.active ? "Retire" : "Reinstate"}
                         </Button>
@@ -391,12 +461,18 @@ export function App() {
                   ))}
                   {draft && (
                     <form className="space-y-3 rounded-md border border-border p-3" onSubmit={publishDraft}>
+                      {draft.editing && (
+                        <p className="text-xs text-muted-foreground">
+                          Editing {draft.code}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.
+                        </p>
+                      )}
                       <div>
                         <Label htmlFor="purpose-code">Code</Label>
                         <Input
                           id="purpose-code"
                           placeholder="visitor_check_in"
                           value={draft.code}
+                          disabled={draft.editing}
                           onChange={(event) => setDraft({ ...draft, code: event.target.value })}
                         />
                       </div>
@@ -465,7 +541,7 @@ export function App() {
                       </fieldset>
                       <div className="flex gap-2">
                         <Button type="submit" disabled={busy}>
-                          Publish
+                          {draft.editing ? "Save changes" : "Publish"}
                         </Button>
                         <Button type="button" variant="outline" onClick={() => setDraft(null)}>
                           Cancel
@@ -528,9 +604,15 @@ export function App() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Consent ledger</CardTitle>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <CardTitle>Consent ledger</CardTitle>
+                  <Button variant="outline" disabled={busy} onClick={sweepLapsed}>
+                    Purge lapsed templates
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
+                {swept && <p className="text-sm text-muted-foreground">{swept}</p>}
                 {subjects.length === 0 && <p className="text-sm text-muted-foreground">No one is enrolled. Consent is required before a search can run.</p>}
                 {subjects.map((subject) => (
                   <div key={subject.cid} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3">
@@ -597,8 +679,25 @@ export function App() {
                   <Button variant="secondary" disabled={busy} onClick={checkChain}>
                     Verify hash chain
                   </Button>
+                  <div>
+                    <Label htmlFor="audit-action">Show</Label>
+                    <select
+                      id="audit-action"
+                      className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                      value={auditAction}
+                      disabled={busy}
+                      onChange={(event) => filterAudit(event.target.value)}
+                    >
+                      <option value="">Every entry</option>
+                      {AUDIT_ACTIONS.map((action) => (
+                        <option key={action.value} value={action.value}>
+                          {action.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <ul className="space-y-2 text-xs">
-                    {entries.length === 0 && <li className="text-muted-foreground">The log is empty.</li>}
+                    {entries.length === 0 && <li className="text-muted-foreground">{auditAction ? "No entries of this kind." : "The log is empty."}</li>}
                     {entries.map((entry) => (
                       <li key={entry.seq} className="font-mono text-muted-foreground">
                         {entry.seq} {entry.action} {entry.hash.slice(0, 12)} · {entry.attestation.message}

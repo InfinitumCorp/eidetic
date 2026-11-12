@@ -32,6 +32,7 @@ interface Candidate {
   confidence: number;
   rank: number;
   evidence: Array<{ kind: string; summary: string; weight: number }>;
+  consentStatus?: "granted" | "withdrawn" | "expired";
 }
 
 interface ReviewDetail extends ReviewSummary {
@@ -120,7 +121,7 @@ export function App() {
     api<ReviewDetail>(`/v1/reviews/${selectedId}`, token)
       .then((body) => {
         setDetail(body);
-        setSelectedCid(body.candidates[0]?.cid ?? null);
+        setSelectedCid(body.candidates.find((candidate) => !candidate.consentStatus || candidate.consentStatus === "granted")?.cid ?? null);
         setNotes("");
         setReceipt(null);
       })
@@ -288,7 +289,12 @@ export function App() {
                             <span className="font-medium">
                               {candidate.rank}. {candidate.displayName}
                             </span>
-                            <span className="font-mono text-sm">{candidate.confidence.toFixed(2)}</span>
+                            <span className="flex items-center gap-2">
+                              {candidate.consentStatus && candidate.consentStatus !== "granted" && (
+                                <Badge variant="danger">{candidate.consentStatus === "expired" ? "Consent expired" : "Consent withdrawn"}</Badge>
+                              )}
+                              <span className="font-mono text-sm">{candidate.confidence.toFixed(2)}</span>
+                            </span>
                           </div>
                           <p className="mt-1 font-mono text-xs text-muted-foreground">{candidate.cid}</p>
                           <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
@@ -296,7 +302,12 @@ export function App() {
                               <li key={`${candidate.cid}-${item.kind}-${item.summary}`}>{item.summary}</li>
                             ))}
                           </ul>
-                          {detail.status === "pending" && (
+                          {detail.status === "pending" && candidate.consentStatus && candidate.consentStatus !== "granted" && (
+                            <p className="mt-2 text-sm text-muted-foreground">
+                              This person&apos;s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.
+                            </p>
+                          )}
+                          {detail.status === "pending" && (!candidate.consentStatus || candidate.consentStatus === "granted") && (
                             <span className="mt-2 flex items-center gap-2 text-sm">
                               <input
                                 type="radio"

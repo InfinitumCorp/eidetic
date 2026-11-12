@@ -60,6 +60,8 @@ export interface SubjectView {
   template: { present: boolean; quality: number | null };
 }
 
+export type CandidateConsent = "granted" | "withdrawn" | "expired";
+
 export interface SearchResult {
   searchId: string;
   reviewId: string;
@@ -74,7 +76,8 @@ export interface SearchResult {
     confidence: number;
     rank: number;
     evidence: EvidenceItem[];
-    consentStatus: "granted";
+    /** The candidate's consent for this search's purpose, legal basis and dataset, as of when it is read. */
+    consentStatus: CandidateConsent;
   }>;
   audit: AuditReceipt;
   geoRouting?: GeoRoutingAnnotation;
@@ -101,6 +104,12 @@ export interface SubjectAccessReport {
   /** The audit entry that records this export. */
   audit: { seq: number; hash: string };
   note: string;
+}
+
+export interface ConsentSweepResult {
+  checkedAt: string;
+  /** Subjects whose sealed template was purged because no consent grant is live any more. */
+  purged: Array<{ cid: string; seq: number; hash: string }>;
 }
 
 export interface ReviewSummary {
@@ -408,6 +417,42 @@ export class EideticService {
       audit: { seq: head?.seq ?? 0, hash: head?.hash ?? "" },
       note: "Biometric templates are reported as present or absent. Their bytes are never exported.",
     };
+  }
+
+  /**
+   * Purge the sealed template of every active subject whose consent grants have all lapsed or been withdrawn.
+   * The subject record and consent history stay, so the person can re-enroll. Each purge is audited.
+   */
+  async sweepLapsedConsent(actor: Actor): Promise<ConsentSweepResult> {
+    this.requireRole(actor, "admin", "Only an admin can purge templates for lapsed consent.");
+    const at = this.deps.now().toISOString();
+    const purged: ConsentSweepResult["purged"] = [];
+    for (const subject of await this.deps.repos.subjects.list()) {
+      if (subject.status !== "active") continue;
+      const template = await this.deps.repos.templates.activeForCid(subject.cid);
+      if (!template) continue;
+      const consents = await this.deps.repos.consents.listForSubject(subject.cid);
+      if (consents.some((consent) => consentIsLive(consent, at))) continue;
+      await this.deps.matcher.purge(template.storeKey);
+      const recorded = await this.deps.transaction(async (tx) => {
+        await tx.templates.markPurged(subject.cid, at);
+        return tx.audit.record({
+          actorId: actor.id,
+          action: "consent_lapsed",
+          recordedAt: at,
+          attestation: {
+            outcome: "recorded",
+            matchRan: false,
+            subjectCid: subject.cid,
+            sealedStorePurged: true,
+            message: "Every consent grant for this subject has lapsed. The sealed template was purged. Re-enrollment needs fresh consent.",
+          },
+        });
+      });
+      await this.submit(recorded.checkpoint);
+      purged.push({ cid: subject.cid, seq: recorded.entry.seq, hash: recorded.entry.hash });
+    }
+    return { checkedAt: at, purged };
   }
 
   async createPurpose(actor: Actor, purpose: PurposeDefinition): Promise<PurposeDefinition> {
@@ -879,6 +924,8 @@ export class EideticService {
 
   private async candidateViews(searchId: string): Promise<SearchResult["candidates"]> {
     const candidates = await this.deps.repos.candidates.listForSearch(searchId);
+    const search = await this.deps.repos.searches.get(searchId);
+    const at = this.deps.now().toISOString();
     const views: SearchResult["candidates"] = [];
     for (const candidate of candidates) {
       const subject = await this.deps.repos.subjects.get(candidate.cid);
@@ -888,10 +935,29 @@ export class EideticService {
         confidence: candidate.confidence,
         rank: candidate.rank,
         evidence: candidate.evidence,
-        consentStatus: "granted",
+        consentStatus: search ? await this.candidateConsent(candidate.cid, search, at) : "withdrawn",
       });
     }
     return views;
+  }
+
+  /** Live consent for one candidate against the search it came from. Anything other than "granted" blocks confirmation. */
+  private async candidateConsent(
+    cid: string,
+    search: { purposeCode: string; legalBasis: LegalBasis; datasetId: string },
+    at: string,
+  ): Promise<CandidateConsent> {
+    const subject = await this.deps.repos.subjects.get(cid);
+    if (!subject || subject.status !== "active") return "withdrawn";
+    const grants = (await this.deps.repos.consents.listForSubject(cid)).filter(
+      (consent) =>
+        consent.status === "granted" &&
+        consent.purposeCode === search.purposeCode &&
+        consent.legalBasis === search.legalBasis &&
+        consent.datasetIds.includes(search.datasetId),
+    );
+    if (grants.some((consent) => consentIsLive(consent, at))) return "granted";
+    return grants.length > 0 ? "expired" : "withdrawn";
   }
 
   private async subjectView(cid: string): Promise<SubjectView> {

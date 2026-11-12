@@ -13,6 +13,7 @@
     "demo:http": "tsx scripts/demo.ts --http",
     "audit:verify": "pnpm --filter @eidetic/api audit:verify",
     "audit:export": "pnpm --filter @eidetic/api audit:export",
+    "consent:sweep": "pnpm --filter @eidetic/api consent:sweep",
     "matcher:fetch-models": "tsx scripts/fetch-opencv-zoo-models.ts",
     "geo:fetch": "tsx scripts/fetch-geo-dat.ts",
     "geo:routing": "tsx scripts/geo-routing.ts",
