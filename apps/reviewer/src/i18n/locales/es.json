@@ -85,5 +85,9 @@
   "Sign in to the purpose desk": "Inicia sesión en el escritorio de propósito",
   "Consent expired": "Consentimiento caducado",
   "Consent withdrawn": "Consentimiento retirado",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente.",
+  "Waiting under a minute": "Esperando menos de un minuto",
+  "Waiting {0} min": "Esperando {0} min",
+  "Waiting {0} h": "Esperando {0} h",
+  "Waiting {0} d": "Esperando {0} d"
 }

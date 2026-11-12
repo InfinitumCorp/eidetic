@@ -85,5 +85,9 @@
   "Sign in to the purpose desk": "Войдите в деск назначения",
   "Consent expired": "Срок согласия истёк",
   "Consent withdrawn": "Согласие отозвано",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную.",
+  "Waiting under a minute": "Ждёт меньше минуты",
+  "Waiting {0} min": "Ждёт {0} мин",
+  "Waiting {0} h": "Ждёт {0} ч",
+  "Waiting {0} d": "Ждёт {0} дн."
 }

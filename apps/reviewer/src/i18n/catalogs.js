@@ -87,7 +87,11 @@ export default {
   "Sign in to the purpose desk": "Sign in to the purpose desk",
   "Consent expired": "Consent expired",
   "Consent withdrawn": "Consent withdrawn",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.",
+  "Waiting under a minute": "Waiting under a minute",
+  "Waiting {0} min": "Waiting {0} min",
+  "Waiting {0} h": "Waiting {0} h",
+  "Waiting {0} d": "Waiting {0} d"
  },
  "ru": {
   "{0} Audit hash {1}.": "{0} Хеш аудита {1}.",
@@ -176,7 +180,11 @@ export default {
   "Sign in to the purpose desk": "Войдите в деск назначения",
   "Consent expired": "Срок согласия истёк",
   "Consent withdrawn": "Согласие отозвано",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную.",
+  "Waiting under a minute": "Ждёт меньше минуты",
+  "Waiting {0} min": "Ждёт {0} мин",
+  "Waiting {0} h": "Ждёт {0} ч",
+  "Waiting {0} d": "Ждёт {0} дн."
  },
  "uk": {
   "{0} Audit hash {1}.": "{0} Аудит хеш {1}.",
@@ -265,7 +273,11 @@ export default {
   "Sign in to the purpose desk": "Увійдіть у деск цілей",
   "Consent expired": "Термін згоди минув",
   "Consent withdrawn": "Згоду відкликано",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий.",
+  "Waiting under a minute": "Чекає менше хвилини",
+  "Waiting {0} min": "Чекає {0} хв",
+  "Waiting {0} h": "Чекає {0} год",
+  "Waiting {0} d": "Чекає {0} дн."
  },
  "es": {
   "{0} Audit hash {1}.": "{0} Hash de auditoría {1}.",
@@ -354,7 +366,11 @@ export default {
   "Sign in to the purpose desk": "Inicia sesión en el escritorio de propósito",
   "Consent expired": "Consentimiento caducado",
   "Consent withdrawn": "Consentimiento retirado",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente.",
+  "Waiting under a minute": "Esperando menos de un minuto",
+  "Waiting {0} min": "Esperando {0} min",
+  "Waiting {0} h": "Esperando {0} h",
+  "Waiting {0} d": "Esperando {0} d"
  },
  "fr": {
   "{0} Audit hash {1}.": "{0} Hachage d'audit {1}.",
@@ -443,7 +459,11 @@ export default {
   "Sign in to the purpose desk": "Connectez-vous au bureau des finalités",
   "Consent expired": "Consentement expiré",
   "Consent withdrawn": "Consentement retiré",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Le consentement de cette personne ne couvre plus cette recherche : une confirmation serait refusée. Rejetez ou marquez l’examen comme non concluant."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Le consentement de cette personne ne couvre plus cette recherche : une confirmation serait refusée. Rejetez ou marquez l’examen comme non concluant.",
+  "Waiting under a minute": "En attente depuis moins d'une minute",
+  "Waiting {0} min": "En attente depuis {0} min",
+  "Waiting {0} h": "En attente depuis {0} h",
+  "Waiting {0} d": "En attente depuis {0} j"
  },
  "de": {
   "{0} Audit hash {1}.": "{0} Prüf‑Hash {1}.",
@@ -532,7 +552,11 @@ export default {
   "Sign in to the purpose desk": "Beim Zweck‑Desk anmelden",
   "Consent expired": "Einwilligung abgelaufen",
   "Consent withdrawn": "Einwilligung widerrufen",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Die Einwilligung dieser Person deckt diese Suche nicht mehr ab, eine Bestätigung würde abgelehnt. Lehnen Sie ab oder markieren Sie die Prüfung als nicht eindeutig."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Die Einwilligung dieser Person deckt diese Suche nicht mehr ab, eine Bestätigung würde abgelehnt. Lehnen Sie ab oder markieren Sie die Prüfung als nicht eindeutig.",
+  "Waiting under a minute": "Wartet seit unter einer Minute",
+  "Waiting {0} min": "Wartet seit {0} Min.",
+  "Waiting {0} h": "Wartet seit {0} Std.",
+  "Waiting {0} d": "Wartet seit {0} T."
  },
  "pt": {
   "{0} Audit hash {1}.": "{0} Hash de auditoria {1}.",
@@ -621,7 +645,11 @@ export default {
   "Sign in to the purpose desk": "Entre no desk de propósito",
   "Consent expired": "Consentimento expirado",
   "Consent withdrawn": "Consentimento retirado",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "O consentimento desta pessoa não cobre mais esta pesquisa, então uma confirmação seria recusada. Rejeite ou marque a revisão como inconclusiva."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "O consentimento desta pessoa não cobre mais esta pesquisa, então uma confirmação seria recusada. Rejeite ou marque a revisão como inconclusiva.",
+  "Waiting under a minute": "Aguardando há menos de um minuto",
+  "Waiting {0} min": "Aguardando há {0} min",
+  "Waiting {0} h": "Aguardando há {0} h",
+  "Waiting {0} d": "Aguardando há {0} d"
  },
  "zh": {
   "{0} Audit hash {1}.": "{0} 审计哈希 {1}。",
@@ -710,7 +738,11 @@ export default {
   "Sign in to the purpose desk": "登录目的桌面",
   "Consent expired": "同意已过期",
   "Consent withdrawn": "同意已撤回",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。"
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。",
+  "Waiting under a minute": "等待不到 1 分钟",
+  "Waiting {0} min": "已等待 {0} 分钟",
+  "Waiting {0} h": "已等待 {0} 小时",
+  "Waiting {0} d": "已等待 {0} 天"
  },
  "ar": {
   "{0} Audit hash {1}.": "{0} تجزئة التدقيق {1}.",
@@ -799,6 +831,10 @@ export default {
   "Sign in to the purpose desk": "سجّل الدخول إلى مكتب الهدف",
   "Consent expired": "انتهت صلاحية الموافقة",
   "Consent withdrawn": "سُحبت الموافقة",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "لم تعد موافقة هذا الشخص تشمل هذا البحث، لذا سيُرفض أي تأكيد. ارفض أو علّم المراجعة على أنها غير حاسمة."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "لم تعد موافقة هذا الشخص تشمل هذا البحث، لذا سيُرفض أي تأكيد. ارفض أو علّم المراجعة على أنها غير حاسمة.",
+  "Waiting under a minute": "بانتظار أقل من دقيقة",
+  "Waiting {0} min": "بانتظار منذ {0} دقيقة",
+  "Waiting {0} h": "بانتظار منذ {0} ساعة",
+  "Waiting {0} d": "بانتظار منذ {0} يوم"
  }
 };

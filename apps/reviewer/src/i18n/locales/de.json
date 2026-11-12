@@ -85,5 +85,9 @@
   "Sign in to the purpose desk": "Beim Zweck‑Desk anmelden",
   "Consent expired": "Einwilligung abgelaufen",
   "Consent withdrawn": "Einwilligung widerrufen",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Die Einwilligung dieser Person deckt diese Suche nicht mehr ab, eine Bestätigung würde abgelehnt. Lehnen Sie ab oder markieren Sie die Prüfung als nicht eindeutig."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Die Einwilligung dieser Person deckt diese Suche nicht mehr ab, eine Bestätigung würde abgelehnt. Lehnen Sie ab oder markieren Sie die Prüfung als nicht eindeutig.",
+  "Waiting under a minute": "Wartet seit unter einer Minute",
+  "Waiting {0} min": "Wartet seit {0} Min.",
+  "Waiting {0} h": "Wartet seit {0} Std.",
+  "Waiting {0} d": "Wartet seit {0} T."
 }

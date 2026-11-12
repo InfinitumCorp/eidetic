@@ -85,5 +85,9 @@
   "Sign in to the purpose desk": "Увійдіть у деск цілей",
   "Consent expired": "Термін згоди минув",
   "Consent withdrawn": "Згоду відкликано",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий.",
+  "Waiting under a minute": "Чекає менше хвилини",
+  "Waiting {0} min": "Чекає {0} хв",
+  "Waiting {0} h": "Чекає {0} год",
+  "Waiting {0} d": "Чекає {0} дн."
 }

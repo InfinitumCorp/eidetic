@@ -85,5 +85,9 @@
   "Sign in to the purpose desk": "登录目的桌面",
   "Consent expired": "同意已过期",
   "Consent withdrawn": "同意已撤回",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。"
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。",
+  "Waiting under a minute": "等待不到 1 分钟",
+  "Waiting {0} min": "已等待 {0} 分钟",
+  "Waiting {0} h": "已等待 {0} 小时",
+  "Waiting {0} d": "已等待 {0} 天"
 }

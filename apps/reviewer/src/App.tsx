@@ -7,6 +7,17 @@ import { CidAccount, CidSignIn } from "./CidSignIn";
 import { OperatorSearch } from "./OperatorSearch";
 import { useCumulusId } from "./cid";
 
+// How long a review has waited, in the largest unit that fits. Over a day is flagged on the queue.
+const MINUTE = 60 * 1000;
+const DAY = 24 * 60 * MINUTE;
+function waited(createdAt: string, now: number): string {
+  const ms = Math.max(0, now - new Date(createdAt).getTime());
+  if (ms < MINUTE) return "Waiting under a minute";
+  if (ms < 60 * MINUTE) return `Waiting ${Math.floor(ms / MINUTE)} min`;
+  if (ms < DAY) return `Waiting ${Math.floor(ms / (60 * MINUTE))} h`;
+  return `Waiting ${Math.floor(ms / DAY)} d`;
+}
+
 interface Me {
   id: string;
   displayName: string;
@@ -81,6 +92,13 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+
+  // Keep the "waiting" times current without reloading the queue.
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), MINUTE);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     fetch("/v1/health")
@@ -237,7 +255,7 @@ export function App() {
                   </CardContent>
                 </Card>
               )}
-              {queue.map((item) => (
+              {(filter === "pending" ? [...queue].sort((a, b) => a.createdAt.localeCompare(b.createdAt)) : queue).map((item) => (
                 <button
                   key={item.reviewId}
                   className={`w-full rounded-lg border px-3 py-3 text-left ${selectedId === item.reviewId ? "border-primary bg-card" : "border-border bg-card/60"}`}
@@ -250,6 +268,14 @@ export function App() {
                   <p className="mt-1 text-xs text-muted-foreground">
                     {item.purposeCode} · {item.topConfidence === null ? "no score" : item.topConfidence.toFixed(2)}
                   </p>
+                  {!item.finalDecision && (
+                    <p
+                      data-testid="review-age"
+                      className={`mt-1 text-xs ${now - new Date(item.createdAt).getTime() >= DAY ? "text-destructive" : "text-muted-foreground"}`}
+                    >
+                      {waited(item.createdAt, now)}
+                    </p>
+                  )}
                 </button>
               ))}
             </section>

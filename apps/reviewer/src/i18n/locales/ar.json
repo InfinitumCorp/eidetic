@@ -85,5 +85,9 @@
   "Sign in to the purpose desk": "سجّل الدخول إلى مكتب الهدف",
   "Consent expired": "انتهت صلاحية الموافقة",
   "Consent withdrawn": "سُحبت الموافقة",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "لم تعد موافقة هذا الشخص تشمل هذا البحث، لذا سيُرفض أي تأكيد. ارفض أو علّم المراجعة على أنها غير حاسمة."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "لم تعد موافقة هذا الشخص تشمل هذا البحث، لذا سيُرفض أي تأكيد. ارفض أو علّم المراجعة على أنها غير حاسمة.",
+  "Waiting under a minute": "بانتظار أقل من دقيقة",
+  "Waiting {0} min": "بانتظار منذ {0} دقيقة",
+  "Waiting {0} h": "بانتظار منذ {0} ساعة",
+  "Waiting {0} d": "بانتظار منذ {0} يوم"
 }

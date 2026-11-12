@@ -85,5 +85,9 @@
   "Sign in to the purpose desk": "Sign in to the purpose desk",
   "Consent expired": "Consent expired",
   "Consent withdrawn": "Consent withdrawn",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.",
+  "Waiting under a minute": "Waiting under a minute",
+  "Waiting {0} min": "Waiting {0} min",
+  "Waiting {0} h": "Waiting {0} h",
+  "Waiting {0} d": "Waiting {0} d"
 }
