@@ -302,9 +302,18 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json(result);
   });
 
+  // Newest first. ?limit= (1-500, default 50), ?before=<seq> for the next page, ?action= to filter.
   app.get("/v1/audit", async (c) => {
     allow(c.get("actor"), ["admin", "auditor"], "The audit log");
-    return c.json({ entries: await deps.service.listAudit() });
+    const query = parse(
+      z.object({
+        limit: z.coerce.number().int().min(1).max(500).optional(),
+        before: z.coerce.number().int().min(1).optional(),
+        action: z.string().regex(/^[a-z_]{1,40}$/).optional(),
+      }),
+      c.req.query(),
+    );
+    return c.json(await deps.service.pageAudit({ limit: query.limit, beforeSeq: query.before, action: query.action }));
   });
   app.get("/v1/audit/verify", async (c) => c.json(await deps.service.verifyAudit()));
 
