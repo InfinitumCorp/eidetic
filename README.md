@@ -45,6 +45,7 @@ flowchart LR
 - Review notes are redacted for email addresses, phone numbers, and SSN-shaped strings before they enter the audit attestation. The case file kept for the reviewer desk can still hold the original note.
 - Log fields are classed safe, unsafe, or DoNotLog. Biometric names (`template`, `embedding`, `image`, and the rest of that list) are DoNotLog. The vocabulary follows Palantir's public [safe-logging](https://github.com/palantir/safe-logging) projects. Those libraries are not dependencies. See [Reference vendors](#reference-vendors).
 - People sign in to both desks with [Cumulus ID](https://id.cumuluscloud.app). The API checks each bearer at the issuer and maps the Cumulus ID to a role from `CID_ADMINS`, `CID_OPERATORS`, `CID_REVIEWERS` and `CID_AUDITORS`. The seeded `dev-*` tokens work only with `EIDETIC_DEV_BEARER=true` and `DEMO_MODE=true`, for local development.
+- Reads are limited by role. The subject list, the audit log and bias reports are open to admins and auditors. Reviewers, admins and auditors see the whole review queue. An operator sees only the reviews for searches they ran. Chain verification (`/v1/audit/verify`) returns hashes only and is open to every role.
 - `$EIDT` on Base is a marketing stub. `attestConsentHash` accepts a 64-character sha256 and returns `broadcast: false`. Biometric payloads are refused.
 - This MVP does not scrape social networks, run plate recognition, build watchlists, or track people from overhead imagery.
 
