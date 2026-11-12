@@ -349,6 +349,54 @@ export class EideticService {
   }
 
   /**
+   * Withdraw consent for one purpose and keep the rest. Searches under that purpose stop finding the person at
+   * once. If no granted consent is left, this is a full withdrawal: the sealed template is purged and the subject
+   * is marked withdrawn, in the same transaction and the same audit entry.
+   */
+  async withdrawPurpose(actor: Actor, cid: string, purposeCode: string): Promise<SubjectView> {
+    this.requireRole(actor, "admin", "Only an admin can record a consent withdrawal.");
+    const subject = await this.deps.repos.subjects.get(cid);
+    if (!subject) throw new EideticError("NOT_FOUND", "No enrolled subject uses that CID.", 404, false);
+    if (subject.status !== "active") {
+      throw new EideticError("CONSENT_WITHDRAWN", "This subject already withdrew all consent.", 409, false);
+    }
+    const consents = await this.deps.repos.consents.listForSubject(cid);
+    if (!consents.some((consent) => consent.purposeCode === purposeCode && consent.status === "granted")) {
+      throw new EideticError("NOT_FOUND", "This subject has no granted consent for that purpose.", 404, false);
+    }
+    const remaining = consents.filter((consent) => consent.purposeCode !== purposeCode && consent.status === "granted");
+    const last = remaining.length === 0;
+    const template = last ? await this.deps.repos.templates.activeForCid(cid) : null;
+    if (template) await this.deps.matcher.purge(template.storeKey);
+    const now = this.deps.now().toISOString();
+    const checkpoint = await this.deps.transaction(async (tx) => {
+      await tx.consents.withdrawPurpose(cid, purposeCode, now);
+      if (last) {
+        await tx.subjects.update({ ...subject, status: "withdrawn", withdrawnAt: subject.withdrawnAt ?? now });
+        await tx.templates.markPurged(cid, now);
+      }
+      const recorded = await tx.audit.record({
+        actorId: actor.id,
+        action: "withdraw",
+        recordedAt: now,
+        attestation: {
+          outcome: "recorded",
+          matchRan: false,
+          subjectCid: cid,
+          purposeCode,
+          ...(last ? { sealedStorePurged: true } : {}),
+          message: last
+            ? "Consent for the last purpose withdrawn. Sealed templates were purged. This attestation has no biometric payload."
+            : "Consent withdrawn for one purpose. Other consents and the sealed template stay. This attestation has no biometric payload.",
+        },
+      });
+      return recorded.checkpoint;
+    });
+    await this.submit(checkpoint);
+    return this.subjectView(cid);
+  }
+
+  /**
    * Everything ei·det·ic™ holds about one person, for a subject access request: their consents and every
    * audit entry that names them or lists them as a match candidate. Templates are reported as present or
    * absent only. The export itself is written to the audit log.

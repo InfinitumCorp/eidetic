@@ -347,6 +347,11 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     const subject = await deps.service.withdraw(c.get("actor"), c.req.param("cid"));
     return c.json({ subject });
   });
+  // Withdraw consent for one purpose. Withdrawing the last one is a full withdrawal and purges the template.
+  app.post("/v1/subjects/:cid/consents/:purposeCode/withdraw", async (c) => {
+    const subject = await deps.service.withdrawPurpose(c.get("actor"), c.req.param("cid"), c.req.param("purposeCode"));
+    return c.json({ subject });
+  });
 
   // Purge sealed templates for subjects whose consent has all lapsed. Admin only, audited per subject.
   app.post("/v1/consents/sweep", async (c) => c.json(await deps.service.sweepLapsedConsent(c.get("actor"))));

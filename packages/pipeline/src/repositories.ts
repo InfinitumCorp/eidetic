@@ -37,6 +37,8 @@ export interface ConsentRepository {
   insert(consent: ConsentGrant): Promise<void>;
   listForSubject(cid: string): Promise<ConsentGrant[]>;
   withdrawAll(cid: string, at: string): Promise<void>;
+  /** Withdraw this subject's granted consent for one purpose. Returns how many grants changed. */
+  withdrawPurpose(cid: string, purposeCode: string, at: string): Promise<number>;
   /** Active subjects with a live grant (granted and not expired at `at`). */
   listEligible(purposeCode: string, datasetId: string, legalBasis: LegalBasis, at: string): Promise<SubjectRecord[]>;
 }

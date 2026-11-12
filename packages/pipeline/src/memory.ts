@@ -78,6 +78,17 @@ export class MemoryDatabase {
             }
           }
         },
+        withdrawPurpose: async (cid, purposeCode, at) => {
+          let changed = 0;
+          for (const consent of this.consents) {
+            if (consent.cid === cid && consent.purposeCode === purposeCode && consent.status === "granted") {
+              consent.status = "withdrawn";
+              consent.withdrawnAt = at;
+              changed += 1;
+            }
+          }
+          return changed;
+        },
         listEligible: async (purposeCode, datasetId, legalBasis, at) => {
           const seen = new Map<string, SubjectRecord>();
           for (const consent of this.consents) {
