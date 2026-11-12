@@ -2,7 +2,7 @@ import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
 
-// Cumulus ID issuer for /cumulus-id.js. VITE_CID_ISSUER points it at a mirror (e.g. one that loads in Russia).
+// Cumulus ID issuer for /cumulus-bar.js (the account bar). VITE_CID_ISSUER points it at a mirror (e.g. one that loads in Russia).
 const cidIssuer = (): Plugin => ({
   name: "cid-issuer",
   transformIndexHtml: (html) =>

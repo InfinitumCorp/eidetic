@@ -221,6 +221,12 @@ importers:
 
   packages/contracts: {}
 
+  packages/eon-rf-defense:
+    dependencies:
+      '@eidetic/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
   packages/geo:
     dependencies:
       '@eidetic/contracts':

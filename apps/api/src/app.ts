@@ -13,6 +13,7 @@ import {
   MIL_PRODUCT,
   PRODUCT,
   type Actor,
+  type Role,
 } from "@eidetic/contracts";
 import { syntheticFixture } from "@eidetic/matcher";
 import { seedSyntheticQueue, type EideticService, type Repositories } from "@eidetic/pipeline";
@@ -20,6 +21,7 @@ import { describeSiteAsset } from "@eidetic/geo";
 import { SEAMS } from "@eidetic/seams";
 import type { ConjureRouteHandler } from "./conjure/conjure.mjs";
 import type { OpenClawRouteHandler } from "./openclaw/openclaw.mjs";
+import type { SearchRoutes } from "./search/search.mjs";
 
 export const DEFAULT_ALLOWED_ORIGINS = [
   "http://127.0.0.1:43111",
@@ -39,7 +41,15 @@ const enrollBody = z.object({
   displayName: z.string().min(1).max(80),
   cid: z.string().regex(/^cid:\/\/infinitum\/[a-z0-9-]{3,80}$/).optional(),
   legalBasis,
-  purposes: z.array(z.object({ purposeCode: code, datasetIds: z.array(code).min(1) })).min(1),
+  purposes: z
+    .array(
+      z.object({
+        purposeCode: code,
+        datasetIds: z.array(code).min(1),
+        expiresAt: z.string().datetime({ offset: true }).optional(),
+      }),
+    )
+    .min(1),
   recordAttributes: attributes,
   fixtureId: z.string().regex(/^[a-z0-9-]{3,64}$/).optional(),
   imageBase64: z.string().max(700_000).optional(),
@@ -104,6 +114,8 @@ export interface AppDeps {
   openclaw?: OpenClawRouteHandler | null;
   /** Browser origins allowed to call the API cross-origin. Defaults to the local desks. */
   allowedOrigins?: string[];
+  /** @search: Infinitum Search, a web answer with numbered sources (prefix /v1/search). Off when unset and on MIL deployments. */
+  search?: SearchRoutes | null;
 }
 
 type Variables = { actor: Actor };
@@ -205,6 +217,16 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return res ?? c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not configured here.", matchRan: false } }, 503);
   });
 
+  // "@search <question>" from the operator consoles: Infinitum Search reads the public web and answers
+  // with numbered sources. Only the question the actor types goes out; never subject, template or match data.
+  app.on(["GET", "POST"], "/v1/search", async (c) => {
+    if (deps.milEnabled) {
+      return c.json({ error: { code: "SEARCH_UNAVAILABLE", message: "@search is not available on MIL deployments.", matchRan: false } }, 403);
+    }
+    const res = deps.search ? await deps.search(c.req.raw, { user: c.get("actor").id }) : null;
+    return res ?? c.json({ error: { code: "SEARCH_UNAVAILABLE", message: "@search is not configured here.", matchRan: false } }, 503);
+  });
+
   app.get("/v1/edition", (c) =>
     c.json({
       product: PRODUCT,
@@ -223,13 +245,20 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json({ purpose }, 201);
   });
 
-  app.get("/v1/subjects", async (c) => c.json({ subjects: await deps.service.listSubjects() }));
+  app.get("/v1/subjects", async (c) => {
+    allow(c.get("actor"), ["admin", "auditor"], "The subject list");
+    return c.json({ subjects: await deps.service.listSubjects() });
+  });
   app.post("/v1/subjects", async (c) => {
     const body = parse(enrollBody, await readJson(c));
     const image = probeBytes(body.fixtureId, body.imageBase64, deps.demoMode);
     const enrolled = await deps.service.enroll({ actor: c.get("actor"), ...body, image });
     return c.json(enrolled, 201);
   });
+  // Subject access request: one person's consents and audit activity. The export is itself audited.
+  app.get("/v1/subjects/:cid/access-report", async (c) =>
+    c.json(await deps.service.subjectAccess(c.get("actor"), c.req.param("cid"))),
+  );
   app.post("/v1/subjects/:cid/withdraw", async (c) => {
     const subject = await deps.service.withdraw(c.get("actor"), c.req.param("cid"));
     return c.json({ subject });
@@ -254,16 +283,29 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   app.get("/v1/reviews", async (c) => {
     const status = c.req.query("status");
     const filter = status === "pending" || status === "decided" ? status : undefined;
-    return c.json({ reviews: await deps.service.listReviews(filter) });
+    const actor = c.get("actor");
+    const reviews = await deps.service.listReviews(filter);
+    // An operator sees only the reviews for searches they ran.
+    return c.json({ reviews: actor.role === "operator" ? reviews.filter((review) => review.searchedBy.id === actor.id) : reviews });
   });
-  app.get("/v1/reviews/:id", async (c) => c.json(await deps.service.getReview(c.req.param("id"))));
+  app.get("/v1/reviews/:id", async (c) => {
+    const actor = c.get("actor");
+    const review = await deps.service.getReview(c.req.param("id"));
+    if (actor.role === "operator" && review.searchedBy.id !== actor.id) {
+      throw new EideticError("NOT_FOUND", "That review is not on the desk.", 404, false);
+    }
+    return c.json(review);
+  });
   app.post("/v1/reviews/:id/decide", async (c) => {
     const body = parse(decisionBody, await readJson(c));
     const result = await deps.service.decide({ actor: c.get("actor"), reviewId: c.req.param("id"), ...body });
     return c.json(result);
   });
 
-  app.get("/v1/audit", async (c) => c.json({ entries: await deps.service.listAudit() }));
+  app.get("/v1/audit", async (c) => {
+    allow(c.get("actor"), ["admin", "auditor"], "The audit log");
+    return c.json({ entries: await deps.service.listAudit() });
+  });
   app.get("/v1/audit/verify", async (c) => c.json(await deps.service.verifyAudit()));
 
   app.post("/v1/bias/fixture-evaluations", async (c) => {
@@ -292,7 +334,10 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     const report = await deps.service.runBias(c.get("actor"), body.releaseId, body.cases);
     return c.json(report, 201);
   });
-  app.get("/v1/bias/evaluations/:releaseId", async (c) => c.json(await deps.service.getBias(c.req.param("releaseId"))));
+  app.get("/v1/bias/evaluations/:releaseId", async (c) => {
+    allow(c.get("actor"), ["admin", "auditor"], "A bias report");
+    return c.json(await deps.service.getBias(c.req.param("releaseId")));
+  });
 
   app.post("/v1/demo/seed", async (c) => {
     if (!deps.demoMode) {
@@ -323,6 +368,12 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   });
 
   return app;
+}
+
+function allow(actor: Actor, roles: Role[], what: string): void {
+  if (!roles.includes(actor.role)) {
+    throw new EideticError("FORBIDDEN", `${what} is open to the ${roles.join(" and ")} roles only.`, 403, false);
+  }
 }
 
 function errorStatus(status: number): 400 | 401 | 403 | 404 | 409 | 422 | 500 | 501 | 502 {

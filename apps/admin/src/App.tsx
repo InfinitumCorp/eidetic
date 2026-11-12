@@ -2,9 +2,10 @@
 import { FirmSuite } from "./firm/FirmSuite";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "@eidetic/ui";
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, RavenMark } from "@eidetic/ui";
 import { CidAccount, CidSignIn } from "./CidSignIn";
 import { cidToken, useCumulusId } from "./cid";
+import { Billing } from "./Billing";
 
 interface Me {
   id: string;
@@ -27,7 +28,7 @@ interface SubjectView {
   cid: string;
   displayName: string;
   status: "active" | "withdrawn";
-  consents: Array<{ purposeCode: string; status: string; datasetIds: string[] }>;
+  consents: Array<{ purposeCode: string; status: string; datasetIds: string[]; expiresAt?: string | null; expired?: boolean }>;
   template: { present: boolean; quality: number | null };
 }
 
@@ -61,6 +62,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 export function App() {
   const [health, setHealth] = useState<"loading" | "up" | "down">("loading");
   const [edition, setEdition] = useState<string>("");
+  const [milEnabled, setMilEnabled] = useState(true); // billing stays hidden until the API says this is not a MIL deployment
   const [purposes, setPurposes] = useState<Purpose[]>([]);
   const [subjects, setSubjects] = useState<SubjectView[]>([]);
   const [entries, setEntries] = useState<AuditEntry[]>([]);
@@ -70,10 +72,10 @@ export function App() {
   const [biasNote, setBiasNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [withdrawing, setWithdrawing] = useState<string | null>(null);
-  const { profile, token } = useCumulusId();
+  const { token } = useCumulusId();
   const [me, setMe] = useState<Me | null>(null);
   const [meError, setMeError] = useState<string | null>(null);
-  const [form, setForm] = useState({ displayName: "Avery Quinn", fixtureId: "avery-quinn", purposeCode: "record_reconciliation" });
+  const [form, setForm] = useState({ displayName: "Avery Quinn", fixtureId: "avery-quinn", purposeCode: "record_reconciliation", validDays: "0" });
 
   async function reload() {
     const [purposeBody, subjectBody, auditBody, seamBody, editionBody] = await Promise.all([
@@ -87,6 +89,7 @@ export function App() {
     setSubjects(subjectBody.subjects);
     setEntries(auditBody.entries);
     setSeams(seamBody.seams);
+    setMilEnabled(editionBody.mil.enabled);
     setEdition(`${editionBody.mil.product} flag ${editionBody.mil.enabled ? "on" : "off"} · ${editionBody.mil.workflows}`);
   }
 
@@ -126,7 +129,14 @@ export function App() {
         body: JSON.stringify({
           displayName: form.displayName,
           legalBasis: "consent",
-          purposes: [{ purposeCode: form.purposeCode, datasetIds: form.purposeCode === "consented_assistance" ? ["personal_memory"] : form.purposeCode === "access_control" ? ["facility_access"] : ["workforce_records"] }],
+          purposes: [
+            {
+              purposeCode: form.purposeCode,
+              datasetIds: form.purposeCode === "consented_assistance" ? ["personal_memory"] : form.purposeCode === "access_control" ? ["facility_access"] : ["workforce_records"],
+              // "0" means the consent lasts until the subject withdraws it.
+              expiresAt: form.validDays === "0" ? undefined : new Date(Date.now() + Number(form.validDays) * 86_400_000).toISOString(),
+            },
+          ],
           fixtureId: form.fixtureId,
           recordAttributes: { site: "Washington" },
         }),
@@ -145,6 +155,27 @@ export function App() {
     try {
       await api(`/v1/subjects/${encodeURIComponent(subject.cid)}/withdraw`, { method: "POST", body: "{}" });
       setWithdrawing(null);
+      await reload();
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Subject access request: download one person's consents and audit activity as JSON. The API audits the export.
+  async function downloadAccessReport(subject: SubjectView) {
+    setBusy(true);
+    setError(null);
+    try {
+      const report = await api<unknown>(`/v1/subjects/${encodeURIComponent(subject.cid)}/access-report`);
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `access-report-${subject.cid.replace(/^cid:\/\/infinitum\//, "")}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
       await reload();
     } catch (reason) {
       setError((reason as Error).message);
@@ -200,12 +231,13 @@ export function App() {
       <a className="skip-link" href="#main">Skip to content</a>
       <header className="app-bar">
         <a className="app-wordmark" href="/">
+          <RavenMark className="raven-mark" />
           ei·det·ic<sup className="tm">™</sup>
         </a>
         <nav className="app-nav" aria-label="Main">
           <a href="/" aria-current="page">Purpose desk</a>
         </nav>
-        <CidAccount profile={profile} />
+        <CidAccount />
       </header>
       <main id="main" className="app-main grid gap-4">
         <div className="app-head">
@@ -274,6 +306,20 @@ export function App() {
                         ))}
                       </select>
                     </div>
+                    <div>
+                      <Label htmlFor="valid">Consent valid for</Label>
+                      <select
+                        id="valid"
+                        className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3"
+                        value={form.validDays}
+                        onChange={(event) => setForm({ ...form, validDays: event.target.value })}
+                      >
+                        <option value="0">Until withdrawn</option>
+                        <option value="30">30 days</option>
+                        <option value="90">90 days</option>
+                        <option value="365">1 year</option>
+                      </select>
+                    </div>
                     <Button type="submit" disabled={busy}>
                       Record consent
                     </Button>
@@ -295,9 +341,21 @@ export function App() {
                       <p className="font-mono text-xs text-muted-foreground">{subject.cid}</p>
                       <p className="mt-1 text-sm text-muted-foreground">
                         Template {subject.template.present ? "sealed" : "purged"} ·{" "}
-                        {subject.consents.map((consent) => `${consent.purposeCode} ${consent.status}`).join(", ") || "no consent"}
+                        {subject.consents
+                          .map((consent) =>
+                            consent.expired
+                              ? `${consent.purposeCode} expired`
+                              : consent.status === "granted" && consent.expiresAt
+                                ? `${consent.purposeCode} granted until ${consent.expiresAt.slice(0, 10)}`
+                                : `${consent.purposeCode} ${consent.status}`,
+                          )
+                          .join(", ") || "no consent"}
                       </p>
                     </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                    <Button variant="outline" disabled={busy} onClick={() => downloadAccessReport(subject)}>
+                      Access report
+                    </Button>
                     {subject.status === "withdrawn" ? (
                       <Badge variant="danger">Withdrawn</Badge>
                     ) : withdrawing === subject.cid ? (
@@ -314,6 +372,7 @@ export function App() {
                         Withdraw consent
                       </Button>
                     )}
+                    </div>
                   </div>
                 ))}
               </CardContent>
@@ -339,6 +398,7 @@ export function App() {
                   </ul>
                 </CardContent>
               </Card>
+              {!milEnabled && <Billing signedIn={Boolean(token)} />}
               <Card>
                 <CardHeader>
                   <CardTitle>Bias hook and boundaries</CardTitle>

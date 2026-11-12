@@ -13,6 +13,7 @@ import {
   ROLES,
   assertRecordAttributes,
   clipMessage,
+  consentIsLive,
   type Actor,
   type AuditAttestation,
   type DenialCode,
@@ -51,6 +52,9 @@ export interface SubjectView {
     datasetIds: string[];
     legalBasis: LegalBasis;
     status: "granted" | "withdrawn";
+    expiresAt: string | null;
+    /** True when the grant is still marked granted but its expiry has passed. */
+    expired: boolean;
     receiptHash: string;
   }>;
   template: { present: boolean; quality: number | null };
@@ -73,6 +77,29 @@ export interface SearchResult {
     consentStatus: "granted";
   }>;
   audit: AuditReceipt;
+}
+
+export interface SubjectAccessReport {
+  generatedAt: string;
+  generatedBy: { id: string; role: Role };
+  subject: SubjectView;
+  /** Audit entries that name this subject or list them as a match candidate, oldest first. */
+  activity: Array<{
+    seq: number;
+    recordedAt: string;
+    action: string;
+    actorId: string;
+    involvement: "named" | "candidate";
+    outcome: string;
+    message: string;
+    purposeCode?: string;
+    datasetId?: string;
+    decision?: string;
+    hash: string;
+  }>;
+  /** The audit entry that records this export. */
+  audit: { seq: number; hash: string };
+  note: string;
 }
 
 export interface ReviewSummary {
@@ -129,7 +156,7 @@ export class EideticService {
     displayName: string;
     image: Uint8Array;
     cid?: string;
-    purposes: Array<{ purposeCode: string; datasetIds: string[] }>;
+    purposes: Array<{ purposeCode: string; datasetIds: string[]; expiresAt?: string }>;
     legalBasis: LegalBasis;
     recordAttributes?: Record<string, string>;
   }): Promise<{ cid: string; status: "active"; templateStored: true; quality: number; displayName: string; receipts: Array<{ purposeCode: string; receiptHash: string }> }> {
@@ -152,6 +179,19 @@ export class EideticService {
         throw new EideticError("DATASET_OUT_OF_SCOPE", `Consent datasets must already belong to purpose ${purpose.code}.`, 422, false);
       }
     }
+    const enrolledAt = this.deps.now();
+    const expiries = input.purposes.map((requested) => {
+      if (!requested.expiresAt) return null;
+      const at = new Date(requested.expiresAt);
+      if (Number.isNaN(at.getTime())) {
+        throw new EideticError("VALIDATION", `Consent expiry for ${requested.purposeCode} is not a valid date.`, 422, false);
+      }
+      if (at.getTime() <= enrolledAt.getTime()) {
+        throw new EideticError("VALIDATION", `Consent expiry for ${requested.purposeCode} has to be in the future.`, 422, false);
+      }
+      return at.toISOString();
+    });
+    const expiryFor = (requested: (typeof input.purposes)[number]) => expiries[input.purposes.indexOf(requested)] ?? null;
 
     const existing = await this.deps.repos.subjects.get(cid);
     const existingTemplate = existing ? await this.deps.repos.templates.activeForCid(cid) : null;
@@ -159,12 +199,13 @@ export class EideticService {
     let created: { templateRef: string; quality: number } | null = null;
     try {
       if (needTemplate) created = await this.deps.matcher.enroll(input.image);
-      const now = this.deps.now().toISOString();
+      const now = enrolledAt.toISOString();
       const existingConsents = existing ? await this.deps.repos.consents.listForSubject(cid) : [];
+      // An expired grant does not cover a new request, so re-enrolling renews it.
       const fresh = input.purposes.filter((requested) => {
         return !existingConsents.some(
           (consent) =>
-            consent.status === "granted" &&
+            consentIsLive(consent, now) &&
             consent.purposeCode === requested.purposeCode &&
             consent.legalBasis === input.legalBasis &&
             sameSet(consent.datasetIds, requested.datasetIds),
@@ -178,6 +219,7 @@ export class EideticService {
           legalBasis: input.legalBasis,
           status: "granted",
           at: now,
+          expiresAt: expiryFor(requested),
         });
         return { requested, hash: receipt.proof.payloadHash, receipt };
       });
@@ -217,6 +259,7 @@ export class EideticService {
             status: "granted",
             grantedAt: now,
             withdrawnAt: null,
+            expiresAt: expiryFor(item.requested),
             receiptHash: item.hash,
           });
           const recorded = await tx.audit.record({
@@ -283,6 +326,77 @@ export class EideticService {
     });
     await this.submit(checkpoint);
     return this.subjectView(cid);
+  }
+
+  /**
+   * Everything ei·det·ic™ holds about one person, for a subject access request: their consents and every
+   * audit entry that names them or lists them as a match candidate. Templates are reported as present or
+   * absent only. The export itself is written to the audit log.
+   */
+  async subjectAccess(actor: Actor, cid: string): Promise<SubjectAccessReport> {
+    if (actor.role !== "admin" && actor.role !== "auditor") {
+      throw new EideticError("FORBIDDEN", "Only an admin or an auditor can export a subject access report.", 403, false);
+    }
+    const subject = await this.subjectView(cid);
+    const entries = await this.deps.repos.audit.list();
+    const candidateSearches = new Map<string, boolean>();
+    const wasCandidate = async (searchId: string | undefined): Promise<boolean> => {
+      if (!searchId) return false;
+      let hit = candidateSearches.get(searchId);
+      if (hit === undefined) {
+        hit = (await this.deps.repos.candidates.listForSearch(searchId)).some((candidate) => candidate.cid === cid);
+        candidateSearches.set(searchId, hit);
+      }
+      return hit;
+    };
+    const activity: SubjectAccessReport["activity"] = [];
+    for (const entry of entries) {
+      const attestation = entry.attestation;
+      let involvement: "named" | "candidate" | null = null;
+      if (attestation.subjectCid === cid) involvement = "named";
+      else if ((entry.action === "search" || entry.action === "review") && (await wasCandidate(attestation.searchId))) {
+        involvement = "candidate";
+      }
+      if (!involvement) continue;
+      activity.push({
+        seq: entry.seq,
+        recordedAt: entry.recordedAt,
+        action: entry.action,
+        actorId: entry.actorId,
+        involvement,
+        outcome: attestation.outcome,
+        message: attestation.message,
+        purposeCode: attestation.purposeCode,
+        datasetId: attestation.datasetId,
+        decision: attestation.decision,
+        hash: entry.hash,
+      });
+    }
+    const now = this.deps.now().toISOString();
+    const checkpoint = await this.deps.transaction(async (tx) => {
+      const recorded = await tx.audit.record({
+        actorId: actor.id,
+        action: "subject_access",
+        recordedAt: now,
+        attestation: {
+          outcome: "recorded",
+          matchRan: false,
+          subjectCid: cid,
+          message: "Subject access report exported. It lists consents and audit activity. No template or image left the sealed store.",
+        },
+      });
+      return recorded.checkpoint;
+    });
+    await this.submit(checkpoint);
+    const head = (await this.deps.repos.audit.list()).at(-1);
+    return {
+      generatedAt: now,
+      generatedBy: { id: actor.id, role: actor.role },
+      subject,
+      activity,
+      audit: { seq: head?.seq ?? 0, hash: head?.hash ?? "" },
+      note: "Biometric templates are reported as present or absent. Their bytes are never exported.",
+    };
   }
 
   async createPurpose(actor: Actor, purpose: PurposeDefinition): Promise<PurposeDefinition> {
@@ -358,7 +472,12 @@ export class EideticService {
       throw new EideticError(decision.code, decision.message, 403, false);
     }
 
-    let eligible = await this.deps.repos.consents.listEligible(input.purposeCode, input.datasetId, input.legalBasis);
+    let eligible = await this.deps.repos.consents.listEligible(
+      input.purposeCode,
+      input.datasetId,
+      input.legalBasis,
+      this.deps.now().toISOString(),
+    );
     if (input.subjectCid) eligible = eligible.filter((subject) => subject.cid === input.subjectCid);
     const pointers = await this.deps.repos.templates.activeForCids(eligible.map((subject) => subject.cid));
     const byCid = new Map(pointers.map((pointer) => [pointer.cid, pointer]));
@@ -496,24 +615,12 @@ export class EideticService {
     if (search.actorId === input.actor.id) {
       throw new EideticError("SEPARATION_OF_DUTIES", "The person who ran the search cannot decide it.", 403, false);
     }
-    const candidates = await this.deps.repos.candidates.listForSearch(search.id);
+    // A purpose retired after the search no longer authorizes naming anyone. Reject and inconclusive stay open,
+    // so the review can still be closed.
     if (input.decision === "confirm") {
-      if (!input.selectedCid || !candidates.some((candidate) => candidate.cid === input.selectedCid)) {
-        throw new EideticError("DECISION_INVALID", "Confirmation has to name one of the unconfirmed candidates.", 422, false);
-      }
-      const subject = await this.deps.repos.subjects.get(input.selectedCid);
-      const consents = subject ? await this.deps.repos.consents.listForSubject(subject.cid) : [];
-      const stillGranted =
-        subject?.status === "active" &&
-        consents.some(
-          (consent) =>
-            consent.status === "granted" &&
-            consent.purposeCode === search.purposeCode &&
-            consent.legalBasis === search.legalBasis &&
-            consent.datasetIds.includes(search.datasetId),
-        );
-      if (!stillGranted) {
-        const message = "Confirmation refused. The subject withdrew consent before a person confirmed the match.";
+      const purpose = await this.deps.repos.purposes.get(search.purposeCode);
+      if (!purpose?.active) {
+        const message = "Confirmation refused. The purpose behind this search was retired before a person confirmed the match.";
         const checkpoint = await this.deps.transaction(async (tx) => {
           const recorded = await tx.audit.record({
             actorId: input.actor.id,
@@ -522,7 +629,47 @@ export class EideticService {
             attestation: {
               outcome: "denied",
               matchRan: false,
-              code: "CONSENT_WITHDRAWN",
+              code: "PURPOSE_INACTIVE",
+              searchId: search.id,
+              reviewId: review.id,
+              purposeCode: search.purposeCode,
+              message,
+            },
+          });
+          return recorded.checkpoint;
+        });
+        await this.submit(checkpoint);
+        throw new EideticError("PURPOSE_INACTIVE", message, 403, false);
+      }
+    }
+    const candidates = await this.deps.repos.candidates.listForSearch(search.id);
+    if (input.decision === "confirm") {
+      if (!input.selectedCid || !candidates.some((candidate) => candidate.cid === input.selectedCid)) {
+        throw new EideticError("DECISION_INVALID", "Confirmation has to name one of the unconfirmed candidates.", 422, false);
+      }
+      const subject = await this.deps.repos.subjects.get(input.selectedCid);
+      const consents = subject ? await this.deps.repos.consents.listForSubject(subject.cid) : [];
+      const at = this.deps.now().toISOString();
+      const covers = (consent: (typeof consents)[number]) =>
+        consent.purposeCode === search.purposeCode &&
+        consent.legalBasis === search.legalBasis &&
+        consent.datasetIds.includes(search.datasetId);
+      const stillGranted = subject?.status === "active" && consents.some((consent) => covers(consent) && consentIsLive(consent, at));
+      if (!stillGranted) {
+        const lapsed = subject?.status === "active" && consents.some((consent) => covers(consent) && consent.status === "granted");
+        const refusal: DenialCode = lapsed ? "CONSENT_EXPIRED" : "CONSENT_WITHDRAWN";
+        const message = lapsed
+          ? "Confirmation refused. The subject's consent expired before a person confirmed the match."
+          : "Confirmation refused. The subject withdrew consent before a person confirmed the match.";
+        const checkpoint = await this.deps.transaction(async (tx) => {
+          const recorded = await tx.audit.record({
+            actorId: input.actor.id,
+            action: "review",
+            recordedAt: this.deps.now().toISOString(),
+            attestation: {
+              outcome: "denied",
+              matchRan: false,
+              code: refusal,
               searchId: search.id,
               reviewId: review.id,
               subjectCid: input.selectedCid,
@@ -532,7 +679,7 @@ export class EideticService {
           return recorded.checkpoint;
         });
         await this.submit(checkpoint);
-        throw new EideticError("CONSENT_WITHDRAWN", message, 403, false);
+        throw new EideticError(refusal, message, 403, false);
       }
     }
 
@@ -729,6 +876,7 @@ export class EideticService {
     if (!subject) throw new EideticError("NOT_FOUND", "No enrolled subject uses that CID.", 404, false);
     const consents = await this.deps.repos.consents.listForSubject(cid);
     const template = await this.deps.repos.templates.activeForCid(cid);
+    const at = this.deps.now().toISOString();
     return {
       cid: subject.cid,
       displayName: subject.displayName,
@@ -741,6 +889,8 @@ export class EideticService {
         datasetIds: consent.datasetIds,
         legalBasis: consent.legalBasis,
         status: consent.status,
+        expiresAt: consent.expiresAt,
+        expired: consent.status === "granted" && !consentIsLive(consent, at),
         receiptHash: consent.receiptHash,
       })),
       template: { present: Boolean(template), quality: template?.quality ?? null },
@@ -797,20 +947,22 @@ export class EideticService {
     legalBasis: LegalBasis;
     datasetId: string;
     subjectCid?: string;
-  }): Promise<{ state: "granted" | "withdrawn" | "missing" | "not_enrolled"; label?: string } | undefined> {
+  }): Promise<{ state: "granted" | "withdrawn" | "expired" | "missing" | "not_enrolled"; label?: string } | undefined> {
     if (!input.subjectCid) return undefined;
     const subject = await this.deps.repos.subjects.get(input.subjectCid);
     if (!subject) return { state: "not_enrolled" };
     if (subject.status === "withdrawn") return { state: "withdrawn", label: subject.displayName };
     const consents = await this.deps.repos.consents.listForSubject(subject.cid);
-    const granted = consents.some(
+    const at = this.deps.now().toISOString();
+    const matching = consents.filter(
       (consent) =>
         consent.status === "granted" &&
         consent.purposeCode === input.purposeCode &&
         consent.legalBasis === input.legalBasis &&
         consent.datasetIds.includes(input.datasetId),
     );
-    if (granted) return { state: "granted", label: subject.displayName };
+    if (matching.some((consent) => consentIsLive(consent, at))) return { state: "granted", label: subject.displayName };
+    if (matching.length > 0) return { state: "expired", label: subject.displayName };
     const withdrawn = consents.some((consent) => consent.purposeCode === input.purposeCode && consent.status === "withdrawn");
     return withdrawn ? { state: "withdrawn", label: subject.displayName } : { state: "missing", label: subject.displayName };
   }
