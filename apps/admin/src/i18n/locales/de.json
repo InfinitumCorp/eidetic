@@ -135,5 +135,7 @@
   "Show": "Anzeigen",
   "Subject access reports": "Auskunftsberichte",
   "Withdrawals": "Widerrufe",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze.",
+  "Download signed export": "Signierten Export herunterladen",
+  "Audit exports": "Protokollexporte"
 }

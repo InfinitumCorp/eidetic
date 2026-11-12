@@ -135,5 +135,7 @@
   "Show": "Show",
   "Subject access reports": "Subject access reports",
   "Withdrawals": "Withdrawals",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
+  "Download signed export": "Download signed export",
+  "Audit exports": "Audit exports"
 }

@@ -135,5 +135,7 @@
   "Show": "Mostrar",
   "Subject access reports": "Informes de acceso del titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
+  "Download signed export": "Descargar exportación firmada",
+  "Audit exports": "Exportaciones de auditoría"
 }

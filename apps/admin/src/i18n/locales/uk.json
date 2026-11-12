@@ -135,5 +135,7 @@
   "Show": "Показати",
   "Subject access reports": "Звіти про доступ суб’єкта",
   "Withdrawals": "Відкликання згоди",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних.",
+  "Download signed export": "Завантажити підписаний експорт",
+  "Audit exports": "Експорти журналу"
 }

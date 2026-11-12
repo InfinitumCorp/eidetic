@@ -135,5 +135,7 @@
   "Show": "显示",
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。"
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "Download signed export": "下载已签名的导出文件",
+  "Audit exports": "审计导出"
 }

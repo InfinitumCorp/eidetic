@@ -404,6 +404,12 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json(await deps.service.pageAudit({ limit: query.limit, beforeSeq: query.before, action: query.action }));
   });
   app.get("/v1/audit/verify", async (c) => c.json(await deps.service.verifyAudit()));
+  // The whole log as a signed export, verifiable offline with `pnpm audit:verify -- --file`. The export is audited.
+  app.get("/v1/audit/export", async (c) => {
+    const document = await deps.service.exportAudit(c.get("actor"));
+    c.header("Content-Disposition", `attachment; filename="eidetic-audit-${new Date().toISOString().slice(0, 10)}.json"`);
+    return c.json(document);
+  });
 
   app.post("/v1/bias/fixture-evaluations", async (c) => {
     const body = parse(

@@ -135,5 +135,7 @@
   "Show": "عرض",
   "Subject access reports": "تقارير وصول صاحب البيانات",
   "Withdrawals": "عمليات السحب",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
+  "Download signed export": "تنزيل التصدير الموقّع",
+  "Audit exports": "تصديرات سجل التدقيق"
 }

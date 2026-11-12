@@ -135,5 +135,7 @@
   "Show": "Показать",
   "Subject access reports": "Отчёты о доступе субъекта",
   "Withdrawals": "Отзывы согласия",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
+  "Download signed export": "Скачать подписанную выгрузку",
+  "Audit exports": "Выгрузки журнала"
 }

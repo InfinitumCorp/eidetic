@@ -137,7 +137,9 @@ export default {
   "Show": "Show",
   "Subject access reports": "Subject access reports",
   "Withdrawals": "Withdrawals",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
+  "Download signed export": "Download signed export",
+  "Audit exports": "Audit exports"
  },
  "ru": {
   ". Military workflows are not implemented.": ". Военные рабочие процессы не реализованы.",
@@ -276,7 +278,9 @@ export default {
   "Show": "Показать",
   "Subject access reports": "Отчёты о доступе субъекта",
   "Withdrawals": "Отзывы согласия",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
+  "Download signed export": "Скачать подписанную выгрузку",
+  "Audit exports": "Выгрузки журнала"
  },
  "uk": {
   ". Military workflows are not implemented.": ". Військові робочі процеси не реалізовано.",
@@ -415,7 +419,9 @@ export default {
   "Show": "Показати",
   "Subject access reports": "Звіти про доступ суб’єкта",
   "Withdrawals": "Відкликання згоди",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних.",
+  "Download signed export": "Завантажити підписаний експорт",
+  "Audit exports": "Експорти журналу"
  },
  "es": {
   ". Military workflows are not implemented.": ". Los flujos de trabajo militares no están implementados.",
@@ -554,7 +560,9 @@ export default {
   "Show": "Mostrar",
   "Subject access reports": "Informes de acceso del titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
+  "Download signed export": "Descargar exportación firmada",
+  "Audit exports": "Exportaciones de auditoría"
  },
  "fr": {
   ". Military workflows are not implemented.": ". Les flux de travail militaires ne sont pas implémentés.",
@@ -693,7 +701,9 @@ export default {
   "Show": "Afficher",
   "Subject access reports": "Rapports d’accès de la personne",
   "Withdrawals": "Retraits",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait.",
+  "Download signed export": "Télécharger l'export signé",
+  "Audit exports": "Exports du journal"
  },
  "de": {
   ". Military workflows are not implemented.": ". Militär-Workflows sind nicht implementiert.",
@@ -832,7 +842,9 @@ export default {
   "Show": "Anzeigen",
   "Subject access reports": "Auskunftsberichte",
   "Withdrawals": "Widerrufe",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze.",
+  "Download signed export": "Signierten Export herunterladen",
+  "Audit exports": "Protokollexporte"
  },
  "pt": {
   ". Military workflows are not implemented.": ". Fluxos de trabalho militares não estão implementados.",
@@ -971,7 +983,9 @@ export default {
   "Show": "Mostrar",
   "Subject access reports": "Relatórios de acesso do titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou.",
+  "Download signed export": "Baixar exportação assinada",
+  "Audit exports": "Exportações de auditoria"
  },
  "zh": {
   ". Military workflows are not implemented.": "未实现军事工作流。",
@@ -1110,7 +1124,9 @@ export default {
   "Show": "显示",
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。"
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "Download signed export": "下载已签名的导出文件",
+  "Audit exports": "审计导出"
  },
  "ar": {
   ". Military workflows are not implemented.": ". لم يتم تنفيذ سير عمل عسكري.",
@@ -1249,6 +1265,8 @@ export default {
   "Show": "عرض",
   "Subject access reports": "تقارير وصول صاحب البيانات",
   "Withdrawals": "عمليات السحب",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
+  "Download signed export": "تنزيل التصدير الموقّع",
+  "Audit exports": "تصديرات سجل التدقيق"
  }
 };
