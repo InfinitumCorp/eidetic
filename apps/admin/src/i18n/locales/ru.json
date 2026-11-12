@@ -135,5 +135,13 @@
   "Show": "Показать",
   "Subject access reports": "Отчёты о доступе субъекта",
   "Withdrawals": "Отзывы согласия",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
+  "Consent renewals": "Продления согласия",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 согласие истекает в течение {0} дней. Продлевайте его только с согласия человека.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "Согласий, истекающих в течение {1} дней: {0}. Продлевайте их только с согласия человека.",
+  "{0} expires in 1 day": "{0}: истекает через 1 день",
+  "{0} expires in {1} days": "{0}: истекает через {1} дн.",
+  "Renew {0} until": "Продлить {0} до",
+  "Renew {0}": "Продлить {0}",
+  "Save renewal": "Сохранить продление"
 }

@@ -76,8 +76,32 @@ const AUDIT_ACTIONS = [
   { value: "purpose_upsert", label: "Purpose changes" },
   { value: "subject_access", label: "Subject access reports" },
   { value: "consent_lapsed", label: "Lapsed-consent purges" },
+  { value: "consent_renewed", label: "Consent renewals" },
   { value: "bias_evaluation", label: "Bias evaluations" },
 ];
+
+// Consent that runs out within this many days is flagged on the ledger so an admin can ask the person to renew.
+const EXPIRING_DAYS = 30;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+type ConsentView = SubjectView["consents"][number];
+
+// One line per purpose: a renewal adds a grant next to the old one, so show the grant that runs longest.
+function latestConsents(consents: ConsentView[]): ConsentView[] {
+  const rank = (consent: ConsentView) =>
+    (consent.status === "granted" ? 2 : 0) * 1e15 + (consent.expiresAt ? new Date(consent.expiresAt).getTime() : 1e15 - 1);
+  const best = new Map<string, ConsentView>();
+  for (const consent of consents) {
+    const seen = best.get(consent.purposeCode);
+    if (!seen || rank(consent) > rank(seen)) best.set(consent.purposeCode, consent);
+  }
+  return [...best.values()];
+}
+
+function daysLeft(consent: ConsentView, now: number): number | null {
+  if (consent.status !== "granted" || consent.expired || !consent.expiresAt) return null;
+  return Math.max(0, Math.ceil((new Date(consent.expiresAt).getTime() - now) / DAY_MS));
+}
 
 function auditPath(action: string, limit: number): string {
   return `/v1/audit?limit=${limit}${action ? `&action=${action}` : ""}`;
@@ -117,6 +141,7 @@ export function App() {
   const [geoRouting, setGeoRouting] = useState<GeoRoutingView | null>(null);
   const [busy, setBusy] = useState(false);
   const [withdrawing, setWithdrawing] = useState<string | null>(null);
+  const [renewing, setRenewing] = useState<{ cid: string; purposeCode: string; until: string } | null>(null);
   const [draft, setDraft] = useState<typeof EMPTY_PURPOSE | null>(null);
   const { token } = useCumulusId();
   const [me, setMe] = useState<Me | null>(null);
@@ -249,6 +274,32 @@ export function App() {
     }
   }
 
+  // Open the renewal form with a date one year past the current expiry (or past today, if it already lapsed).
+  function startRenewal(subject: SubjectView, consent: ConsentView) {
+    const from = Math.max(Date.now(), consent.expiresAt ? new Date(consent.expiresAt).getTime() : Date.now());
+    setRenewing({ cid: subject.cid, purposeCode: consent.purposeCode, until: new Date(from + 365 * DAY_MS).toISOString().slice(0, 10) });
+  }
+
+  async function renew() {
+    if (!renewing) return;
+    setBusy(true);
+    setError(null);
+    try {
+      // The date is the last day the consent covers, through the end of that day (UTC).
+      const expiresAt = new Date(`${renewing.until}T23:59:59.000Z`).toISOString();
+      await api(`/v1/subjects/${encodeURIComponent(renewing.cid)}/consents/${encodeURIComponent(renewing.purposeCode)}/renew`, {
+        method: "POST",
+        body: JSON.stringify({ expiresAt }),
+      });
+      setRenewing(null);
+      await reload();
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   // Show only one kind of audit entry. The API filters, so paging stays exact.
   async function filterAudit(action: string) {
     setAuditAction(action);
@@ -373,6 +424,15 @@ export function App() {
       setBusy(false);
     }
   }
+
+  const now = Date.now();
+  const expiringSoon = subjects
+    .filter((subject) => subject.status === "active")
+    .flatMap((subject) => latestConsents(subject.consents))
+    .filter((consent) => {
+      const left = daysLeft(consent, now);
+      return left !== null && left <= EXPIRING_DAYS;
+    }).length;
 
   return (
     <div className="min-h-screen">
@@ -613,6 +673,13 @@ export function App() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {swept && <p className="text-sm text-muted-foreground">{swept}</p>}
+                {expiringSoon > 0 && (
+                  <p className="text-sm text-destructive" data-testid="expiring-soon">
+                    {expiringSoon === 1
+                      ? `1 consent expires within ${EXPIRING_DAYS} days. Renew it only with the person's agreement.`
+                      : `${expiringSoon} consents expire within ${EXPIRING_DAYS} days. Renew them only with the person's agreement.`}
+                  </p>
+                )}
                 {subjects.length === 0 && <p className="text-sm text-muted-foreground">No one is enrolled. Consent is required before a search can run.</p>}
                 {subjects.map((subject) => (
                   <div key={subject.cid} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3">
@@ -626,24 +693,66 @@ export function App() {
                         {subject.consents.length === 0 ? (
                           <span>No consent</span>
                         ) : (
-                          subject.consents.map((consent, index) => (
-                            <span key={`${consent.purposeCode}-${index}`}>
-                              {index > 0 && <span>, </span>}
-                              <span>
-                                {consent.expired
-                                  ? `${consent.purposeCode} expired`
-                                  : consent.status === "withdrawn"
-                                    ? `${consent.purposeCode} withdrawn`
-                                    : consent.expiresAt
-                                      ? `${consent.purposeCode} granted until ${consent.expiresAt.slice(0, 10)}`
-                                      : `${consent.purposeCode} granted`}
+                          latestConsents(subject.consents).map((consent, index) => {
+                            const left = daysLeft(consent, now);
+                            return (
+                              <span key={`${consent.purposeCode}-${index}`}>
+                                {index > 0 && <span>, </span>}
+                                <span className={left !== null && left <= EXPIRING_DAYS ? "text-destructive" : undefined}>
+                                  {consent.expired
+                                    ? `${consent.purposeCode} expired`
+                                    : consent.status === "withdrawn"
+                                      ? `${consent.purposeCode} withdrawn`
+                                      : left !== null && left <= EXPIRING_DAYS
+                                        ? left === 1
+                                          ? `${consent.purposeCode} expires in 1 day`
+                                          : `${consent.purposeCode} expires in ${left} days`
+                                        : consent.expiresAt
+                                          ? `${consent.purposeCode} granted until ${consent.expiresAt.slice(0, 10)}`
+                                          : `${consent.purposeCode} granted`}
+                                </span>
                               </span>
-                            </span>
-                          ))
+                            );
+                          })
                         )}
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                    {subject.status === "active" && subject.template.present && renewing?.cid === subject.cid ? (
+                      <form
+                        className="flex flex-wrap items-center gap-2"
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          void renew();
+                        }}
+                      >
+                        <Label htmlFor={`renew-${subject.cid}`}>{`Renew ${renewing.purposeCode} until`}</Label>
+                        <Input
+                          id={`renew-${subject.cid}`}
+                          type="date"
+                          className="w-40"
+                          required
+                          value={renewing.until}
+                          onChange={(event) => setRenewing({ ...renewing, until: event.target.value })}
+                        />
+                        <Button type="submit" disabled={busy}>
+                          Save renewal
+                        </Button>
+                        <Button type="button" variant="outline" onClick={() => setRenewing(null)}>
+                          Cancel
+                        </Button>
+                      </form>
+                    ) : (
+                      subject.status === "active" &&
+                      subject.template.present &&
+                      latestConsents(subject.consents)
+                        .filter((consent) => consent.status === "granted" && consent.expiresAt)
+                        .map((consent) => (
+                          <Button key={`renew-${consent.purposeCode}`} variant="outline" disabled={busy} onClick={() => startRenewal(subject, consent)}>
+                            {`Renew ${consent.purposeCode}`}
+                          </Button>
+                        ))
+                    )}
                     <Button variant="outline" disabled={busy} onClick={() => downloadAccessReport(subject)}>
                       Access report
                     </Button>

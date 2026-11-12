@@ -137,7 +137,15 @@ export default {
   "Show": "Show",
   "Subject access reports": "Subject access reports",
   "Withdrawals": "Withdrawals",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
+  "Consent renewals": "Consent renewals",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 consent expires within {0} days. Renew it only with the person's agreement.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "{0} consents expire within {1} days. Renew them only with the person's agreement.",
+  "{0} expires in 1 day": "{0} expires in 1 day",
+  "{0} expires in {1} days": "{0} expires in {1} days",
+  "Renew {0} until": "Renew {0} until",
+  "Renew {0}": "Renew {0}",
+  "Save renewal": "Save renewal"
  },
  "ru": {
   ". Military workflows are not implemented.": ". Военные рабочие процессы не реализованы.",
@@ -276,7 +284,15 @@ export default {
   "Show": "Показать",
   "Subject access reports": "Отчёты о доступе субъекта",
   "Withdrawals": "Отзывы согласия",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
+  "Consent renewals": "Продления согласия",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 согласие истекает в течение {0} дней. Продлевайте его только с согласия человека.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "Согласий, истекающих в течение {1} дней: {0}. Продлевайте их только с согласия человека.",
+  "{0} expires in 1 day": "{0}: истекает через 1 день",
+  "{0} expires in {1} days": "{0}: истекает через {1} дн.",
+  "Renew {0} until": "Продлить {0} до",
+  "Renew {0}": "Продлить {0}",
+  "Save renewal": "Сохранить продление"
  },
  "uk": {
   ". Military workflows are not implemented.": ". Військові робочі процеси не реалізовано.",
@@ -415,7 +431,15 @@ export default {
   "Show": "Показати",
   "Subject access reports": "Звіти про доступ суб’єкта",
   "Withdrawals": "Відкликання згоди",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних.",
+  "Consent renewals": "Продовження згоди",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 згода спливає протягом {0} днів. Продовжуйте її лише за згодою людини.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "Згод, що спливають протягом {1} днів: {0}. Продовжуйте їх лише за згодою людини.",
+  "{0} expires in 1 day": "{0}: спливає через 1 день",
+  "{0} expires in {1} days": "{0}: спливає через {1} дн.",
+  "Renew {0} until": "Продовжити {0} до",
+  "Renew {0}": "Продовжити {0}",
+  "Save renewal": "Зберегти продовження"
  },
  "es": {
   ". Military workflows are not implemented.": ". Los flujos de trabajo militares no están implementados.",
@@ -554,7 +578,15 @@ export default {
   "Show": "Mostrar",
   "Subject access reports": "Informes de acceso del titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
+  "Consent renewals": "Renovaciones de consentimiento",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 consentimiento vence en los próximos {0} días. Renuévelo solo con el acuerdo de la persona.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "{0} consentimientos vencen en los próximos {1} días. Renuévelos solo con el acuerdo de la persona.",
+  "{0} expires in 1 day": "{0} vence en 1 día",
+  "{0} expires in {1} days": "{0} vence en {1} días",
+  "Renew {0} until": "Renovar {0} hasta",
+  "Renew {0}": "Renovar {0}",
+  "Save renewal": "Guardar renovación"
  },
  "fr": {
   ". Military workflows are not implemented.": ". Les flux de travail militaires ne sont pas implémentés.",
@@ -693,7 +725,15 @@ export default {
   "Show": "Afficher",
   "Subject access reports": "Rapports d’accès de la personne",
   "Withdrawals": "Retraits",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait.",
+  "Consent renewals": "Renouvellements de consentement",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 consentement expire dans les {0} jours. Ne le renouvelez qu'avec l'accord de la personne.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "{0} consentements expirent dans les {1} jours. Ne les renouvelez qu'avec l'accord de la personne.",
+  "{0} expires in 1 day": "{0} expire dans 1 jour",
+  "{0} expires in {1} days": "{0} expire dans {1} jours",
+  "Renew {0} until": "Renouveler {0} jusqu'au",
+  "Renew {0}": "Renouveler {0}",
+  "Save renewal": "Enregistrer le renouvellement"
  },
  "de": {
   ". Military workflows are not implemented.": ". Militär-Workflows sind nicht implementiert.",
@@ -832,7 +872,15 @@ export default {
   "Show": "Anzeigen",
   "Subject access reports": "Auskunftsberichte",
   "Withdrawals": "Widerrufe",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze.",
+  "Consent renewals": "Einwilligungsverlängerungen",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 Einwilligung läuft innerhalb von {0} Tagen ab. Verlängern Sie sie nur mit Zustimmung der Person.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "{0} Einwilligungen laufen innerhalb von {1} Tagen ab. Verlängern Sie sie nur mit Zustimmung der Person.",
+  "{0} expires in 1 day": "{0} läuft in 1 Tag ab",
+  "{0} expires in {1} days": "{0} läuft in {1} Tagen ab",
+  "Renew {0} until": "{0} verlängern bis",
+  "Renew {0}": "{0} verlängern",
+  "Save renewal": "Verlängerung speichern"
  },
  "pt": {
   ". Military workflows are not implemented.": ". Fluxos de trabalho militares não estão implementados.",
@@ -971,7 +1019,15 @@ export default {
   "Show": "Mostrar",
   "Subject access reports": "Relatórios de acesso do titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou.",
+  "Consent renewals": "Renovações de consentimento",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 consentimento expira nos próximos {0} dias. Renove-o apenas com a concordância da pessoa.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "{0} consentimentos expiram nos próximos {1} dias. Renove-os apenas com a concordância da pessoa.",
+  "{0} expires in 1 day": "{0} expira em 1 dia",
+  "{0} expires in {1} days": "{0} expira em {1} dias",
+  "Renew {0} until": "Renovar {0} até",
+  "Renew {0}": "Renovar {0}",
+  "Save renewal": "Salvar renovação"
  },
  "zh": {
   ". Military workflows are not implemented.": "未实现军事工作流。",
@@ -1110,7 +1166,15 @@ export default {
   "Show": "显示",
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。"
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "Consent renewals": "同意续期",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "有 1 项同意将在 {0} 天内到期。只有在本人同意后才能续期。",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "有 {0} 项同意将在 {1} 天内到期。只有在本人同意后才能续期。",
+  "{0} expires in 1 day": "{0} 将在 1 天后到期",
+  "{0} expires in {1} days": "{0} 将在 {1} 天后到期",
+  "Renew {0} until": "将 {0} 续期至",
+  "Renew {0}": "续期 {0}",
+  "Save renewal": "保存续期"
  },
  "ar": {
   ". Military workflows are not implemented.": ". لم يتم تنفيذ سير عمل عسكري.",
@@ -1249,6 +1313,14 @@ export default {
   "Show": "عرض",
   "Subject access reports": "تقارير وصول صاحب البيانات",
   "Withdrawals": "عمليات السحب",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
+  "Consent renewals": "تجديدات الموافقة",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "موافقة واحدة تنتهي خلال {0} يومًا. لا تجددها إلا بموافقة الشخص.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "عدد الموافقات التي تنتهي خلال {1} يومًا: {0}. لا تجددها إلا بموافقة الشخص.",
+  "{0} expires in 1 day": "{0} تنتهي خلال يوم واحد",
+  "{0} expires in {1} days": "{0} تنتهي خلال {1} يومًا",
+  "Renew {0} until": "تجديد {0} حتى",
+  "Renew {0}": "تجديد {0}",
+  "Save renewal": "حفظ التجديد"
  }
 };

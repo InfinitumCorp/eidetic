@@ -135,5 +135,13 @@
   "Show": "Mostrar",
   "Subject access reports": "Informes de acceso del titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
+  "Consent renewals": "Renovaciones de consentimiento",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 consentimiento vence en los próximos {0} días. Renuévelo solo con el acuerdo de la persona.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "{0} consentimientos vencen en los próximos {1} días. Renuévelos solo con el acuerdo de la persona.",
+  "{0} expires in 1 day": "{0} vence en 1 día",
+  "{0} expires in {1} days": "{0} vence en {1} días",
+  "Renew {0} until": "Renovar {0} hasta",
+  "Renew {0}": "Renovar {0}",
+  "Save renewal": "Guardar renovación"
 }

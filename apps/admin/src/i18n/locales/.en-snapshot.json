@@ -135,5 +135,13 @@
   "Show": "Show",
   "Subject access reports": "Subject access reports",
   "Withdrawals": "Withdrawals",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
+  "Consent renewals": "Consent renewals",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 consent expires within {0} days. Renew it only with the person's agreement.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "{0} consents expire within {1} days. Renew them only with the person's agreement.",
+  "{0} expires in 1 day": "{0} expires in 1 day",
+  "{0} expires in {1} days": "{0} expires in {1} days",
+  "Renew {0} until": "Renew {0} until",
+  "Renew {0}": "Renew {0}",
+  "Save renewal": "Save renewal"
 }

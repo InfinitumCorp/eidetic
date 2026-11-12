@@ -135,5 +135,13 @@
   "Show": "Показати",
   "Subject access reports": "Звіти про доступ суб’єкта",
   "Withdrawals": "Відкликання згоди",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних.",
+  "Consent renewals": "Продовження згоди",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "1 згода спливає протягом {0} днів. Продовжуйте її лише за згодою людини.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "Згод, що спливають протягом {1} днів: {0}. Продовжуйте їх лише за згодою людини.",
+  "{0} expires in 1 day": "{0}: спливає через 1 день",
+  "{0} expires in {1} days": "{0}: спливає через {1} дн.",
+  "Renew {0} until": "Продовжити {0} до",
+  "Renew {0}": "Продовжити {0}",
+  "Save renewal": "Зберегти продовження"
 }

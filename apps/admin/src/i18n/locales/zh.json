@@ -135,5 +135,13 @@
   "Show": "显示",
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。"
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "Consent renewals": "同意续期",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "有 1 项同意将在 {0} 天内到期。只有在本人同意后才能续期。",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "有 {0} 项同意将在 {1} 天内到期。只有在本人同意后才能续期。",
+  "{0} expires in 1 day": "{0} 将在 1 天后到期",
+  "{0} expires in {1} days": "{0} 将在 {1} 天后到期",
+  "Renew {0} until": "将 {0} 续期至",
+  "Renew {0}": "续期 {0}",
+  "Save renewal": "保存续期"
 }

@@ -349,6 +349,92 @@ export class EideticService {
   }
 
   /**
+   * Record that the person agreed again to a purpose whose consent expires, with a later expiry. The renewal is a
+   * new signed receipt next to the old grant; nothing is rewritten. It covers the same datasets and legal basis as
+   * the grant it renews, so a renewal never widens consent. A subject whose template was purged has to re-enroll.
+   */
+  async renewConsent(actor: Actor, cid: string, purposeCode: string, expiresAt: string | null): Promise<SubjectView> {
+    this.requireRole(actor, "admin", "Only an admin can record a consent renewal.");
+    const subject = await this.deps.repos.subjects.get(cid);
+    if (!subject) throw new EideticError("NOT_FOUND", "No enrolled subject uses that CID.", 404, false);
+    if (subject.status !== "active") {
+      throw new EideticError("CONSENT_WITHDRAWN", "This subject withdrew all consent. Record a new enrollment instead.", 409, false);
+    }
+    if (!(await this.deps.repos.templates.activeForCid(cid))) {
+      throw new EideticError("TEMPLATE_MISSING", "This subject's template was purged. Record a new enrollment instead.", 409, false);
+    }
+    const grants = (await this.deps.repos.consents.listForSubject(cid))
+      .filter((consent) => consent.purposeCode === purposeCode && consent.status === "granted")
+      .sort((a, b) => (a.expiresAt === null ? 1 : b.expiresAt === null ? -1 : a.expiresAt.localeCompare(b.expiresAt)));
+    const current = grants.at(-1);
+    if (!current) throw new EideticError("NOT_FOUND", "This subject has no granted consent for that purpose.", 404, false);
+    if (current.expiresAt === null) {
+      throw new EideticError("VALIDATION", "This consent does not expire, so there is nothing to renew.", 409, false);
+    }
+    const purpose = await this.requirePurpose(purposeCode);
+    if (!purpose.legalBases.includes(current.legalBasis)) {
+      throw new EideticError("LEGAL_BASIS_REJECTED", `Purpose ${purpose.code} no longer allows legal basis ${current.legalBasis}.`, 422, false);
+    }
+    if (current.datasetIds.some((datasetId) => !purpose.datasetIds.includes(datasetId))) {
+      throw new EideticError("DATASET_OUT_OF_SCOPE", `Purpose ${purpose.code} no longer covers every dataset in this consent.`, 422, false);
+    }
+    const now = this.deps.now();
+    let until: string | null = null;
+    if (expiresAt !== null) {
+      const at = new Date(expiresAt);
+      if (Number.isNaN(at.getTime())) throw new EideticError("VALIDATION", "The new expiry is not a valid date.", 422, false);
+      if (at.getTime() <= Math.max(now.getTime(), new Date(current.expiresAt).getTime())) {
+        throw new EideticError("VALIDATION", "A renewal has to run past the current expiry.", 422, false);
+      }
+      until = at.toISOString();
+    }
+    const at = now.toISOString();
+    const receipt = buildConsentReceipt({
+      cid,
+      purposeCode,
+      datasetIds: current.datasetIds,
+      legalBasis: current.legalBasis,
+      status: "granted",
+      at,
+      expiresAt: until,
+    });
+    await this.deps.fides.pushPreference(receipt);
+    const checkpoint = await this.deps.transaction(async (tx) => {
+      await tx.consents.insert({
+        id: this.deps.ids.id("con"),
+        cid,
+        purposeCode,
+        datasetIds: current.datasetIds,
+        legalBasis: current.legalBasis,
+        status: "granted",
+        grantedAt: at,
+        withdrawnAt: null,
+        expiresAt: until,
+        receiptHash: receipt.proof.payloadHash,
+      });
+      const recorded = await tx.audit.record({
+        actorId: actor.id,
+        action: "consent_renewed",
+        recordedAt: at,
+        attestation: {
+          outcome: "recorded",
+          matchRan: false,
+          subjectCid: cid,
+          purposeCode,
+          legalBasis: current.legalBasis,
+          receiptHash: receipt.proof.payloadHash,
+          message: until
+            ? `Consent renewed until ${until.slice(0, 10)}. Same datasets and legal basis. This attestation has no biometric payload.`
+            : "Consent renewed with no expiry. Same datasets and legal basis. This attestation has no biometric payload.",
+        },
+      });
+      return recorded.checkpoint;
+    });
+    await this.submit(checkpoint);
+    return this.subjectView(cid);
+  }
+
+  /**
    * Everything ei·det·ic™ holds about one person, for a subject access request: their consents and every
    * audit entry that names them or lists them as a match candidate. Templates are reported as present or
    * absent only. The export itself is written to the audit log.

@@ -135,5 +135,13 @@
   "Show": "عرض",
   "Subject access reports": "تقارير وصول صاحب البيانات",
   "Withdrawals": "عمليات السحب",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
+  "Consent renewals": "تجديدات الموافقة",
+  "1 consent expires within {0} days. Renew it only with the person's agreement.": "موافقة واحدة تنتهي خلال {0} يومًا. لا تجددها إلا بموافقة الشخص.",
+  "{0} consents expire within {1} days. Renew them only with the person's agreement.": "عدد الموافقات التي تنتهي خلال {1} يومًا: {0}. لا تجددها إلا بموافقة الشخص.",
+  "{0} expires in 1 day": "{0} تنتهي خلال يوم واحد",
+  "{0} expires in {1} days": "{0} تنتهي خلال {1} يومًا",
+  "Renew {0} until": "تجديد {0} حتى",
+  "Renew {0}": "تجديد {0}",
+  "Save renewal": "حفظ التجديد"
 }

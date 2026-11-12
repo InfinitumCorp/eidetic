@@ -56,6 +56,8 @@ const enrollBody = z.object({
   imageBase64: z.string().max(700_000).optional(),
 });
 
+const renewBody = z.object({ expiresAt: z.string().datetime({ offset: true }).nullable() });
+
 const searchBody = z.object({
   purposeCode: z.string().min(1).max(80),
   legalBasis,
@@ -343,6 +345,13 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   app.get("/v1/subjects/:cid/access-report", async (c) =>
     c.json(await deps.service.subjectAccess(c.get("actor"), c.req.param("cid"))),
   );
+  // A new signed receipt with a later expiry for one purpose. Same datasets and legal basis as the grant it renews.
+  app.post("/v1/subjects/:cid/consents/:purposeCode/renew", async (c) => {
+    const body = parse(renewBody, await readJson(c));
+    const subject = await deps.service.renewConsent(c.get("actor"), c.req.param("cid"), c.req.param("purposeCode"), body.expiresAt);
+    return c.json({ subject });
+  });
+
   app.post("/v1/subjects/:cid/withdraw", async (c) => {
     const subject = await deps.service.withdraw(c.get("actor"), c.req.param("cid"));
     return c.json({ subject });
