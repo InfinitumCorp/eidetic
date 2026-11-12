@@ -111,6 +111,7 @@ export function App() {
   const [auditAction, setAuditAction] = useState("");
   const [verify, setVerify] = useState<string>("Audit chain has not been checked this session.");
   const [swept, setSwept] = useState<string | null>(null);
+  const [ledgerFilter, setLedgerFilter] = useState("");
   const [seams, setSeams] = useState<Seam[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [biasNote, setBiasNote] = useState<string | null>(null);
@@ -374,6 +375,16 @@ export function App() {
     }
   }
 
+  // Filter the ledger on this desk only. Matches name, CID, purpose code and status, ignoring case.
+  const needle = ledgerFilter.trim().toLowerCase();
+  const visibleSubjects = needle
+    ? subjects.filter((subject) =>
+        [subject.displayName, subject.cid, subject.status, ...subject.consents.map((consent) => consent.purposeCode)].some((field) =>
+          field.toLowerCase().includes(needle),
+        ),
+      )
+    : subjects;
+
   return (
     <div className="min-h-screen">
       <a className="skip-link" href="#main">Skip to content</a>
@@ -614,7 +625,25 @@ export function App() {
               <CardContent className="space-y-3">
                 {swept && <p className="text-sm text-muted-foreground">{swept}</p>}
                 {subjects.length === 0 && <p className="text-sm text-muted-foreground">No one is enrolled. Consent is required before a search can run.</p>}
-                {subjects.map((subject) => (
+                {subjects.length > 0 && (
+                  <div>
+                    <Label htmlFor="ledger-filter">Find a person</Label>
+                    <Input
+                      id="ledger-filter"
+                      type="search"
+                      placeholder="Name, CID or purpose"
+                      value={ledgerFilter}
+                      onChange={(event) => setLedgerFilter(event.target.value)}
+                    />
+                  </div>
+                )}
+                {subjects.length > 0 && visibleSubjects.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No one in the ledger matches that.</p>
+                )}
+                {ledgerFilter.trim() !== "" && visibleSubjects.length > 0 && (
+                  <p className="text-xs text-muted-foreground">{`Showing ${visibleSubjects.length} of ${subjects.length}.`}</p>
+                )}
+                {visibleSubjects.map((subject) => (
                   <div key={subject.cid} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3">
                     <div>
                       <p className="font-medium">{subject.displayName}</p>

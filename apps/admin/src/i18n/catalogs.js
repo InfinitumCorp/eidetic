@@ -137,7 +137,11 @@ export default {
   "Show": "Show",
   "Subject access reports": "Subject access reports",
   "Withdrawals": "Withdrawals",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
+  "Find a person": "Find a person",
+  "Name, CID or purpose": "Name, CID or purpose",
+  "No one in the ledger matches that.": "No one in the ledger matches that.",
+  "Showing {0} of {1}.": "Showing {0} of {1}."
  },
  "ru": {
   ". Military workflows are not implemented.": ". Военные рабочие процессы не реализованы.",
@@ -276,7 +280,11 @@ export default {
   "Show": "Показать",
   "Subject access reports": "Отчёты о доступе субъекта",
   "Withdrawals": "Отзывы согласия",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
+  "Find a person": "Найти человека",
+  "Name, CID or purpose": "Имя, CID или цель",
+  "No one in the ledger matches that.": "В реестре никто не подходит.",
+  "Showing {0} of {1}.": "Показано {0} из {1}."
  },
  "uk": {
   ". Military workflows are not implemented.": ". Військові робочі процеси не реалізовано.",
@@ -415,7 +423,11 @@ export default {
   "Show": "Показати",
   "Subject access reports": "Звіти про доступ суб’єкта",
   "Withdrawals": "Відкликання згоди",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних.",
+  "Find a person": "Знайти людину",
+  "Name, CID or purpose": "Ім'я, CID або ціль",
+  "No one in the ledger matches that.": "У реєстрі ніхто не підходить.",
+  "Showing {0} of {1}.": "Показано {0} з {1}."
  },
  "es": {
   ". Military workflows are not implemented.": ". Los flujos de trabajo militares no están implementados.",
@@ -554,7 +566,11 @@ export default {
   "Show": "Mostrar",
   "Subject access reports": "Informes de acceso del titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
+  "Find a person": "Buscar a una persona",
+  "Name, CID or purpose": "Nombre, CID o finalidad",
+  "No one in the ledger matches that.": "Nadie en el registro coincide.",
+  "Showing {0} of {1}.": "Mostrando {0} de {1}."
  },
  "fr": {
   ". Military workflows are not implemented.": ". Les flux de travail militaires ne sont pas implémentés.",
@@ -693,7 +709,11 @@ export default {
   "Show": "Afficher",
   "Subject access reports": "Rapports d’accès de la personne",
   "Withdrawals": "Retraits",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait.",
+  "Find a person": "Trouver une personne",
+  "Name, CID or purpose": "Nom, CID ou finalité",
+  "No one in the ledger matches that.": "Personne dans le registre ne correspond.",
+  "Showing {0} of {1}.": "{0} sur {1} affichés."
  },
  "de": {
   ". Military workflows are not implemented.": ". Militär-Workflows sind nicht implementiert.",
@@ -832,7 +852,11 @@ export default {
   "Show": "Anzeigen",
   "Subject access reports": "Auskunftsberichte",
   "Withdrawals": "Widerrufe",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze.",
+  "Find a person": "Person suchen",
+  "Name, CID or purpose": "Name, CID oder Zweck",
+  "No one in the ledger matches that.": "Niemand im Register passt dazu.",
+  "Showing {0} of {1}.": "{0} von {1} angezeigt."
  },
  "pt": {
   ". Military workflows are not implemented.": ". Fluxos de trabalho militares não estão implementados.",
@@ -971,7 +995,11 @@ export default {
   "Show": "Mostrar",
   "Subject access reports": "Relatórios de acesso do titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou.",
+  "Find a person": "Encontrar uma pessoa",
+  "Name, CID or purpose": "Nome, CID ou finalidade",
+  "No one in the ledger matches that.": "Ninguém no registro corresponde.",
+  "Showing {0} of {1}.": "Mostrando {0} de {1}."
  },
  "zh": {
   ". Military workflows are not implemented.": "未实现军事工作流。",
@@ -1110,7 +1138,11 @@ export default {
   "Show": "显示",
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。"
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "Find a person": "查找人员",
+  "Name, CID or purpose": "姓名、CID 或用途",
+  "No one in the ledger matches that.": "登记簿中没有匹配的人。",
+  "Showing {0} of {1}.": "显示 {1} 个中的 {0} 个。"
  },
  "ar": {
   ". Military workflows are not implemented.": ". لم يتم تنفيذ سير عمل عسكري.",
@@ -1249,6 +1281,10 @@ export default {
   "Show": "عرض",
   "Subject access reports": "تقارير وصول صاحب البيانات",
   "Withdrawals": "عمليات السحب",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
+  "Find a person": "ابحث عن شخص",
+  "Name, CID or purpose": "الاسم أو CID أو الغرض",
+  "No one in the ledger matches that.": "لا أحد في السجل يطابق ذلك.",
+  "Showing {0} of {1}.": "عرض {0} من {1}."
  }
 };

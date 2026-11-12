@@ -135,5 +135,9 @@
   "Show": "Show",
   "Subject access reports": "Subject access reports",
   "Withdrawals": "Withdrawals",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
+  "Find a person": "Find a person",
+  "Name, CID or purpose": "Name, CID or purpose",
+  "No one in the ledger matches that.": "No one in the ledger matches that.",
+  "Showing {0} of {1}.": "Showing {0} of {1}."
 }

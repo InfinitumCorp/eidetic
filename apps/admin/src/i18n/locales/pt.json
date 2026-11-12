@@ -135,5 +135,9 @@
   "Show": "Mostrar",
   "Subject access reports": "Relatórios de acesso do titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou.",
+  "Find a person": "Encontrar uma pessoa",
+  "Name, CID or purpose": "Nome, CID ou finalidade",
+  "No one in the ledger matches that.": "Ninguém no registro corresponde.",
+  "Showing {0} of {1}.": "Mostrando {0} de {1}."
 }

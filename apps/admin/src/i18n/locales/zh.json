@@ -135,5 +135,9 @@
   "Show": "显示",
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。"
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "Find a person": "查找人员",
+  "Name, CID or purpose": "姓名、CID 或用途",
+  "No one in the ledger matches that.": "登记簿中没有匹配的人。",
+  "Showing {0} of {1}.": "显示 {1} 个中的 {0} 个。"
 }
