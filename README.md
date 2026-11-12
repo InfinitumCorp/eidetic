@@ -108,6 +108,14 @@ Local development without Cumulus ID: set `EIDETIC_DEV_BEARER=true` for the API 
 
 Seeded purposes are `record_reconciliation` (business), `access_control` (business), and `consented_assistance` (civilian).
 
+### Without PostgreSQL
+
+```bash
+pnpm dev:memory
+```
+
+Starts the API with in-memory stores and the mock matcher, plus both desks signed in with the seeded dev tokens (`apps/*/.env.memory`): the review desk as `dev-reviewer`, the purpose desk as `dev-admin`. One synthetic review is queued. Nothing is persisted. It is for trying the desks locally and refuses to start when `NODE_ENV=production` or `DEMO_MODE=false`.
+
 ### Docker Compose
 
 ```bash
