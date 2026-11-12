@@ -1,9 +1,10 @@
 // © Infinitum Corporation®. All rights reserved.
 import { FirmSuite } from "./firm/FirmSuite";
 
-import { useEffect, useState } from "react";
-import { Badge, Button, Card, CardContent, Label, Textarea } from "@eidetic/ui";
+import { useCallback, useEffect, useState } from "react";
+import { Badge, Button, Card, CardContent, Label, RavenMark, Textarea } from "@eidetic/ui";
 import { CidAccount, CidSignIn } from "./CidSignIn";
+import { OperatorSearch } from "./OperatorSearch";
 import { useCumulusId } from "./cid";
 
 interface Me {
@@ -64,7 +65,7 @@ async function api<T>(path: string, token: string, init?: RequestInit): Promise<
 }
 
 export function App() {
-  const { profile, token: cidToken } = useCumulusId();
+  const { token: cidToken } = useCumulusId();
   const token = cidToken ?? "";
   const [me, setMe] = useState<Me | null>(null);
   const [meError, setMeError] = useState<string | null>(null);
@@ -167,6 +168,14 @@ export function App() {
     }
   }
 
+  const call = useCallback(<T,>(path: string, init?: RequestInit) => api<T>(path, token, init), [token]);
+
+  async function queued(reviewId: string) {
+    setFilter("pending");
+    await loadQueue("pending").catch((reason: ApiError) => setError(reason.message));
+    setSelectedId(reviewId);
+  }
+
   const canDecide = me?.role === "reviewer" && detail?.status === "pending" && detail.searchedBy.id !== me.id;
 
   return (
@@ -174,12 +183,13 @@ export function App() {
       <a className="skip-link" href="#main">Skip to content</a>
       <header className="app-bar">
         <a className="app-wordmark" href="/">
+          <RavenMark className="raven-mark" />
           ei·det·ic<sup className="tm">™</sup>
         </a>
         <nav className="app-nav" aria-label="Main">
           <a href="/" aria-current="page">Review desk</a>
         </nav>
-        <CidAccount profile={profile} />
+        <CidAccount />
       </header>
 
       <main id="main" className="app-main grid gap-4 lg:grid-cols-[320px_1fr]">
@@ -205,6 +215,7 @@ export function App() {
         {health === "up" && me && (
           <>
             <section className="space-y-3">
+              {me.role === "operator" && <OperatorSearch call={call} role={me.role} demoMode={demoMode} onQueued={queued} />}
               <div className="flex gap-2">
                 <Button variant={filter === "pending" ? "default" : "outline"} size="sm" onClick={() => setFilter("pending")}>
                   Waiting

@@ -5,6 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@10.33.4",
   "scripts": {
+    "dev:memory": "concurrently -n api,review,admin -c cyan,green,yellow \"pnpm --filter @eidetic/api dev:memory\" \"pnpm --filter @eidetic/reviewer dev:memory\" \"pnpm --filter @eidetic/admin dev:memory\"",
     "dev": "concurrently -n api,review,admin -c cyan,green,yellow \"pnpm --filter @eidetic/api dev\" \"pnpm --filter @eidetic/reviewer dev\" \"pnpm --filter @eidetic/admin dev\"",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",

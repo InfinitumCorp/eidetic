@@ -56,6 +56,18 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
       const result = await sql.query("SELECT * FROM audit_entries ORDER BY seq ASC");
       return result.rows.map(mapAudit);
     },
+    async page(query) {
+      // One row past the limit tells us whether an older page exists.
+      const result = await sql.query(
+        `SELECT * FROM audit_entries
+         WHERE ($1::bigint IS NULL OR seq < $1) AND ($2::text IS NULL OR action = $2)
+         ORDER BY seq DESC LIMIT $3`,
+        [query.beforeSeq ?? null, query.action ?? null, query.limit + 1],
+      );
+      const rows = result.rows.map(mapAudit);
+      const entries = rows.slice(0, query.limit);
+      return { entries, nextBefore: rows.length > query.limit ? (entries.at(-1)?.seq ?? null) : null };
+    },
     async checkpoints() {
       const result = await sql.query("SELECT * FROM audit_checkpoints ORDER BY through_seq ASC");
       return result.rows.map(mapCheckpoint);
@@ -144,8 +156,8 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
     consents: {
       async insert(consent) {
         await sql.query(
-          `INSERT INTO consents (id, cid, purpose_code, dataset_ids, legal_basis, status, granted_at, withdrawn_at, receipt_hash)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          `INSERT INTO consents (id, cid, purpose_code, dataset_ids, legal_basis, status, granted_at, withdrawn_at, receipt_hash, expires_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             consent.id,
             consent.cid,
@@ -156,6 +168,7 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
             consent.grantedAt,
             consent.withdrawnAt,
             consent.receiptHash,
+            consent.expiresAt,
           ],
         );
       },
@@ -169,7 +182,7 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
           [cid, at],
         );
       },
-      async listEligible(purposeCode, datasetId, legalBasis) {
+      async listEligible(purposeCode, datasetId, legalBasis, at) {
         const result = await sql.query(
           `SELECT DISTINCT ON (s.cid) s.*
            FROM subjects s
@@ -179,8 +192,9 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
              AND c.purpose_code = $1
              AND c.legal_basis = $2
              AND $3 = ANY (c.dataset_ids)
+             AND (c.expires_at IS NULL OR c.expires_at > $4)
            ORDER BY s.cid`,
-          [purposeCode, legalBasis, datasetId],
+          [purposeCode, legalBasis, datasetId, at],
         );
         return result.rows.map(mapSubject);
       },
@@ -240,6 +254,16 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
       },
       async markDecided(id) {
         await sql.query("UPDATE searches SET status = 'decided' WHERE id = $1", [id]);
+      },
+      async countSince(actorId, since) {
+        const result = await sql.query(
+          `SELECT count(*) FILTER (WHERE denial_code IS DISTINCT FROM 'RATE_LIMITED')::int AS counted,
+                  count(*) FILTER (WHERE denial_code = 'RATE_LIMITED')::int AS rate_limited
+           FROM searches WHERE actor_id = $1 AND created_at >= $2`,
+          [actorId, since],
+        );
+        const row = result.rows[0] ?? {};
+        return { counted: Number(row.counted ?? 0), rateLimited: Number(row.rate_limited ?? 0) };
       },
     },
     candidates: {
@@ -356,6 +380,7 @@ function mapConsent(row: Record<string, unknown>): ConsentGrant {
     grantedAt: timestamp(row, "granted_at"),
     withdrawnAt: timestampOrNull(row, "withdrawn_at"),
     receiptHash: text(row, "receipt_hash"),
+    expiresAt: timestampOrNull(row, "expires_at"),
   };
 }
 

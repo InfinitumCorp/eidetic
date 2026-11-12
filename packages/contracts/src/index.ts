@@ -29,6 +29,7 @@ export const DENIAL_CODES = [
   "MIL_NOT_IMPLEMENTED",
   "CONSENT_REQUIRED",
   "CONSENT_WITHDRAWN",
+  "CONSENT_EXPIRED",
   "SUBJECT_NOT_ENROLLED",
   "SEPARATION_OF_DUTIES",
   "REVIEW_ALREADY_DECIDED",
@@ -44,6 +45,7 @@ export const DENIAL_CODES = [
   "DECISION_INVALID",
   "POLICY_UNAVAILABLE",
   "VALIDATION",
+  "RATE_LIMITED",
 ] as const;
 export type DenialCode = (typeof DENIAL_CODES)[number];
 
@@ -163,7 +165,14 @@ export interface ConsentGrant {
   status: "granted" | "withdrawn";
   grantedAt: string;
   withdrawnAt: string | null;
+  /** When the subject's consent lapses. Null means it lasts until withdrawn. */
+  expiresAt: string | null;
   receiptHash: string;
+}
+
+/** A grant counts only while it is granted and not past its expiry. */
+export function consentIsLive(consent: Pick<ConsentGrant, "status" | "expiresAt">, at: string): boolean {
+  return consent.status === "granted" && (consent.expiresAt === null || consent.expiresAt > at);
 }
 
 export interface TemplatePointer {
