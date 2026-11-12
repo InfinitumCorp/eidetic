@@ -63,6 +63,9 @@ const EMPTY_PURPOSE = {
   legalBases: ["consent"] as string[],
   datasets: "",
   allowedRoles: ["operator"] as string[],
+  // Set when the form edits an existing purpose: the code is fixed and its active state is kept.
+  editing: false,
+  active: true,
 };
 
 function toggle(list: string[], value: string): string[] {
@@ -210,7 +213,7 @@ export function App() {
       legalBases: draft.legalBases,
       datasetIds,
       allowedRoles: draft.allowedRoles,
-      active: true,
+      active: draft.active,
     });
     if (saved) setDraft(null);
   }
@@ -380,7 +383,26 @@ export function App() {
                       <p className="mt-2 font-mono text-xs text-muted-foreground">
                         {purpose.code} · {purpose.legalBases.join(", ")} · {purpose.datasetIds.join(", ")} · {purpose.allowedRoles.join(", ")}
                       </p>
-                      <div className="mt-2">
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Button
+                          variant="outline"
+                          disabled={busy || Boolean(draft)}
+                          onClick={() =>
+                            setDraft({
+                              code: purpose.code,
+                              title: purpose.title,
+                              description: purpose.description,
+                              edition: purpose.edition,
+                              legalBases: [...purpose.legalBases],
+                              datasets: purpose.datasetIds.join(", "),
+                              allowedRoles: [...purpose.allowedRoles],
+                              editing: true,
+                              active: purpose.active,
+                            })
+                          }
+                        >
+                          Edit
+                        </Button>
                         <Button variant="outline" disabled={busy} onClick={() => savePurpose({ ...purpose, active: !purpose.active })}>
                           {purpose.active ? "Retire" : "Reinstate"}
                         </Button>
@@ -389,12 +411,18 @@ export function App() {
                   ))}
                   {draft && (
                     <form className="space-y-3 rounded-md border border-border p-3" onSubmit={publishDraft}>
+                      {draft.editing && (
+                        <p className="text-xs text-muted-foreground">
+                          Editing {draft.code}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.
+                        </p>
+                      )}
                       <div>
                         <Label htmlFor="purpose-code">Code</Label>
                         <Input
                           id="purpose-code"
                           placeholder="visitor_check_in"
                           value={draft.code}
+                          disabled={draft.editing}
                           onChange={(event) => setDraft({ ...draft, code: event.target.value })}
                         />
                       </div>
@@ -463,7 +491,7 @@ export function App() {
                       </fieldset>
                       <div className="flex gap-2">
                         <Button type="submit" disabled={busy}>
-                          Publish
+                          {draft.editing ? "Save changes" : "Publish"}
                         </Button>
                         <Button type="button" variant="outline" onClick={() => setDraft(null)}>
                           Cancel
