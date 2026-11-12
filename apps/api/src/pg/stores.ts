@@ -144,8 +144,8 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
     consents: {
       async insert(consent) {
         await sql.query(
-          `INSERT INTO consents (id, cid, purpose_code, dataset_ids, legal_basis, status, granted_at, withdrawn_at, receipt_hash)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          `INSERT INTO consents (id, cid, purpose_code, dataset_ids, legal_basis, status, granted_at, withdrawn_at, receipt_hash, expires_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             consent.id,
             consent.cid,
@@ -156,6 +156,7 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
             consent.grantedAt,
             consent.withdrawnAt,
             consent.receiptHash,
+            consent.expiresAt,
           ],
         );
       },
@@ -169,7 +170,7 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
           [cid, at],
         );
       },
-      async listEligible(purposeCode, datasetId, legalBasis) {
+      async listEligible(purposeCode, datasetId, legalBasis, at) {
         const result = await sql.query(
           `SELECT DISTINCT ON (s.cid) s.*
            FROM subjects s
@@ -179,8 +180,9 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
              AND c.purpose_code = $1
              AND c.legal_basis = $2
              AND $3 = ANY (c.dataset_ids)
+             AND (c.expires_at IS NULL OR c.expires_at > $4)
            ORDER BY s.cid`,
-          [purposeCode, legalBasis, datasetId],
+          [purposeCode, legalBasis, datasetId, at],
         );
         return result.rows.map(mapSubject);
       },
@@ -366,6 +368,7 @@ function mapConsent(row: Record<string, unknown>): ConsentGrant {
     grantedAt: timestamp(row, "granted_at"),
     withdrawnAt: timestampOrNull(row, "withdrawn_at"),
     receiptHash: text(row, "receipt_hash"),
+    expiresAt: timestampOrNull(row, "expires_at"),
   };
 }
 

@@ -36,6 +36,8 @@ export interface Env {
   migrationsDir: string;
   /** SEARCH_LIMIT_PER_HOUR: most searches one actor may start in a rolling hour. 0 turns the limit off. */
   searchLimitPerHour: number;
+  /** ALLOWED_ORIGINS: comma-separated browser origins for CORS. Unset keeps the local desks. */
+  allowedOrigins?: string[];
 }
 
 export function loadEnvFile(): void {
@@ -103,6 +105,7 @@ export function readEnv(): Env {
     devBearer: process.env.EIDETIC_DEV_BEARER === "true",
     migrationsDir: process.env.MIGRATIONS_DIR ?? findMigrations(),
     searchLimitPerHour: readSearchLimit(process.env.SEARCH_LIMIT_PER_HOUR),
+    allowedOrigins: readAllowedOrigins(process.env.ALLOWED_ORIGINS),
   };
 }
 
@@ -111,6 +114,23 @@ export function readSearchLimit(value: string | undefined): number {
   const limit = Number(value);
   if (!Number.isInteger(limit) || limit < 0) throw new Error("SEARCH_LIMIT_PER_HOUR must be a whole number, 0 or more.");
   return limit;
+}
+
+export function readAllowedOrigins(value: string | undefined): string[] | undefined {
+  const items = (value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
+  if (items.length === 0) return undefined;
+  for (const item of items) {
+    let url: URL;
+    try {
+      url = new URL(item);
+    } catch {
+      throw new Error(`ALLOWED_ORIGINS has an entry that is not a URL: ${item}`);
+    }
+    if ((url.protocol !== "https:" && url.protocol !== "http:") || url.origin !== item) {
+      throw new Error(`ALLOWED_ORIGINS entries must be bare origins like https://desk.example.com, not ${item}`);
+    }
+  }
+  return items;
 }
 
 function resolveStorePath(value: string): string {
