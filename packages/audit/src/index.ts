@@ -24,7 +24,7 @@ export {
 
 export const GENESIS = "0".repeat(64);
 
-export type AuditAction = "enroll" | "withdraw" | "search" | "review" | "purpose_upsert" | "bias_evaluation";
+export type AuditAction = "enroll" | "withdraw" | "search" | "review" | "purpose_upsert" | "bias_evaluation" | "subject_access";
 
 export interface AuditEntry {
   seq: number;
@@ -51,11 +51,34 @@ export interface AuditAppendContext {
   hashes: string[];
 }
 
+/** One page of the log, newest first. `beforeSeq` continues from the previous page's last entry. */
+export interface AuditPageQuery {
+  limit: number;
+  beforeSeq?: number;
+  action?: string;
+}
+
+export interface AuditPage {
+  entries: AuditEntry[];
+  /** Pass as `beforeSeq` for the next, older page. Null when this page reached the start of the log. */
+  nextBefore: number | null;
+}
+
+export function pageEntries(all: AuditEntry[], query: AuditPageQuery): AuditPage {
+  const matching = all
+    .filter((entry) => (query.beforeSeq === undefined || entry.seq < query.beforeSeq) && (!query.action || entry.action === query.action))
+    .sort((a, b) => b.seq - a.seq);
+  const entries = matching.slice(0, query.limit);
+  return { entries, nextBefore: matching.length > query.limit ? (entries.at(-1)?.seq ?? null) : null };
+}
+
 export interface AuditRepository {
   append(
     build: (context: AuditAppendContext) => Promise<{ entry: AuditEntry; checkpoint: MerkleCheckpoint }>,
   ): Promise<{ entry: AuditEntry; checkpoint: MerkleCheckpoint }>;
   list(): Promise<AuditEntry[]>;
+  /** Optional: a store that can page in place. Without it the log pages over list(). */
+  page?(query: AuditPageQuery): Promise<AuditPage>;
   checkpoints(): Promise<MerkleCheckpoint[]>;
   sealBlank(throughSeq: number, signature: string): Promise<void>;
 }
@@ -264,5 +287,10 @@ export class AuditLog {
 
   list(): Promise<AuditEntry[]> {
     return this.repository.list();
+  }
+
+  async page(query: AuditPageQuery): Promise<AuditPage> {
+    if (this.repository.page) return this.repository.page(query);
+    return pageEntries(await this.repository.list(), query);
   }
 }

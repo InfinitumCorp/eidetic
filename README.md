@@ -35,16 +35,21 @@ flowchart LR
 1. **Authorize.** `authorizeSearch` checks edition, purpose, role, legal basis, and dataset. Out-of-policy requests are stored as denials and the matcher is not called.
 2. **Match.** The default adapter is `mock-statistical`. It scores synthetic fixtures inside the process and returns confidence, evidence, and alternatives. Embeddings never leave the matcher.
 3. **Review.** A pending review is created even when confidence is high. The person who ran the search cannot decide it. Confirm, reject, and inconclusive are human outcomes.
-4. **Record.** Entries are hash-chained. Each append stores a Merkle checkpoint and an HMAC-SHA256 signature over that checkpoint. PostgreSQL triggers reject updates and deletes. `pnpm audit:verify` checks the chain and the signatures. `pnpm audit:export` writes a JSON file that is sealed again on the way out, so a biometric field cannot ride along. The optional Trillian port is not configured.
+4. **Record.** Entries are hash-chained. Each append stores a Merkle checkpoint and an HMAC-SHA256 signature over that checkpoint. PostgreSQL triggers reject updates and deletes. `pnpm audit:verify` checks the chain and the signatures. `GET /v1/audit` returns the log a page at a time, newest first: `?limit=` (1 to 500, default 50), `?before=<seq>` from the previous page's `nextBefore`, and `?action=` to filter. `pnpm audit:export` writes a JSON file that is sealed again on the way out, so a biometric field cannot ride along. The optional Trillian port is not configured.
 
 ## Consent and threat model
 
 - Subjects are enrolled under a Cumulus://ID™ style identifier, `cid://infinitum/...`. The VEIL seam is the named place a production enrollment capture would plug in. This MVP records consent locally.
+- Each account may start at most `SEARCH_LIMIT_PER_HOUR` searches in a rolling hour (default 120; `0` turns it off). Policy refusals count too. Past the limit the API answers `429 RATE_LIMITED` and does not run a match. Only the first refusal in a window is audited, so repeated refused calls cannot flood the log. The count comes from the searches table, so it holds across restarts and API instances.
+- Consent can carry an expiry per purpose (`expiresAt` on enrollment, or **Consent valid for** on the purpose desk). Once it passes, gallery searches leave the person out, a search that names them is refused with `CONSENT_EXPIRED`, and a reviewer cannot confirm a match that relied on it. Re-enrolling records a fresh grant. Consent without an expiry lasts until withdrawn.
 - A subject can withdraw. Withdrawal marks consent withdrawn and deletes the sealed template. Later searches for that CID fail closed.
+- A subject access report (`GET /v1/subjects/{cid}/access-report`, or **Access report** on the purpose desk) lists one person's consents and every audit entry that names them or lists them as a match candidate. Templates show as present or absent only. Admins and auditors can export it, and each export is written to the audit log as `subject_access`.
 - Gallery search only considers subjects who granted the requested purpose, legal basis, and dataset.
+- Every response carries `X-Request-Id` (the caller's own if it is 8 to 128 safe characters, otherwise a new UUID), and error bodies repeat it. The API writes one JSON access-log line per request: route pattern, status, duration and actor id. Raw paths, query strings, headers, bodies and tokens are never logged, so subject CIDs stay out of process logs.
 - Review notes are redacted for email addresses, phone numbers, and SSN-shaped strings before they enter the audit attestation. The case file kept for the reviewer desk can still hold the original note.
 - Log fields are classed safe, unsafe, or DoNotLog. Biometric names (`template`, `embedding`, `image`, and the rest of that list) are DoNotLog. The vocabulary follows Palantir's public [safe-logging](https://github.com/palantir/safe-logging) projects. Those libraries are not dependencies. See [Reference vendors](#reference-vendors).
-- Demo bearer tokens exist only while `DEMO_MODE` is true. They are not an identity provider. With `DEMO_MODE=false` and `KEYCLOAK_ISSUER` set, every token is rejected until a JWKS verifier is bound.
+- People sign in to both desks with [Cumulus ID](https://id.cumuluscloud.app). The API checks each bearer at the issuer and maps the Cumulus ID to a role from `CID_ADMINS`, `CID_OPERATORS`, `CID_REVIEWERS` and `CID_AUDITORS`. The seeded `dev-*` tokens work only with `EIDETIC_DEV_BEARER=true` and `DEMO_MODE=true`, for local development.
+- Reads are limited by role. The subject list, the audit log and bias reports are open to admins and auditors. Reviewers, admins and auditors see the whole review queue. An operator sees only the reviews for searches they ran. Chain verification (`/v1/audit/verify`) returns hashes only and is open to every role.
 - `$EIDT` on Base is a marketing stub. `attestConsentHash` accepts a 64-character sha256 and returns `broadcast: false`. Biometric payloads are refused.
 - This MVP does not scrape social networks, run plate recognition, build watchlists, or track people from overhead imagery.
 
@@ -74,6 +79,7 @@ Production should run the matcher as its own sealed service. `MatcherAdapter` is
 | `packages/audit` | Hash chain, Merkle checkpoints, Trillian port |
 | `packages/bias` | Local demographic parity and equalized odds. Fairlearn is not invoked |
 | `packages/mil` | ei·det·ic MIL™ boundary |
+| `packages/eon-rf-defense` | Passive GNSS jamming and spoofing detection for EON's own receivers. No transmit or intercept path |
 | `packages/seams` | HRVST, Spectre/+SPCTR, METATRON, VEIL, Firmament Network™, ODIN, `$EIDT`, Rasterio |
 | `deploy/opa/eidetic.rego` | Illustrative policy bundle. Not authoritative until reviewed |
 | `deploy/label-studio/review.xml` | Optional labeling-config shape. The shipped desk is the custom UI |
@@ -95,7 +101,9 @@ pnpm dev
 - Review desk: [http://127.0.0.1:43111](http://127.0.0.1:43111)
 - Purpose desk: [http://127.0.0.1:43112](http://127.0.0.1:43112)
 
-Local demo tokens, only while `DEMO_MODE=true`:
+Sign in to each desk with **Sign in with Cumulus ID**. No Cumulus ID yet? **Create a Cumulus ID** is in the same flow and returns you to the desk signed in. Put your Cumulus ID in `CID_ADMINS` (purpose desk) or `CID_REVIEWERS` (review desk) in `.env`.
+
+Local development without Cumulus ID: set `EIDETIC_DEV_BEARER=true` for the API and `VITE_EIDETIC_DEV_BEARER=dev-admin` (or `dev-reviewer`) for `pnpm dev`. The API refuses this flag when `DEMO_MODE=false` or `NODE_ENV=production`, and production builds of the desks ignore it. `pnpm demo:http` needs it too. Seeded tokens:
 
 | Person | Role | Token |
 | --- | --- | --- |
@@ -106,13 +114,21 @@ Local demo tokens, only while `DEMO_MODE=true`:
 
 Seeded purposes are `record_reconciliation` (business), `access_control` (business), and `consented_assistance` (civilian).
 
+### Without PostgreSQL
+
+```bash
+pnpm dev:memory
+```
+
+Starts the API with in-memory stores and the mock matcher, plus both desks signed in with the seeded dev tokens (`apps/*/.env.memory`): the review desk as `dev-reviewer`, the purpose desk as `dev-admin`. One synthetic review is queued. Nothing is persisted. It is for trying the desks locally and refuses to start when `NODE_ENV=production` or `DEMO_MODE=false`.
+
 ### Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-The review and purpose desks proxy `/v1` to the API. Postgres is on host port 54329. Set `DEMO_MODE=false` before any shared deployment, and do not rely on the dev tokens.
+The review and purpose desks proxy `/v1` to the API, so they are same-origin. A desk served from another origin needs that origin in `ALLOWED_ORIGINS`. The API sends standard security headers, marks every `/v1` response `Cache-Control: no-store`, and refuses request bodies over 1MB. Postgres is on host port 54329. Set `DEMO_MODE=false` before any shared deployment, and do not rely on the dev tokens.
 
 ### Demo
 
@@ -175,7 +191,9 @@ To use a sidecar you operate instead of the local process, set `OPENCV_MEDIAPIPE
 
 The API uses the embedded policy decider, which applies the same denial order as `deploy/opa/eidetic.rego`: edition, purpose, role, legal basis, dataset, then consent when a subject CID is named. Set `OPA_URL` to hand that decision to [Open Policy Agent](https://www.openpolicyagent.org/). An unreachable OPA fails closed.
 
-[Keycloak](https://www.keycloak.org/) is the production OpenID Connect provider. With `DEMO_MODE=false`, the API verifies access tokens with [`jose`](https://github.com/panva/jose) (MIT) against the realm JWKS (`KEYCLOAK_JWKS_URL`, or `{issuer}/protocol/openid-connect/certs`). A bad signature, the wrong issuer, the wrong audience, or an expired token is rejected. `KEYCLOAK_ISSUER` and `KEYCLOAK_AUDIENCE` are required in that mode. Demo bearer tokens exist only while `DEMO_MODE=true`.
+People sign in with Cumulus ID (OAuth 2.0 code + PKCE in the desk through the Cumulus://ID account bar, `/cumulus-bar.js`, a copy of `https://id.cumuluscloud.app/id/bar.js`). The API calls `{CID_ISSUER}/api/id/userinfo` with the bearer, caches the answer for a minute, and maps the CID to a role. A Cumulus ID that is on no role list gets 403. `CID_ISSUER` (default `https://id.cumuluscloud.app`) and `CID_ISSUER_MIRROR` (tried only when the issuer cannot be reached) let a mirror that loads in Russia be used; build the desks with `VITE_CID_ISSUER` to match. With `DEMO_MODE=false`, `CID_ADMINS` is required.
+
+Machines can still use [Keycloak](https://www.keycloak.org/) client tokens: with `KEYCLOAK_ISSUER` and `KEYCLOAK_AUDIENCE` set, the API also verifies access tokens with [`jose`](https://github.com/panva/jose) (MIT) against the realm JWKS (`KEYCLOAK_JWKS_URL`, or `{issuer}/protocol/openid-connect/certs`).
 
 ## Audit commands
 
@@ -207,7 +225,7 @@ Leave the URLs unset unless that service is actually running beside this API.
 | --- | --- | --- |
 | `OPENCV_MEDIAPIPE_URL` | Optional capture-quality sidecar. When this is unset, `CAPTURE_PROVIDER=opencv-mediapipe` runs MediaPipe in a local Python process | [MediaPipe Face Detector](https://developers.google.com/edge/mediapipe/solutions/vision/face_detector) |
 | `OPA_URL` | External purpose, legal-basis, and consent decision. Embedded rules run when this is unset | [Open Policy Agent](https://www.openpolicyagent.org/) |
-| `KEYCLOAK_ISSUER` | Recommended production IdP. Signature verification stays in your JWKS client | [Keycloak](https://www.keycloak.org/) |
+| `KEYCLOAK_ISSUER` | Optional machine-to-machine tokens. People sign in with Cumulus ID | [Keycloak](https://www.keycloak.org/) |
 | `FIDES_URL` | Export of a consent receipt. Local consent stays authoritative | [Fides](https://github.com/ethyca/fides) |
 | `PRESIDIO_URL` | Recognized, not proxied. Local pattern redaction stays on so notes are not shipped out | [Presidio](https://github.com/microsoft/presidio) |
 | Fairlearn | Metric names match `demographic_parity_difference` and `equalized_odds_difference`. The Python library is not called | [Fairlearn](https://fairlearn.org/) |

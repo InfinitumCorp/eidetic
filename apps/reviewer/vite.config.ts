@@ -1,11 +1,21 @@
 import path from "node:path";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
+
+// Cumulus ID issuer for /cumulus-bar.js (the account bar). VITE_CID_ISSUER points it at a mirror (e.g. one that loads in Russia).
+const cidIssuer = (): Plugin => ({
+  name: "cid-issuer",
+  transformIndexHtml: (html) =>
+    html.replace("%CID_ISSUER%", (process.env.VITE_CID_ISSUER || "https://id.cumuluscloud.app").replace(/\/+$/, "")),
+});
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), cidIssuer()],
   resolve: {
-    alias: { "@eidetic/ui": path.resolve(__dirname, "../../packages/ui/src/index.ts") },
+    alias: {
+      "@eidetic/ui": path.resolve(__dirname, "../../packages/ui/src/index.ts"),
+      "@eidetic/analytics": path.resolve(__dirname, "../../packages/analytics/src/index.ts"),
+    },
     dedupe: ["react", "react-dom"],
   },
   server: {

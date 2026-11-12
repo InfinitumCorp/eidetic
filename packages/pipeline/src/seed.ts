@@ -55,9 +55,9 @@ export async function seedReferenceData(
   options: { demoMode: boolean; actors?: ActorSeed[] },
 ): Promise<void> {
   for (const purpose of DEFAULT_PURPOSES) await repos.purposes.upsert(purpose);
-  const actors = options.demoMode ? DEMO_ACTORS : (options.actors ?? []);
+  const actors = options.demoMode ? [...DEMO_ACTORS, ...(options.actors ?? [])] : (options.actors ?? []);
   if (actors.length === 0) {
-    throw new Error("No actors to seed. Set DEMO_MODE=true for local dev tokens, or provide actors explicitly.");
+    throw new Error("No actors to seed. Set CID_ADMINS to the Cumulus IDs that run ei·det·ic™, or DEMO_MODE=true for local demo data.");
   }
   for (const actor of actors) {
     const existing = await repos.actors.get(actor.id);
