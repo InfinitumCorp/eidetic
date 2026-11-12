@@ -85,5 +85,8 @@
   "Sign in to the purpose desk": "Войдите в деск назначения",
   "Consent expired": "Срок согласия истёк",
   "Consent withdrawn": "Согласие отозвано",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную.",
+  "Write 1 more character in the note to decide.": "Допишите в заметку ещё 1 символ, чтобы принять решение.",
+  "Write {0} more characters in the note to decide.": "Допишите в заметку ещё символов: {0}, чтобы принять решение.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "Чтобы подтвердить, выберите кандидата. Для отклонения и «без вывода» выбор не нужен."
 }

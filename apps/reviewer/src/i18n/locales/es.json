@@ -85,5 +85,8 @@
   "Sign in to the purpose desk": "Inicia sesión en el escritorio de propósito",
   "Consent expired": "Consentimiento caducado",
   "Consent withdrawn": "Consentimiento retirado",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente.",
+  "Write 1 more character in the note to decide.": "Escriba 1 carácter más en la nota para decidir.",
+  "Write {0} more characters in the note to decide.": "Escriba {0} caracteres más en la nota para decidir.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "Seleccione un candidato para confirmar. Rechazar y no concluyente no requieren selección."
 }
