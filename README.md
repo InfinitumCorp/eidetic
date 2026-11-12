@@ -77,6 +77,7 @@ Production should run the matcher as its own sealed service. `MatcherAdapter` is
 | `packages/audit` | Hash chain, Merkle checkpoints, Trillian port |
 | `packages/bias` | Local demographic parity and equalized odds. Fairlearn is not invoked |
 | `packages/mil` | ei·det·ic MIL™ boundary |
+| `packages/eon-rf-defense` | Passive GNSS jamming and spoofing detection for EON's own receivers. No transmit or intercept path |
 | `packages/seams` | HRVST, Spectre/+SPCTR, METATRON, VEIL, Firmament Network™, ODIN, `$EIDT`, Rasterio |
 | `deploy/opa/eidetic.rego` | Illustrative policy bundle. Not authoritative until reviewed |
 | `deploy/label-studio/review.xml` | Optional labeling-config shape. The shipped desk is the custom UI |
