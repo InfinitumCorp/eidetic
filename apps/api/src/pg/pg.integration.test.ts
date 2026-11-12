@@ -71,6 +71,16 @@ describe.skipIf(!live)("postgres pipeline", () => {
       notes: "Postgres round trip confirmed by a person.",
     });
     expect((await runtime.service.verifyAudit()).ok).toBe(true);
+    const all = await runtime.service.listAudit();
+    const newest = await runtime.service.pageAudit({ limit: 1 });
+    expect(newest.entries.map((entry) => entry.seq)).toEqual([all.at(-1)?.seq]);
+    expect(newest.nextBefore).toBe(all.at(-1)?.seq);
+    const older = await runtime.service.pageAudit({ limit: 500, beforeSeq: newest.nextBefore ?? undefined });
+    expect(older.entries).toHaveLength(all.length - 1);
+    expect(older.nextBefore).toBeNull();
+    const reviews = await runtime.service.pageAudit({ action: "review" });
+    expect(reviews.entries.length).toBeGreaterThan(0);
+    expect(reviews.entries.every((entry) => entry.action === "review")).toBe(true);
     await expect(pool.query("UPDATE audit_entries SET actor_id = 'tampered'")).rejects.toThrow(/append-only/);
   });
 });

@@ -612,6 +612,12 @@ export class EideticService {
     return this.deps.repos.audit.list();
   }
 
+  /** The log a page at a time, newest first, so a long log never ships whole to a desk. */
+  async pageAudit(query: { limit?: number; beforeSeq?: number; action?: string }) {
+    const limit = Math.min(Math.max(Math.trunc(query.limit ?? 50), 1), 500);
+    return this.deps.repos.audit.page({ limit, beforeSeq: query.beforeSeq, action: query.action });
+  }
+
   verifyAudit() {
     return this.deps.repos.audit.verify();
   }

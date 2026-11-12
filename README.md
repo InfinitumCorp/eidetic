@@ -35,7 +35,7 @@ flowchart LR
 1. **Authorize.** `authorizeSearch` checks edition, purpose, role, legal basis, and dataset. Out-of-policy requests are stored as denials and the matcher is not called.
 2. **Match.** The default adapter is `mock-statistical`. It scores synthetic fixtures inside the process and returns confidence, evidence, and alternatives. Embeddings never leave the matcher.
 3. **Review.** A pending review is created even when confidence is high. The person who ran the search cannot decide it. Confirm, reject, and inconclusive are human outcomes.
-4. **Record.** Entries are hash-chained. Each append stores a Merkle checkpoint and an HMAC-SHA256 signature over that checkpoint. PostgreSQL triggers reject updates and deletes. `pnpm audit:verify` checks the chain and the signatures. `pnpm audit:export` writes a JSON file that is sealed again on the way out, so a biometric field cannot ride along. The optional Trillian port is not configured.
+4. **Record.** Entries are hash-chained. Each append stores a Merkle checkpoint and an HMAC-SHA256 signature over that checkpoint. PostgreSQL triggers reject updates and deletes. `pnpm audit:verify` checks the chain and the signatures. `GET /v1/audit` returns the log a page at a time, newest first: `?limit=` (1 to 500, default 50), `?before=<seq>` from the previous page's `nextBefore`, and `?action=` to filter. `pnpm audit:export` writes a JSON file that is sealed again on the way out, so a biometric field cannot ride along. The optional Trillian port is not configured.
 
 ## Consent and threat model
 

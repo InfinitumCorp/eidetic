@@ -64,6 +64,7 @@ export function App() {
   const [purposes, setPurposes] = useState<Purpose[]>([]);
   const [subjects, setSubjects] = useState<SubjectView[]>([]);
   const [entries, setEntries] = useState<AuditEntry[]>([]);
+  const [olderThan, setOlderThan] = useState<number | null>(null);
   const [verify, setVerify] = useState<string>("Audit chain has not been checked this session.");
   const [seams, setSeams] = useState<Seam[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -79,13 +80,14 @@ export function App() {
     const [purposeBody, subjectBody, auditBody, seamBody, editionBody] = await Promise.all([
       api<{ purposes: Purpose[] }>("/v1/purposes"),
       api<{ subjects: SubjectView[] }>("/v1/subjects"),
-      api<{ entries: AuditEntry[] }>("/v1/audit"),
+      api<{ entries: AuditEntry[]; nextBefore: number | null }>("/v1/audit?limit=8"),
       api<{ seams: Seam[] }>("/v1/seams"),
       api<{ mil: { enabled: boolean; workflows: string; product: string } }>("/v1/edition"),
     ]);
     setPurposes(purposeBody.purposes);
     setSubjects(subjectBody.subjects);
     setEntries(auditBody.entries);
+    setOlderThan(auditBody.nextBefore);
     setSeams(seamBody.seams);
     setEdition(`${editionBody.mil.product} flag ${editionBody.mil.enabled ? "on" : "off"} · ${editionBody.mil.workflows}`);
   }
@@ -146,6 +148,20 @@ export function App() {
       await api(`/v1/subjects/${encodeURIComponent(subject.cid)}/withdraw`, { method: "POST", body: "{}" });
       setWithdrawing(null);
       await reload();
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function loadOlder() {
+    if (olderThan === null) return;
+    setBusy(true);
+    try {
+      const page = await api<{ entries: AuditEntry[]; nextBefore: number | null }>(`/v1/audit?limit=20&before=${olderThan}`);
+      setEntries((current) => [...current, ...page.entries]);
+      setOlderThan(page.nextBefore);
     } catch (reason) {
       setError((reason as Error).message);
     } finally {
@@ -331,12 +347,17 @@ export function App() {
                   </Button>
                   <ul className="space-y-2 text-xs">
                     {entries.length === 0 && <li className="text-muted-foreground">The log is empty.</li>}
-                    {entries.slice(-8).map((entry) => (
+                    {entries.map((entry) => (
                       <li key={entry.seq} className="font-mono text-muted-foreground">
                         {entry.seq} {entry.action} {entry.hash.slice(0, 12)} · {entry.attestation.message}
                       </li>
                     ))}
                   </ul>
+                  {olderThan !== null && (
+                    <Button variant="outline" disabled={busy} onClick={loadOlder}>
+                      Load older entries
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
               <Card>

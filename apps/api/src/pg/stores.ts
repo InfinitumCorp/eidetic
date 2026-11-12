@@ -56,6 +56,18 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
       const result = await sql.query("SELECT * FROM audit_entries ORDER BY seq ASC");
       return result.rows.map(mapAudit);
     },
+    async page(query) {
+      // One row past the limit tells us whether an older page exists.
+      const result = await sql.query(
+        `SELECT * FROM audit_entries
+         WHERE ($1::bigint IS NULL OR seq < $1) AND ($2::text IS NULL OR action = $2)
+         ORDER BY seq DESC LIMIT $3`,
+        [query.beforeSeq ?? null, query.action ?? null, query.limit + 1],
+      );
+      const rows = result.rows.map(mapAudit);
+      const entries = rows.slice(0, query.limit);
+      return { entries, nextBefore: rows.length > query.limit ? (entries.at(-1)?.seq ?? null) : null };
+    },
     async checkpoints() {
       const result = await sql.query("SELECT * FROM audit_checkpoints ORDER BY through_seq ASC");
       return result.rows.map(mapCheckpoint);
