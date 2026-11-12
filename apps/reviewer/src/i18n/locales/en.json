@@ -85,5 +85,7 @@
   "Sign in to the purpose desk": "Sign in to the purpose desk",
   "Consent expired": "Consent expired",
   "Consent withdrawn": "Consent withdrawn",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.",
+  "{0} of {1} searches left this hour.": "{0} of {1} searches left this hour.",
+  "No searches left this hour (limit {0}).": "No searches left this hour (limit {0})."
 }

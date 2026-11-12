@@ -1,6 +1,6 @@
 // © Infinitum Corporation®. All rights reserved.
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Button, Card, CardContent, Label } from "@eidetic/ui";
 
 interface Purpose {
@@ -11,6 +11,12 @@ interface Purpose {
   datasetIds: string[];
   allowedRoles: string[];
   active: boolean;
+}
+
+interface Allowance {
+  limit: number | null;
+  used: number;
+  remaining: number | null;
 }
 
 interface SearchResult {
@@ -51,6 +57,16 @@ export function OperatorSearch({ call, role, demoMode, onQueued }: { call: Call;
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [outcome, setOutcome] = useState<{ ok: boolean; text: string } | null>(null);
+  const [allowance, setAllowance] = useState<Allowance | null>(null);
+
+  // The allowance is a hint for the operator. The API still enforces the limit on every search.
+  const loadAllowance = useCallback(() => {
+    call<Allowance>("/v1/searches/allowance")
+      .then(setAllowance)
+      .catch(() => setAllowance(null));
+  }, [call]);
+
+  useEffect(loadAllowance, [loadAllowance]);
 
   useEffect(() => {
     call<{ purposes: Purpose[] }>("/v1/purposes")
@@ -93,6 +109,7 @@ export function OperatorSearch({ call, role, demoMode, onQueued }: { call: Call;
       setOutcome({ ok: false, text: (reason as Error).message });
     } finally {
       setBusy(false);
+      loadAllowance();
     }
   }
 
@@ -176,9 +193,18 @@ export function OperatorSearch({ call, role, demoMode, onQueued }: { call: Call;
               }}
             />
           </div>
-          <Button type="submit" disabled={busy}>
-            {busy ? "Searching…" : "Search"}
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="submit" disabled={busy || allowance?.remaining === 0}>
+              {busy ? "Searching…" : "Search"}
+            </Button>
+            {allowance?.limit != null && (
+              <span data-testid="search-allowance" className={`text-xs ${allowance.remaining === 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                {allowance.remaining === 0
+                  ? `No searches left this hour (limit ${allowance.limit}).`
+                  : `${allowance.remaining} of ${allowance.limit} searches left this hour.`}
+              </span>
+            )}
+          </div>
           {outcome && (
             <p role="status" className={`text-sm ${outcome.ok ? "text-muted-foreground" : "text-destructive"}`}>
               {outcome.text}
