@@ -306,7 +306,11 @@ export function App() {
     setError(null);
     try {
       const result = await api<{ purged: Array<{ cid: string }> }>("/v1/consents/sweep", { method: "POST", body: "{}" });
-      setSwept(result.purged.length === 0 ? "No lapsed consent. Nothing was purged." : `Purged ${result.purged.length} template(s) with lapsed consent.`);
+      setSwept(result.purged.length === 0
+          ? "No lapsed consent. Nothing was purged."
+          : result.purged.length === 1
+            ? "Purged 1 template with lapsed consent."
+            : `Purged ${result.purged.length} templates with lapsed consent.`);
       await reload();
     } catch (reason) {
       setError((reason as Error).message);

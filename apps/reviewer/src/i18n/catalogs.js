@@ -56,7 +56,6 @@ export default {
   "Waiting for a person": "Waiting for a person",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Why are you confirming, rejecting, or leaving this inconclusive?",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} candidate(s) are waiting for a reviewer.",
   "Avery Quinn (synthetic)": "Avery Quinn (synthetic)",
   "Casey Morgan (synthetic)": "Casey Morgan (synthetic)",
   "Choose a probe image first.": "Choose a probe image first.",
@@ -87,7 +86,9 @@ export default {
   "Sign in to the purpose desk": "Sign in to the purpose desk",
   "Consent expired": "Consent expired",
   "Consent withdrawn": "Consent withdrawn",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.",
+  "{0} candidates are waiting for a reviewer.": "{0} candidates are waiting for a reviewer.",
+  "1 candidate is waiting for a reviewer.": "1 candidate is waiting for a reviewer."
  },
  "ru": {
   "{0} Audit hash {1}.": "{0} Хеш аудита {1}.",
@@ -145,7 +146,6 @@ export default {
   "Waiting for a person": "Ожидание человека",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Почему подтверждаете, отклоняете или оставляете без решения?",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} Кандидатов, ожидающих рецензента: {1}.",
   "Avery Quinn (synthetic)": "Avery Quinn (синтетический)",
   "Casey Morgan (synthetic)": "Casey Morgan (синтетический)",
   "Choose a probe image first.": "Сначала выберите изображение для поиска.",
@@ -176,7 +176,9 @@ export default {
   "Sign in to the purpose desk": "Войдите в деск назначения",
   "Consent expired": "Срок согласия истёк",
   "Consent withdrawn": "Согласие отозвано",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную.",
+  "{0} candidates are waiting for a reviewer.": "{0, plural, one {# кандидат ожидает рецензента.} few {# кандидата ожидают рецензента.} many {# кандидатов ожидают рецензента.} other {# кандидата ожидают рецензента.}}",
+  "1 candidate is waiting for a reviewer.": "1 кандидат ожидает рецензента."
  },
  "uk": {
   "{0} Audit hash {1}.": "{0} Аудит хеш {1}.",
@@ -234,7 +236,6 @@ export default {
   "Waiting for a person": "Очікування особи",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Чому ви підтверджуєте, відхиляєте або залишаєте це невизначеним?",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} Кандидатів, що очікують переглядача: {1}.",
   "Avery Quinn (synthetic)": "Avery Quinn (синтетичний)",
   "Casey Morgan (synthetic)": "Casey Morgan (синтетичний)",
   "Choose a probe image first.": "Спочатку виберіть зображення для пошуку.",
@@ -265,7 +266,9 @@ export default {
   "Sign in to the purpose desk": "Увійдіть у деск цілей",
   "Consent expired": "Термін згоди минув",
   "Consent withdrawn": "Згоду відкликано",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий.",
+  "{0} candidates are waiting for a reviewer.": "{0, plural, one {# кандидат очікує на переглядача.} few {# кандидати очікують на переглядача.} many {# кандидатів очікують на переглядача.} other {# кандидата очікують на переглядача.}}",
+  "1 candidate is waiting for a reviewer.": "1 кандидат очікує на переглядача."
  },
  "es": {
   "{0} Audit hash {1}.": "{0} Hash de auditoría {1}.",
@@ -323,7 +326,6 @@ export default {
   "Waiting for a person": "Esperando a una persona",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "¿Por qué confirmas, rechazas o dejas esto inconcluso?",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} candidato(s) esperan a un revisor.",
   "Avery Quinn (synthetic)": "Avery Quinn (sintético)",
   "Casey Morgan (synthetic)": "Casey Morgan (sintético)",
   "Choose a probe image first.": "Primero elige una imagen de consulta.",
@@ -354,7 +356,9 @@ export default {
   "Sign in to the purpose desk": "Inicia sesión en el escritorio de propósito",
   "Consent expired": "Consentimiento caducado",
   "Consent withdrawn": "Consentimiento retirado",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente.",
+  "{0} candidates are waiting for a reviewer.": "{0} candidatos esperan a un revisor.",
+  "1 candidate is waiting for a reviewer.": "1 candidato espera a un revisor."
  },
  "fr": {
   "{0} Audit hash {1}.": "{0} Hachage d'audit {1}.",
@@ -412,7 +416,6 @@ export default {
   "Waiting for a person": "En attente d'une personne",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Pourquoi confirmez‑vous, rejetez‑vous ou laissez‑vous cela inconclusif ?",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} candidat(s) attendent un examinateur.",
   "Avery Quinn (synthetic)": "Avery Quinn (synthétique)",
   "Casey Morgan (synthetic)": "Casey Morgan (synthétique)",
   "Choose a probe image first.": "Choisissez d’abord une image de recherche.",
@@ -443,7 +446,9 @@ export default {
   "Sign in to the purpose desk": "Connectez-vous au bureau des finalités",
   "Consent expired": "Consentement expiré",
   "Consent withdrawn": "Consentement retiré",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Le consentement de cette personne ne couvre plus cette recherche : une confirmation serait refusée. Rejetez ou marquez l’examen comme non concluant."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Le consentement de cette personne ne couvre plus cette recherche : une confirmation serait refusée. Rejetez ou marquez l’examen comme non concluant.",
+  "{0} candidates are waiting for a reviewer.": "{0, plural, one {# candidat attend un examinateur.} other {# candidats attendent un examinateur.}}",
+  "1 candidate is waiting for a reviewer.": "1 candidat attend un examinateur."
  },
  "de": {
   "{0} Audit hash {1}.": "{0} Prüf‑Hash {1}.",
@@ -501,7 +506,6 @@ export default {
   "Waiting for a person": "Warten auf eine Person",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Warum bestätigen, ablehnen oder unverbindlich lassen?",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} Kandidat(en) warten auf einen Prüfer.",
   "Avery Quinn (synthetic)": "Avery Quinn (synthetisch)",
   "Casey Morgan (synthetic)": "Casey Morgan (synthetisch)",
   "Choose a probe image first.": "Wählen Sie zuerst ein Suchbild.",
@@ -532,7 +536,9 @@ export default {
   "Sign in to the purpose desk": "Beim Zweck‑Desk anmelden",
   "Consent expired": "Einwilligung abgelaufen",
   "Consent withdrawn": "Einwilligung widerrufen",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Die Einwilligung dieser Person deckt diese Suche nicht mehr ab, eine Bestätigung würde abgelehnt. Lehnen Sie ab oder markieren Sie die Prüfung als nicht eindeutig."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Die Einwilligung dieser Person deckt diese Suche nicht mehr ab, eine Bestätigung würde abgelehnt. Lehnen Sie ab oder markieren Sie die Prüfung als nicht eindeutig.",
+  "{0} candidates are waiting for a reviewer.": "{0} Kandidaten warten auf eine Prüfung.",
+  "1 candidate is waiting for a reviewer.": "1 Kandidat wartet auf eine Prüfung."
  },
  "pt": {
   "{0} Audit hash {1}.": "{0} Hash de auditoria {1}.",
@@ -590,7 +596,6 @@ export default {
   "Waiting for a person": "Aguardando por uma pessoa",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Por que você está confirmando, rejeitando ou deixando isso inconclusivo?",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} candidato(s) aguardando um revisor.",
   "Avery Quinn (synthetic)": "Avery Quinn (sintético)",
   "Casey Morgan (synthetic)": "Casey Morgan (sintético)",
   "Choose a probe image first.": "Escolha primeiro uma imagem de consulta.",
@@ -621,7 +626,9 @@ export default {
   "Sign in to the purpose desk": "Entre no desk de propósito",
   "Consent expired": "Consentimento expirado",
   "Consent withdrawn": "Consentimento retirado",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "O consentimento desta pessoa não cobre mais esta pesquisa, então uma confirmação seria recusada. Rejeite ou marque a revisão como inconclusiva."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "O consentimento desta pessoa não cobre mais esta pesquisa, então uma confirmação seria recusada. Rejeite ou marque a revisão como inconclusiva.",
+  "{0} candidates are waiting for a reviewer.": "{0, plural, one {# candidato aguarda um revisor.} other {# candidatos aguardam um revisor.}}",
+  "1 candidate is waiting for a reviewer.": "1 candidato aguarda um revisor."
  },
  "zh": {
   "{0} Audit hash {1}.": "{0} 审计哈希 {1}。",
@@ -679,7 +686,6 @@ export default {
   "Waiting for a person": "等待人员",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "您为何确认、拒绝或将其保持不确定？",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} 有 {1} 个候选人等待审查员处理。",
   "Avery Quinn (synthetic)": "Avery Quinn（合成）",
   "Casey Morgan (synthetic)": "Casey Morgan（合成）",
   "Choose a probe image first.": "请先选择查询图像。",
@@ -710,7 +716,9 @@ export default {
   "Sign in to the purpose desk": "登录目的桌面",
   "Consent expired": "同意已过期",
   "Consent withdrawn": "同意已撤回",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。"
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。",
+  "{0} candidates are waiting for a reviewer.": "{0} 位候选人正在等待审查员。",
+  "1 candidate is waiting for a reviewer.": "1 位候选人正在等待审查员。"
  },
  "ar": {
   "{0} Audit hash {1}.": "{0} تجزئة التدقيق {1}.",
@@ -768,7 +776,6 @@ export default {
   "Waiting for a person": "في انتظار شخص",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "لماذا تؤكد أو ترفض أو تترك هذا غير حاسم؟",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} عدد المرشحين بانتظار مراجع: {1}.",
   "Avery Quinn (synthetic)": "Avery Quinn (اصطناعي)",
   "Casey Morgan (synthetic)": "Casey Morgan (اصطناعي)",
   "Choose a probe image first.": "اختر صورة البحث أولًا.",
@@ -799,6 +806,8 @@ export default {
   "Sign in to the purpose desk": "سجّل الدخول إلى مكتب الهدف",
   "Consent expired": "انتهت صلاحية الموافقة",
   "Consent withdrawn": "سُحبت الموافقة",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "لم تعد موافقة هذا الشخص تشمل هذا البحث، لذا سيُرفض أي تأكيد. ارفض أو علّم المراجعة على أنها غير حاسمة."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "لم تعد موافقة هذا الشخص تشمل هذا البحث، لذا سيُرفض أي تأكيد. ارفض أو علّم المراجعة على أنها غير حاسمة.",
+  "{0} candidates are waiting for a reviewer.": "{0, plural, zero {# مرشح} one {مرشح واحد} two {مرشحان} few {# مرشحين} many {# مرشحًا} other {# مرشح}} بانتظار مراجع.",
+  "1 candidate is waiting for a reviewer.": "مرشح واحد بانتظار مراجع."
  }
 };

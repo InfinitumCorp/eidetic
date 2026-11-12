@@ -127,7 +127,6 @@
   "No entries of this kind.": "No hay entradas de este tipo.",
   "No lapsed consent. Nothing was purged.": "No hay consentimientos caducados. No se eliminó nada.",
   "Purge lapsed templates": "Eliminar plantillas caducadas",
-  "Purged {0} template(s) with lapsed consent.": "Se eliminaron {0} plantilla(s) con consentimiento caducado.",
   "Purpose changes": "Cambios de propósito",
   "Review decisions": "Decisiones de revisión",
   "Save changes": "Guardar cambios",
@@ -135,5 +134,7 @@
   "Show": "Mostrar",
   "Subject access reports": "Informes de acceso del titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
+  "Purged {0} templates with lapsed consent.": "Se eliminaron {0} plantillas con consentimiento caducado.",
+  "Purged 1 template with lapsed consent.": "Se eliminó 1 plantilla con consentimiento caducado."
 }

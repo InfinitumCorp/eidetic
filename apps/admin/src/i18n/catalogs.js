@@ -129,7 +129,6 @@ export default {
   "No entries of this kind.": "No entries of this kind.",
   "No lapsed consent. Nothing was purged.": "No lapsed consent. Nothing was purged.",
   "Purge lapsed templates": "Purge lapsed templates",
-  "Purged {0} template(s) with lapsed consent.": "Purged {0} template(s) with lapsed consent.",
   "Purpose changes": "Purpose changes",
   "Review decisions": "Review decisions",
   "Save changes": "Save changes",
@@ -137,7 +136,9 @@ export default {
   "Show": "Show",
   "Subject access reports": "Subject access reports",
   "Withdrawals": "Withdrawals",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
+  "Purged {0} templates with lapsed consent.": "Purged {0} templates with lapsed consent.",
+  "Purged 1 template with lapsed consent.": "Purged 1 template with lapsed consent."
  },
  "ru": {
   ". Military workflows are not implemented.": ". Военные рабочие процессы не реализованы.",
@@ -268,7 +269,6 @@ export default {
   "No entries of this kind.": "Записей такого типа нет.",
   "No lapsed consent. Nothing was purged.": "Истёкших согласий нет. Ничего не удалено.",
   "Purge lapsed templates": "Удалить шаблоны с истёкшим согласием",
-  "Purged {0} template(s) with lapsed consent.": "Удалено шаблонов с истёкшим согласием: {0}.",
   "Purpose changes": "Изменения целей",
   "Review decisions": "Решения рецензентов",
   "Save changes": "Сохранить изменения",
@@ -276,7 +276,9 @@ export default {
   "Show": "Показать",
   "Subject access reports": "Отчёты о доступе субъекта",
   "Withdrawals": "Отзывы согласия",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
+  "Purged {0} templates with lapsed consent.": "{0, plural, one {Удалён # шаблон с истёкшим согласием.} few {Удалены # шаблона с истёкшим согласием.} many {Удалено # шаблонов с истёкшим согласием.} other {Удалено # шаблона с истёкшим согласием.}}",
+  "Purged 1 template with lapsed consent.": "Удалён 1 шаблон с истёкшим согласием."
  },
  "uk": {
   ". Military workflows are not implemented.": ". Військові робочі процеси не реалізовано.",
@@ -407,7 +409,6 @@ export default {
   "No entries of this kind.": "Записів такого типу немає.",
   "No lapsed consent. Nothing was purged.": "Згод, що сплили, немає. Нічого не видалено.",
   "Purge lapsed templates": "Видалити шаблони зі сплилою згодою",
-  "Purged {0} template(s) with lapsed consent.": "Видалено шаблонів зі сплилою згодою: {0}.",
   "Purpose changes": "Зміни цілей",
   "Review decisions": "Рішення переглядачів",
   "Save changes": "Зберегти зміни",
@@ -415,7 +416,9 @@ export default {
   "Show": "Показати",
   "Subject access reports": "Звіти про доступ суб’єкта",
   "Withdrawals": "Відкликання згоди",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних.",
+  "Purged {0} templates with lapsed consent.": "{0, plural, one {Видалено # шаблон зі сплилою згодою.} few {Видалено # шаблони зі сплилою згодою.} many {Видалено # шаблонів зі сплилою згодою.} other {Видалено # шаблону зі сплилою згодою.}}",
+  "Purged 1 template with lapsed consent.": "Видалено 1 шаблон зі сплилою згодою."
  },
  "es": {
   ". Military workflows are not implemented.": ". Los flujos de trabajo militares no están implementados.",
@@ -546,7 +549,6 @@ export default {
   "No entries of this kind.": "No hay entradas de este tipo.",
   "No lapsed consent. Nothing was purged.": "No hay consentimientos caducados. No se eliminó nada.",
   "Purge lapsed templates": "Eliminar plantillas caducadas",
-  "Purged {0} template(s) with lapsed consent.": "Se eliminaron {0} plantilla(s) con consentimiento caducado.",
   "Purpose changes": "Cambios de propósito",
   "Review decisions": "Decisiones de revisión",
   "Save changes": "Guardar cambios",
@@ -554,7 +556,9 @@ export default {
   "Show": "Mostrar",
   "Subject access reports": "Informes de acceso del titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
+  "Purged {0} templates with lapsed consent.": "Se eliminaron {0} plantillas con consentimiento caducado.",
+  "Purged 1 template with lapsed consent.": "Se eliminó 1 plantilla con consentimiento caducado."
  },
  "fr": {
   ". Military workflows are not implemented.": ". Les flux de travail militaires ne sont pas implémentés.",
@@ -685,7 +689,6 @@ export default {
   "No entries of this kind.": "Aucune entrée de ce type.",
   "No lapsed consent. Nothing was purged.": "Aucun consentement expiré. Rien n’a été purgé.",
   "Purge lapsed templates": "Purger les modèles expirés",
-  "Purged {0} template(s) with lapsed consent.": "{0} modèle(s) au consentement expiré purgé(s).",
   "Purpose changes": "Modifications de finalités",
   "Review decisions": "Décisions d’examen",
   "Save changes": "Enregistrer les modifications",
@@ -693,7 +696,9 @@ export default {
   "Show": "Afficher",
   "Subject access reports": "Rapports d’accès de la personne",
   "Withdrawals": "Retraits",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait.",
+  "Purged {0} templates with lapsed consent.": "{0, plural, one {# modèle au consentement expiré a été purgé.} other {# modèles au consentement expiré ont été purgés.}}",
+  "Purged 1 template with lapsed consent.": "1 modèle au consentement expiré a été purgé."
  },
  "de": {
   ". Military workflows are not implemented.": ". Militär-Workflows sind nicht implementiert.",
@@ -824,7 +829,6 @@ export default {
   "No entries of this kind.": "Keine Einträge dieser Art.",
   "No lapsed consent. Nothing was purged.": "Keine erloschene Einwilligung. Nichts wurde gelöscht.",
   "Purge lapsed templates": "Erloschene Templates löschen",
-  "Purged {0} template(s) with lapsed consent.": "{0} Template(s) mit erloschener Einwilligung gelöscht.",
   "Purpose changes": "Zweckänderungen",
   "Review decisions": "Prüfentscheidungen",
   "Save changes": "Änderungen speichern",
@@ -832,7 +836,9 @@ export default {
   "Show": "Anzeigen",
   "Subject access reports": "Auskunftsberichte",
   "Withdrawals": "Widerrufe",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze.",
+  "Purged {0} templates with lapsed consent.": "{0} Templates mit erloschener Einwilligung gelöscht.",
+  "Purged 1 template with lapsed consent.": "1 Template mit erloschener Einwilligung gelöscht."
  },
  "pt": {
   ". Military workflows are not implemented.": ". Fluxos de trabalho militares não estão implementados.",
@@ -963,7 +969,6 @@ export default {
   "No entries of this kind.": "Nenhuma entrada deste tipo.",
   "No lapsed consent. Nothing was purged.": "Nenhum consentimento expirado. Nada foi removido.",
   "Purge lapsed templates": "Remover modelos expirados",
-  "Purged {0} template(s) with lapsed consent.": "{0} modelo(s) com consentimento expirado removido(s).",
   "Purpose changes": "Alterações de propósito",
   "Review decisions": "Decisões de revisão",
   "Save changes": "Salvar alterações",
@@ -971,7 +976,9 @@ export default {
   "Show": "Mostrar",
   "Subject access reports": "Relatórios de acesso do titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou.",
+  "Purged {0} templates with lapsed consent.": "{0, plural, one {# modelo com consentimento expirado foi removido.} other {# modelos com consentimento expirado foram removidos.}}",
+  "Purged 1 template with lapsed consent.": "1 modelo com consentimento expirado foi removido."
  },
  "zh": {
   ". Military workflows are not implemented.": "未实现军事工作流。",
@@ -1102,7 +1109,6 @@ export default {
   "No entries of this kind.": "没有此类条目。",
   "No lapsed consent. Nothing was purged.": "没有失效的同意，未清除任何内容。",
   "Purge lapsed templates": "清除失效模板",
-  "Purged {0} template(s) with lapsed consent.": "已清除 {0} 个同意失效的模板。",
   "Purpose changes": "用途变更",
   "Review decisions": "审查决定",
   "Save changes": "保存更改",
@@ -1110,7 +1116,9 @@ export default {
   "Show": "显示",
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。"
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "Purged {0} templates with lapsed consent.": "已清除 {0} 个同意失效的模板。",
+  "Purged 1 template with lapsed consent.": "已清除 1 个同意失效的模板。"
  },
  "ar": {
   ". Military workflows are not implemented.": ". لم يتم تنفيذ سير عمل عسكري.",
@@ -1241,7 +1249,6 @@ export default {
   "No entries of this kind.": "لا توجد إدخالات من هذا النوع.",
   "No lapsed consent. Nothing was purged.": "لا توجد موافقات منتهية. لم يُحذف شيء.",
   "Purge lapsed templates": "حذف القوالب المنتهية",
-  "Purged {0} template(s) with lapsed consent.": "تم حذف القوالب ذات الموافقة المنتهية: {0}.",
   "Purpose changes": "تغييرات الأغراض",
   "Review decisions": "قرارات المراجعة",
   "Save changes": "حفظ التغييرات",
@@ -1249,6 +1256,8 @@ export default {
   "Show": "عرض",
   "Subject access reports": "تقارير وصول صاحب البيانات",
   "Withdrawals": "عمليات السحب",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
+  "Purged {0} templates with lapsed consent.": "تم حذف {0, plural, zero {# قالب} one {قالب واحد} two {قالبين} few {# قوالب} many {# قالبًا} other {# قالب}} بسبب انتهاء الموافقة.",
+  "Purged 1 template with lapsed consent.": "تم حذف قالب واحد بسبب انتهاء الموافقة."
  }
 };

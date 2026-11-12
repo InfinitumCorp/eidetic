@@ -127,7 +127,6 @@
   "No entries of this kind.": "Nenhuma entrada deste tipo.",
   "No lapsed consent. Nothing was purged.": "Nenhum consentimento expirado. Nada foi removido.",
   "Purge lapsed templates": "Remover modelos expirados",
-  "Purged {0} template(s) with lapsed consent.": "{0} modelo(s) com consentimento expirado removido(s).",
   "Purpose changes": "Alterações de propósito",
   "Review decisions": "Decisões de revisão",
   "Save changes": "Salvar alterações",
@@ -135,5 +134,7 @@
   "Show": "Mostrar",
   "Subject access reports": "Relatórios de acesso do titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou.",
+  "Purged {0} templates with lapsed consent.": "{0, plural, one {# modelo com consentimento expirado foi removido.} other {# modelos com consentimento expirado foram removidos.}}",
+  "Purged 1 template with lapsed consent.": "1 modelo com consentimento expirado foi removido."
 }

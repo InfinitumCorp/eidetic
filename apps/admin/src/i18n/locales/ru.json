@@ -127,7 +127,6 @@
   "No entries of this kind.": "Записей такого типа нет.",
   "No lapsed consent. Nothing was purged.": "Истёкших согласий нет. Ничего не удалено.",
   "Purge lapsed templates": "Удалить шаблоны с истёкшим согласием",
-  "Purged {0} template(s) with lapsed consent.": "Удалено шаблонов с истёкшим согласием: {0}.",
   "Purpose changes": "Изменения целей",
   "Review decisions": "Решения рецензентов",
   "Save changes": "Сохранить изменения",
@@ -135,5 +134,7 @@
   "Show": "Показать",
   "Subject access reports": "Отчёты о доступе субъекта",
   "Withdrawals": "Отзывы согласия",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
+  "Purged {0} templates with lapsed consent.": "{0, plural, one {Удалён # шаблон с истёкшим согласием.} few {Удалены # шаблона с истёкшим согласием.} many {Удалено # шаблонов с истёкшим согласием.} other {Удалено # шаблона с истёкшим согласием.}}",
+  "Purged 1 template with lapsed consent.": "Удалён 1 шаблон с истёкшим согласием."
 }

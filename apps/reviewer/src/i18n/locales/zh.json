@@ -54,7 +54,6 @@
   "Waiting for a person": "等待人员",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "您为何确认、拒绝或将其保持不确定？",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} 有 {1} 个候选人等待审查员处理。",
   "Avery Quinn (synthetic)": "Avery Quinn（合成）",
   "Casey Morgan (synthetic)": "Casey Morgan（合成）",
   "Choose a probe image first.": "请先选择查询图像。",
@@ -85,5 +84,7 @@
   "Sign in to the purpose desk": "登录目的桌面",
   "Consent expired": "同意已过期",
   "Consent withdrawn": "同意已撤回",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。"
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。",
+  "{0} candidates are waiting for a reviewer.": "{0} 位候选人正在等待审查员。",
+  "1 candidate is waiting for a reviewer.": "1 位候选人正在等待审查员。"
 }

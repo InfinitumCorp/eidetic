@@ -54,7 +54,6 @@
   "Waiting for a person": "Очікування особи",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Чому ви підтверджуєте, відхиляєте або залишаєте це невизначеним?",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} Кандидатів, що очікують переглядача: {1}.",
   "Avery Quinn (synthetic)": "Avery Quinn (синтетичний)",
   "Casey Morgan (synthetic)": "Casey Morgan (синтетичний)",
   "Choose a probe image first.": "Спочатку виберіть зображення для пошуку.",
@@ -85,5 +84,7 @@
   "Sign in to the purpose desk": "Увійдіть у деск цілей",
   "Consent expired": "Термін згоди минув",
   "Consent withdrawn": "Згоду відкликано",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий.",
+  "{0} candidates are waiting for a reviewer.": "{0, plural, one {# кандидат очікує на переглядача.} few {# кандидати очікують на переглядача.} many {# кандидатів очікують на переглядача.} other {# кандидата очікують на переглядача.}}",
+  "1 candidate is waiting for a reviewer.": "1 кандидат очікує на переглядача."
 }

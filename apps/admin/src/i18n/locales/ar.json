@@ -127,7 +127,6 @@
   "No entries of this kind.": "لا توجد إدخالات من هذا النوع.",
   "No lapsed consent. Nothing was purged.": "لا توجد موافقات منتهية. لم يُحذف شيء.",
   "Purge lapsed templates": "حذف القوالب المنتهية",
-  "Purged {0} template(s) with lapsed consent.": "تم حذف القوالب ذات الموافقة المنتهية: {0}.",
   "Purpose changes": "تغييرات الأغراض",
   "Review decisions": "قرارات المراجعة",
   "Save changes": "حفظ التغييرات",
@@ -135,5 +134,7 @@
   "Show": "عرض",
   "Subject access reports": "تقارير وصول صاحب البيانات",
   "Withdrawals": "عمليات السحب",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
+  "Purged {0} templates with lapsed consent.": "تم حذف {0, plural, zero {# قالب} one {قالب واحد} two {قالبين} few {# قوالب} many {# قالبًا} other {# قالب}} بسبب انتهاء الموافقة.",
+  "Purged 1 template with lapsed consent.": "تم حذف قالب واحد بسبب انتهاء الموافقة."
 }

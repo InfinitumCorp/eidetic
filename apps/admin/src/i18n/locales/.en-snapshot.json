@@ -127,7 +127,6 @@
   "No entries of this kind.": "No entries of this kind.",
   "No lapsed consent. Nothing was purged.": "No lapsed consent. Nothing was purged.",
   "Purge lapsed templates": "Purge lapsed templates",
-  "Purged {0} template(s) with lapsed consent.": "Purged {0} template(s) with lapsed consent.",
   "Purpose changes": "Purpose changes",
   "Review decisions": "Review decisions",
   "Save changes": "Save changes",
@@ -135,5 +134,7 @@
   "Show": "Show",
   "Subject access reports": "Subject access reports",
   "Withdrawals": "Withdrawals",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
+  "Purged {0} templates with lapsed consent.": "Purged {0} templates with lapsed consent.",
+  "Purged 1 template with lapsed consent.": "Purged 1 template with lapsed consent."
 }

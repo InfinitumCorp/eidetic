@@ -54,7 +54,6 @@
   "Waiting for a person": "En attente d'une personne",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Pourquoi confirmez‑vous, rejetez‑vous ou laissez‑vous cela inconclusif ?",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} candidat(s) attendent un examinateur.",
   "Avery Quinn (synthetic)": "Avery Quinn (synthétique)",
   "Casey Morgan (synthetic)": "Casey Morgan (synthétique)",
   "Choose a probe image first.": "Choisissez d’abord une image de recherche.",
@@ -85,5 +84,7 @@
   "Sign in to the purpose desk": "Connectez-vous au bureau des finalités",
   "Consent expired": "Consentement expiré",
   "Consent withdrawn": "Consentement retiré",
-  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Le consentement de cette personne ne couvre plus cette recherche : une confirmation serait refusée. Rejetez ou marquez l’examen comme non concluant."
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Le consentement de cette personne ne couvre plus cette recherche : une confirmation serait refusée. Rejetez ou marquez l’examen comme non concluant.",
+  "{0} candidates are waiting for a reviewer.": "{0, plural, one {# candidat attend un examinateur.} other {# candidats attendent un examinateur.}}",
+  "1 candidate is waiting for a reviewer.": "1 candidat attend un examinateur."
 }
