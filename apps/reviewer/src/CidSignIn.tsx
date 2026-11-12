@@ -1,4 +1,5 @@
 // © Infinitum Corporation®. All rights reserved.
+import { useEffect, useRef } from "react";
 import { Button, Card, CardContent } from "@eidetic/ui";
 import { createCumulusId, signIn, signOut, type CidProfile } from "./cid";
 
@@ -39,16 +40,17 @@ export function CidSignIn({ desk, error, signedIn }: { desk: string; error?: str
   );
 }
 
-/** Who is signed in, for the app bar. */
-export function CidAccount({ profile }: { profile: CidProfile | null }) {
-  if (!profile) return null;
-  const who = profile.email || profile.username || profile.cid;
-  return (
-    <span className="cid-account flex items-center gap-2 text-sm">
-      <span title={`Signed in with Cumulus ID as ${who}`}>{who}</span>
-      <Button type="button" variant="ghost" size="sm" onClick={signOut}>
-        Sign out
-      </Button>
-    </span>
-  );
+/**
+ * The Cumulus://ID account bar at the right of the app bar: the same sign-in, account menu and
+ * product launcher as every Infinitum product. /cumulus-bar.js renders into this element; it ran
+ * before React mounted the header, so ask it to render again once the element exists.
+ */
+export function CidAccount() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (ref.current && !ref.current.shadowRoot) window.CumulusBar?.setProfile(null);
+  }, []);
+  // "Create a Cumulus ID" stays on the sign-in card below; the bar keeps to one button so the
+  // header fits at 390px.
+  return <div ref={ref} className="app-actions" data-cumulus-bar="" data-create="false" />;
 }
