@@ -11,6 +11,7 @@ import {
   MIL_PRODUCT,
   PRODUCT,
   type Actor,
+  type Role,
 } from "@eidetic/contracts";
 import { syntheticFixture } from "@eidetic/matcher";
 import { seedSyntheticQueue, type EideticService, type Repositories } from "@eidetic/pipeline";
@@ -214,7 +215,10 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json({ purpose }, 201);
   });
 
-  app.get("/v1/subjects", async (c) => c.json({ subjects: await deps.service.listSubjects() }));
+  app.get("/v1/subjects", async (c) => {
+    allow(c.get("actor"), ["admin", "auditor"], "The subject list");
+    return c.json({ subjects: await deps.service.listSubjects() });
+  });
   app.post("/v1/subjects", async (c) => {
     const body = parse(enrollBody, await readJson(c));
     const image = probeBytes(body.fixtureId, body.imageBase64, deps.demoMode);
@@ -245,16 +249,29 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   app.get("/v1/reviews", async (c) => {
     const status = c.req.query("status");
     const filter = status === "pending" || status === "decided" ? status : undefined;
-    return c.json({ reviews: await deps.service.listReviews(filter) });
+    const actor = c.get("actor");
+    const reviews = await deps.service.listReviews(filter);
+    // An operator sees only the reviews for searches they ran.
+    return c.json({ reviews: actor.role === "operator" ? reviews.filter((review) => review.searchedBy.id === actor.id) : reviews });
   });
-  app.get("/v1/reviews/:id", async (c) => c.json(await deps.service.getReview(c.req.param("id"))));
+  app.get("/v1/reviews/:id", async (c) => {
+    const actor = c.get("actor");
+    const review = await deps.service.getReview(c.req.param("id"));
+    if (actor.role === "operator" && review.searchedBy.id !== actor.id) {
+      throw new EideticError("NOT_FOUND", "That review is not on the desk.", 404, false);
+    }
+    return c.json(review);
+  });
   app.post("/v1/reviews/:id/decide", async (c) => {
     const body = parse(decisionBody, await readJson(c));
     const result = await deps.service.decide({ actor: c.get("actor"), reviewId: c.req.param("id"), ...body });
     return c.json(result);
   });
 
-  app.get("/v1/audit", async (c) => c.json({ entries: await deps.service.listAudit() }));
+  app.get("/v1/audit", async (c) => {
+    allow(c.get("actor"), ["admin", "auditor"], "The audit log");
+    return c.json({ entries: await deps.service.listAudit() });
+  });
   app.get("/v1/audit/verify", async (c) => c.json(await deps.service.verifyAudit()));
 
   app.post("/v1/bias/fixture-evaluations", async (c) => {
@@ -283,7 +300,10 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     const report = await deps.service.runBias(c.get("actor"), body.releaseId, body.cases);
     return c.json(report, 201);
   });
-  app.get("/v1/bias/evaluations/:releaseId", async (c) => c.json(await deps.service.getBias(c.req.param("releaseId"))));
+  app.get("/v1/bias/evaluations/:releaseId", async (c) => {
+    allow(c.get("actor"), ["admin", "auditor"], "A bias report");
+    return c.json(await deps.service.getBias(c.req.param("releaseId")));
+  });
 
   app.post("/v1/demo/seed", async (c) => {
     if (!deps.demoMode) {
@@ -314,6 +334,12 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   });
 
   return app;
+}
+
+function allow(actor: Actor, roles: Role[], what: string): void {
+  if (!roles.includes(actor.role)) {
+    throw new EideticError("FORBIDDEN", `${what} is open to the ${roles.join(" and ")} roles only.`, 403, false);
+  }
 }
 
 function errorStatus(status: number): 400 | 401 | 403 | 404 | 409 | 422 | 500 | 501 | 502 {
