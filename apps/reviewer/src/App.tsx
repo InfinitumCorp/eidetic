@@ -209,7 +209,7 @@ export function App() {
         )}
         {health === "up" && !me && (
           <div className="lg:col-span-2">
-            <CidSignIn desk="review desk" error={meError} signedIn={Boolean(token)} />
+            <CidSignIn desk="review" error={meError} signedIn={Boolean(token)} />
           </div>
         )}
         {health === "up" && me && (
@@ -276,7 +276,11 @@ export function App() {
                         {detail.finalDecision ? `Human decision: ${detail.finalDecision}` : "Waiting for a person"}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">Searched by {detail.searchedBy.displayName}. You cannot decide a search you ran.</p>
+                    <p className="text-sm text-muted-foreground">
+                      {detail.searchedBy.id === me?.id
+                        ? "You ran this search, so another reviewer has to decide it."
+                        : `Searched by ${detail.searchedBy.displayName}.`}
+                    </p>
                     <div className="space-y-3">
                       {detail.candidates.map((candidate) => (
                         <label key={candidate.cid} className="block rounded-md border border-border p-3">

@@ -3,13 +3,18 @@ import { useEffect, useRef } from "react";
 import { Button, Card, CardContent } from "@eidetic/ui";
 import { createCumulusId, signIn, signOut, type CidProfile } from "./cid";
 
+const HEADINGS = {
+  purpose: "Sign in to the purpose desk",
+  review: "Sign in to the review desk",
+} as const;
+
 /** The desk's only sign-in: Cumulus ID, with "Create a Cumulus ID" in the same flow. */
-export function CidSignIn({ desk, error, signedIn }: { desk: string; error?: string | null; signedIn?: boolean }) {
+export function CidSignIn({ desk, error, signedIn }: { desk: keyof typeof HEADINGS; error?: string | null; signedIn?: boolean }) {
   return (
     <Card className="max-w-xl">
       <CardContent className="grid gap-4 pt-5">
         <div>
-          <h2 className="text-lg font-semibold">Sign in to the {desk}</h2>
+          <h2 className="text-lg font-semibold">{HEADINGS[desk]}</h2>
           <p className="text-sm text-muted-foreground">
             Use your Cumulus ID. No Cumulus ID yet? Create one here and you come straight back, signed in.
           </p>
