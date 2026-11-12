@@ -289,7 +289,7 @@ export function App() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `access-report-${subject.cid.replace(/^cid:\/\/infinitum\//, "")}.json`;
+      link.download = `access-report-${subject.cid.replace("cid://infinitum/", "")}.json`;
       link.click();
       URL.revokeObjectURL(url);
       await reload();
@@ -400,7 +400,9 @@ export function App() {
             <CardContent className="pt-5">The API is not reachable. Start Postgres and <code className="font-mono">pnpm dev</code>, then reload.</CardContent>
           </Card>
         )}
-        {health === "up" && !me && <CidSignIn desk="purpose desk" error={meError} signedIn={Boolean(token)} />}
+        {health === "up" && !me && (
+          <CidSignIn desk="purpose" error={meError} signedIn={Boolean(token)} />
+        )}
         {health === "up" && me && (
           <>
             {error && <p className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm">{error}</p>}
@@ -461,7 +463,7 @@ export function App() {
                     <form className="space-y-3 rounded-md border border-border p-3" onSubmit={publishDraft}>
                       {draft.editing && (
                         <p className="text-xs text-muted-foreground">
-                          Editing {draft.code}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.
+                          {`Editing ${draft.code}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.`}
                         </p>
                       )}
                       <div>
@@ -579,7 +581,7 @@ export function App() {
                       </select>
                     </div>
                     <div>
-                      <Label htmlFor="valid">Consent valid for</Label>
+                      <Label htmlFor="valid">Consent lasts</Label>
                       <select
                         id="valid"
                         className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3"
@@ -587,9 +589,9 @@ export function App() {
                         onChange={(event) => setForm({ ...form, validDays: event.target.value })}
                       >
                         <option value="0">Until withdrawn</option>
-                        <option value="30">30 days</option>
-                        <option value="90">90 days</option>
-                        <option value="365">1 year</option>
+                        <option value="30">For 30 days</option>
+                        <option value="90">For 90 days</option>
+                        <option value="365">For 1 year</option>
                       </select>
                     </div>
                     <Button type="submit" disabled={busy}>
@@ -618,16 +620,27 @@ export function App() {
                       <p className="font-medium">{subject.displayName}</p>
                       <p className="font-mono text-xs text-muted-foreground">{subject.cid}</p>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Template {subject.template.present ? "sealed" : "purged"} ·{" "}
-                        {subject.consents
-                          .map((consent) =>
-                            consent.expired
-                              ? `${consent.purposeCode} expired`
-                              : consent.status === "granted" && consent.expiresAt
-                                ? `${consent.purposeCode} granted until ${consent.expiresAt.slice(0, 10)}`
-                                : `${consent.purposeCode} ${consent.status}`,
-                          )
-                          .join(", ") || "no consent"}
+                        {/* Each piece is its own text node so the language menu can translate it. */}
+                        <span>{subject.template.present ? "Template sealed" : "Template purged"}</span>
+                        <span> · </span>
+                        {subject.consents.length === 0 ? (
+                          <span>No consent</span>
+                        ) : (
+                          subject.consents.map((consent, index) => (
+                            <span key={`${consent.purposeCode}-${index}`}>
+                              {index > 0 && <span>, </span>}
+                              <span>
+                                {consent.expired
+                                  ? `${consent.purposeCode} expired`
+                                  : consent.status === "withdrawn"
+                                    ? `${consent.purposeCode} withdrawn`
+                                    : consent.expiresAt
+                                      ? `${consent.purposeCode} granted until ${consent.expiresAt.slice(0, 10)}`
+                                      : `${consent.purposeCode} granted`}
+                              </span>
+                            </span>
+                          ))
+                        )}
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">

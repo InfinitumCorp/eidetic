@@ -99,7 +99,7 @@ export function OperatorSearch({ call, role, demoMode, onQueued }: { call: Call;
   if (purposes.length === 0) {
     return (
       <Card>
-        <CardContent className="pt-5 text-sm text-muted-foreground">No active purpose lets the {role} role search. An admin publishes purposes on the purpose desk.</CardContent>
+        <CardContent className="pt-5 text-sm text-muted-foreground">No active purpose lets your role search. An admin publishes purposes on the purpose desk.</CardContent>
       </Card>
     );
   }
