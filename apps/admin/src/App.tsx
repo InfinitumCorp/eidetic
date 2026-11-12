@@ -463,7 +463,7 @@ export function App() {
                     <form className="space-y-3 rounded-md border border-border p-3" onSubmit={publishDraft}>
                       {draft.editing && (
                         <p className="text-xs text-muted-foreground">
-                          Editing {draft.code}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.
+                          {`Editing ${draft.code}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.`}
                         </p>
                       )}
                       <div>

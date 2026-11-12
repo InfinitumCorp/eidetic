@@ -304,7 +304,7 @@ export function App() {
                           </ul>
                           {detail.status === "pending" && candidate.consentStatus && candidate.consentStatus !== "granted" && (
                             <p className="mt-2 text-sm text-muted-foreground">
-                              This person&apos;s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.
+                              This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.
                             </p>
                           )}
                           {detail.status === "pending" && (!candidate.consentStatus || candidate.consentStatus === "granted") && (

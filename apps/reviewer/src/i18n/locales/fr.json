@@ -82,5 +82,8 @@
   "Searched by {0}.": "Recherche effectuée par {0}.",
   "Sign in to the review desk": "Connectez-vous au bureau d’examen",
   "You ran this search, so another reviewer has to decide it.": "Vous avez lancé cette recherche : un autre examinateur doit donc trancher.",
-  "Sign in to the purpose desk": "Connectez-vous au bureau des finalités"
+  "Sign in to the purpose desk": "Connectez-vous au bureau des finalités",
+  "Consent expired": "Consentement expiré",
+  "Consent withdrawn": "Consentement retiré",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Le consentement de cette personne ne couvre plus cette recherche : une confirmation serait refusée. Rejetez ou marquez l’examen comme non concluant."
 }

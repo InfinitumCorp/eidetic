@@ -82,5 +82,8 @@
   "Searched by {0}.": "Пошук виконав(ла): {0}.",
   "Sign in to the review desk": "Увійдіть у панель перегляду",
   "You ran this search, so another reviewer has to decide it.": "Цей пошук виконали ви, тому рішення має ухвалити інший переглядач.",
-  "Sign in to the purpose desk": "Увійдіть у деск цілей"
+  "Sign in to the purpose desk": "Увійдіть у деск цілей",
+  "Consent expired": "Термін згоди минув",
+  "Consent withdrawn": "Згоду відкликано",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий."
 }

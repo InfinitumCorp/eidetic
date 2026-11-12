@@ -82,5 +82,8 @@
   "Searched by {0}.": "Поиск выполнил(а): {0}.",
   "Sign in to the review desk": "Войдите в рабочую панель обзора",
   "You ran this search, so another reviewer has to decide it.": "Этот поиск выполнили вы, поэтому решение должен принять другой рецензент.",
-  "Sign in to the purpose desk": "Войдите в деск назначения"
+  "Sign in to the purpose desk": "Войдите в деск назначения",
+  "Consent expired": "Срок согласия истёк",
+  "Consent withdrawn": "Согласие отозвано",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную."
 }

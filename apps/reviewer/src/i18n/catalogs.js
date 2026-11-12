@@ -84,7 +84,10 @@ export default {
   "Searched by {0}.": "Searched by {0}.",
   "Sign in to the review desk": "Sign in to the review desk",
   "You ran this search, so another reviewer has to decide it.": "You ran this search, so another reviewer has to decide it.",
-  "Sign in to the purpose desk": "Sign in to the purpose desk"
+  "Sign in to the purpose desk": "Sign in to the purpose desk",
+  "Consent expired": "Consent expired",
+  "Consent withdrawn": "Consent withdrawn",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive."
  },
  "ru": {
   "{0} Audit hash {1}.": "{0} Хеш аудита {1}.",
@@ -170,7 +173,10 @@ export default {
   "Searched by {0}.": "Поиск выполнил(а): {0}.",
   "Sign in to the review desk": "Войдите в рабочую панель обзора",
   "You ran this search, so another reviewer has to decide it.": "Этот поиск выполнили вы, поэтому решение должен принять другой рецензент.",
-  "Sign in to the purpose desk": "Войдите в деск назначения"
+  "Sign in to the purpose desk": "Войдите в деск назначения",
+  "Consent expired": "Срок согласия истёк",
+  "Consent withdrawn": "Согласие отозвано",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную."
  },
  "uk": {
   "{0} Audit hash {1}.": "{0} Аудит хеш {1}.",
@@ -256,7 +262,10 @@ export default {
   "Searched by {0}.": "Пошук виконав(ла): {0}.",
   "Sign in to the review desk": "Увійдіть у панель перегляду",
   "You ran this search, so another reviewer has to decide it.": "Цей пошук виконали ви, тому рішення має ухвалити інший переглядач.",
-  "Sign in to the purpose desk": "Увійдіть у деск цілей"
+  "Sign in to the purpose desk": "Увійдіть у деск цілей",
+  "Consent expired": "Термін згоди минув",
+  "Consent withdrawn": "Згоду відкликано",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Згода цієї людини більше не охоплює цей пошук, тому підтвердження буде відхилено. Відхиліть його або позначте перегляд як непереконливий."
  },
  "es": {
   "{0} Audit hash {1}.": "{0} Hash de auditoría {1}.",
@@ -342,7 +351,10 @@ export default {
   "Searched by {0}.": "Búsqueda realizada por {0}.",
   "Sign in to the review desk": "Inicia sesión en el escritorio de revisión",
   "You ran this search, so another reviewer has to decide it.": "Tú realizaste esta búsqueda, así que otro revisor debe decidirla.",
-  "Sign in to the purpose desk": "Inicia sesión en el escritorio de propósito"
+  "Sign in to the purpose desk": "Inicia sesión en el escritorio de propósito",
+  "Consent expired": "Consentimiento caducado",
+  "Consent withdrawn": "Consentimiento retirado",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente."
  },
  "fr": {
   "{0} Audit hash {1}.": "{0} Hachage d'audit {1}.",
@@ -428,7 +440,10 @@ export default {
   "Searched by {0}.": "Recherche effectuée par {0}.",
   "Sign in to the review desk": "Connectez-vous au bureau d’examen",
   "You ran this search, so another reviewer has to decide it.": "Vous avez lancé cette recherche : un autre examinateur doit donc trancher.",
-  "Sign in to the purpose desk": "Connectez-vous au bureau des finalités"
+  "Sign in to the purpose desk": "Connectez-vous au bureau des finalités",
+  "Consent expired": "Consentement expiré",
+  "Consent withdrawn": "Consentement retiré",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Le consentement de cette personne ne couvre plus cette recherche : une confirmation serait refusée. Rejetez ou marquez l’examen comme non concluant."
  },
  "de": {
   "{0} Audit hash {1}.": "{0} Prüf‑Hash {1}.",
@@ -514,7 +529,10 @@ export default {
   "Searched by {0}.": "Gesucht von {0}.",
   "Sign in to the review desk": "Beim Prüfungsdesk anmelden",
   "You ran this search, so another reviewer has to decide it.": "Sie haben diese Suche ausgeführt, daher muss ein anderer Prüfer entscheiden.",
-  "Sign in to the purpose desk": "Beim Zweck‑Desk anmelden"
+  "Sign in to the purpose desk": "Beim Zweck‑Desk anmelden",
+  "Consent expired": "Einwilligung abgelaufen",
+  "Consent withdrawn": "Einwilligung widerrufen",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Die Einwilligung dieser Person deckt diese Suche nicht mehr ab, eine Bestätigung würde abgelehnt. Lehnen Sie ab oder markieren Sie die Prüfung als nicht eindeutig."
  },
  "pt": {
   "{0} Audit hash {1}.": "{0} Hash de auditoria {1}.",
@@ -600,7 +618,10 @@ export default {
   "Searched by {0}.": "Pesquisa feita por {0}.",
   "Sign in to the review desk": "Entre na mesa de revisão",
   "You ran this search, so another reviewer has to decide it.": "Você fez esta pesquisa, então outro revisor precisa decidi-la.",
-  "Sign in to the purpose desk": "Entre no desk de propósito"
+  "Sign in to the purpose desk": "Entre no desk de propósito",
+  "Consent expired": "Consentimento expirado",
+  "Consent withdrawn": "Consentimento retirado",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "O consentimento desta pessoa não cobre mais esta pesquisa, então uma confirmação seria recusada. Rejeite ou marque a revisão como inconclusiva."
  },
  "zh": {
   "{0} Audit hash {1}.": "{0} 审计哈希 {1}。",
@@ -686,7 +707,10 @@ export default {
   "Searched by {0}.": "搜索执行人：{0}。",
   "Sign in to the review desk": "登录审查台",
   "You ran this search, so another reviewer has to decide it.": "此搜索由您发起，因此须由另一位审查员作出决定。",
-  "Sign in to the purpose desk": "登录目的桌面"
+  "Sign in to the purpose desk": "登录目的桌面",
+  "Consent expired": "同意已过期",
+  "Consent withdrawn": "同意已撤回",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。"
  },
  "ar": {
   "{0} Audit hash {1}.": "{0} تجزئة التدقيق {1}.",
@@ -772,6 +796,9 @@ export default {
   "Searched by {0}.": "أجرى البحث: {0}.",
   "Sign in to the review desk": "سجّل الدخول إلى مكتب المراجعة",
   "You ran this search, so another reviewer has to decide it.": "أنت من أجرى هذا البحث، لذا يجب أن يتخذ مراجع آخر القرار.",
-  "Sign in to the purpose desk": "سجّل الدخول إلى مكتب الهدف"
+  "Sign in to the purpose desk": "سجّل الدخول إلى مكتب الهدف",
+  "Consent expired": "انتهت صلاحية الموافقة",
+  "Consent withdrawn": "سُحبت الموافقة",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "لم تعد موافقة هذا الشخص تشمل هذا البحث، لذا سيُرفض أي تأكيد. ارفض أو علّم المراجعة على أنها غير حاسمة."
  }
 };

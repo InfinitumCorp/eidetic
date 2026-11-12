@@ -82,5 +82,8 @@
   "Searched by {0}.": "Searched by {0}.",
   "Sign in to the review desk": "Sign in to the review desk",
   "You ran this search, so another reviewer has to decide it.": "You ran this search, so another reviewer has to decide it.",
-  "Sign in to the purpose desk": "Sign in to the purpose desk"
+  "Sign in to the purpose desk": "Sign in to the purpose desk",
+  "Consent expired": "Consent expired",
+  "Consent withdrawn": "Consent withdrawn",
+  "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive."
 }
