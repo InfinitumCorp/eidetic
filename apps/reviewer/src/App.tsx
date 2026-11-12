@@ -64,7 +64,7 @@ async function api<T>(path: string, token: string, init?: RequestInit): Promise<
 }
 
 export function App() {
-  const { profile, token: cidToken } = useCumulusId();
+  const { token: cidToken } = useCumulusId();
   const token = cidToken ?? "";
   const [me, setMe] = useState<Me | null>(null);
   const [meError, setMeError] = useState<string | null>(null);
@@ -179,7 +179,7 @@ export function App() {
         <nav className="app-nav" aria-label="Main">
           <a href="/" aria-current="page">Review desk</a>
         </nav>
-        <CidAccount profile={profile} />
+        <CidAccount />
       </header>
 
       <main id="main" className="app-main grid gap-4 lg:grid-cols-[320px_1fr]">
