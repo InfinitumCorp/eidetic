@@ -135,5 +135,9 @@
   "Show": "Anzeigen",
   "Subject access reports": "Auskunftsberichte",
   "Withdrawals": "Widerrufe",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze.",
+  "New searches under this purpose will be refused.": "Neue Suchen für diesen Zweck werden abgelehnt.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "1 Prüfung für diesen Zweck wartet noch. Ein Prüfer kann sie nicht bestätigen, nur ablehnen oder als nicht eindeutig markieren.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "{0} Prüfungen für diesen Zweck warten noch. Ein Prüfer kann sie nicht bestätigen, nur ablehnen oder als nicht eindeutig markieren.",
+  "Retire purpose": "Zweck außer Kraft setzen"
 }

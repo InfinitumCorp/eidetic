@@ -137,7 +137,11 @@ export default {
   "Show": "Show",
   "Subject access reports": "Subject access reports",
   "Withdrawals": "Withdrawals",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
+  "New searches under this purpose will be refused.": "New searches under this purpose will be refused.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.",
+  "Retire purpose": "Retire purpose"
  },
  "ru": {
   ". Military workflows are not implemented.": ". Военные рабочие процессы не реализованы.",
@@ -276,7 +280,11 @@ export default {
   "Show": "Показать",
   "Subject access reports": "Отчёты о доступе субъекта",
   "Withdrawals": "Отзывы согласия",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
+  "New searches under this purpose will be refused.": "Новые поиски по этой цели будут отклоняться.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "По этой цели ещё ждёт 1 проверка. Проверяющий не сможет её подтвердить — только отклонить или отметить «без вывода».",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "Проверок по этой цели ещё ждут: {0}. Проверяющий не сможет их подтвердить — только отклонить или отметить «без вывода».",
+  "Retire purpose": "Вывести цель из оборота"
  },
  "uk": {
   ". Military workflows are not implemented.": ". Військові робочі процеси не реалізовано.",
@@ -415,7 +423,11 @@ export default {
   "Show": "Показати",
   "Subject access reports": "Звіти про доступ суб’єкта",
   "Withdrawals": "Відкликання згоди",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних.",
+  "New searches under this purpose will be refused.": "Нові пошуки за цією ціллю буде відхилено.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "За цією ціллю ще чекає 1 перевірка. Перевіряльник не зможе її підтвердити — лише відхилити або позначити «без висновку».",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "Перевірок за цією ціллю ще чекають: {0}. Перевіряльник не зможе їх підтвердити — лише відхилити або позначити «без висновку».",
+  "Retire purpose": "Вивести ціль з обігу"
  },
  "es": {
   ". Military workflows are not implemented.": ". Los flujos de trabajo militares no están implementados.",
@@ -554,7 +566,11 @@ export default {
   "Show": "Mostrar",
   "Subject access reports": "Informes de acceso del titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
+  "New searches under this purpose will be refused.": "Se rechazarán las nuevas búsquedas con esta finalidad.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "Aún queda 1 revisión pendiente con esta finalidad. Un revisor no podrá confirmarla, solo rechazarla o marcarla como no concluyente.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "Aún quedan {0} revisiones pendientes con esta finalidad. Un revisor no podrá confirmarlas, solo rechazarlas o marcarlas como no concluyentes.",
+  "Retire purpose": "Retirar finalidad"
  },
  "fr": {
   ". Military workflows are not implemented.": ". Les flux de travail militaires ne sont pas implémentés.",
@@ -693,7 +709,11 @@ export default {
   "Show": "Afficher",
   "Subject access reports": "Rapports d’accès de la personne",
   "Withdrawals": "Retraits",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait.",
+  "New searches under this purpose will be refused.": "Les nouvelles recherches pour cette finalité seront refusées.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "1 examen pour cette finalité est encore en attente. Un examinateur ne pourra pas le confirmer, seulement le rejeter ou le marquer non concluant.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "{0} examens pour cette finalité sont encore en attente. Un examinateur ne pourra pas les confirmer, seulement les rejeter ou les marquer non concluants.",
+  "Retire purpose": "Retirer la finalité"
  },
  "de": {
   ". Military workflows are not implemented.": ". Militär-Workflows sind nicht implementiert.",
@@ -832,7 +852,11 @@ export default {
   "Show": "Anzeigen",
   "Subject access reports": "Auskunftsberichte",
   "Withdrawals": "Widerrufe",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze.",
+  "New searches under this purpose will be refused.": "Neue Suchen für diesen Zweck werden abgelehnt.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "1 Prüfung für diesen Zweck wartet noch. Ein Prüfer kann sie nicht bestätigen, nur ablehnen oder als nicht eindeutig markieren.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "{0} Prüfungen für diesen Zweck warten noch. Ein Prüfer kann sie nicht bestätigen, nur ablehnen oder als nicht eindeutig markieren.",
+  "Retire purpose": "Zweck außer Kraft setzen"
  },
  "pt": {
   ". Military workflows are not implemented.": ". Fluxos de trabalho militares não estão implementados.",
@@ -971,7 +995,11 @@ export default {
   "Show": "Mostrar",
   "Subject access reports": "Relatórios de acesso do titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou.",
+  "New searches under this purpose will be refused.": "Novas pesquisas com esta finalidade serão recusadas.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "Ainda há 1 revisão pendente com esta finalidade. Um revisor não poderá confirmá-la, apenas rejeitá-la ou marcá-la como inconclusiva.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "Ainda há {0} revisões pendentes com esta finalidade. Um revisor não poderá confirmá-las, apenas rejeitá-las ou marcá-las como inconclusivas.",
+  "Retire purpose": "Retirar finalidade"
  },
  "zh": {
   ". Military workflows are not implemented.": "未实现军事工作流。",
@@ -1110,7 +1138,11 @@ export default {
   "Show": "显示",
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。"
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "New searches under this purpose will be refused.": "此用途下的新搜索将被拒绝。",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "此用途下还有 1 项审查在等待。审查员将无法确认它，只能拒绝或标记为无定论。",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "此用途下还有 {0} 项审查在等待。审查员将无法确认它们，只能拒绝或标记为无定论。",
+  "Retire purpose": "停用此用途"
  },
  "ar": {
   ". Military workflows are not implemented.": ". لم يتم تنفيذ سير عمل عسكري.",
@@ -1249,6 +1281,10 @@ export default {
   "Show": "عرض",
   "Subject access reports": "تقارير وصول صاحب البيانات",
   "Withdrawals": "عمليات السحب",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
+  "New searches under this purpose will be refused.": "سيتم رفض عمليات البحث الجديدة لهذا الغرض.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "لا تزال مراجعة واحدة لهذا الغرض بالانتظار. لن يتمكن المراجع من تأكيدها، بل رفضها أو وسمها بغير حاسمة فقط.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "لا تزال {0} مراجعات لهذا الغرض بالانتظار. لن يتمكن المراجع من تأكيدها، بل رفضها أو وسمها بغير حاسمة فقط.",
+  "Retire purpose": "إيقاف الغرض"
  }
 };

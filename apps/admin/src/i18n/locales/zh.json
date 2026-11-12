@@ -135,5 +135,9 @@
   "Show": "显示",
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。"
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "New searches under this purpose will be refused.": "此用途下的新搜索将被拒绝。",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "此用途下还有 1 项审查在等待。审查员将无法确认它，只能拒绝或标记为无定论。",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "此用途下还有 {0} 项审查在等待。审查员将无法确认它们，只能拒绝或标记为无定论。",
+  "Retire purpose": "停用此用途"
 }

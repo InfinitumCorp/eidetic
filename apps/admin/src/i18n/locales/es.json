@@ -135,5 +135,9 @@
   "Show": "Mostrar",
   "Subject access reports": "Informes de acceso del titular",
   "Withdrawals": "Retiradas",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
+  "New searches under this purpose will be refused.": "Se rechazarán las nuevas búsquedas con esta finalidad.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "Aún queda 1 revisión pendiente con esta finalidad. Un revisor no podrá confirmarla, solo rechazarla o marcarla como no concluyente.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "Aún quedan {0} revisiones pendientes con esta finalidad. Un revisor no podrá confirmarlas, solo rechazarlas o marcarlas como no concluyentes.",
+  "Retire purpose": "Retirar finalidad"
 }

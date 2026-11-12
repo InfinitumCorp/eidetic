@@ -135,5 +135,9 @@
   "Show": "Afficher",
   "Subject access reports": "Rapports d’accès de la personne",
   "Withdrawals": "Retraits",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait.",
+  "New searches under this purpose will be refused.": "Les nouvelles recherches pour cette finalité seront refusées.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "1 examen pour cette finalité est encore en attente. Un examinateur ne pourra pas le confirmer, seulement le rejeter ou le marquer non concluant.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "{0} examens pour cette finalité sont encore en attente. Un examinateur ne pourra pas les confirmer, seulement les rejeter ou les marquer non concluants.",
+  "Retire purpose": "Retirer la finalité"
 }

@@ -135,5 +135,9 @@
   "Show": "Показать",
   "Subject access reports": "Отчёты о доступе субъекта",
   "Withdrawals": "Отзывы согласия",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
+  "New searches under this purpose will be refused.": "Новые поиски по этой цели будут отклоняться.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "По этой цели ещё ждёт 1 проверка. Проверяющий не сможет её подтвердить — только отклонить или отметить «без вывода».",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "Проверок по этой цели ещё ждут: {0}. Проверяющий не сможет их подтвердить — только отклонить или отметить «без вывода».",
+  "Retire purpose": "Вывести цель из оборота"
 }
