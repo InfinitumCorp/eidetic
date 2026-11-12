@@ -111,6 +111,11 @@ export class MemoryDatabase {
           if (!search) throw new Error("search missing");
           search.status = "decided";
         },
+        countSince: async (actorId, since) => {
+          const mine = this.searches.filter((item) => item.actorId === actorId && item.createdAt >= since);
+          const rateLimited = mine.filter((item) => item.denialCode === "RATE_LIMITED").length;
+          return { counted: mine.length - rateLimited, rateLimited };
+        },
       },
       candidates: {
         insertMany: async (candidates) => {

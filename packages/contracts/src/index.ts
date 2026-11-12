@@ -45,6 +45,7 @@ export const DENIAL_CODES = [
   "DECISION_INVALID",
   "POLICY_UNAVAILABLE",
   "VALIDATION",
+  "RATE_LIMITED",
 ] as const;
 export type DenialCode = (typeof DENIAL_CODES)[number];
 

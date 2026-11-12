@@ -34,6 +34,8 @@ export interface Env {
   /** Local development only: accept the seeded dev-* bearer tokens. Needs DEMO_MODE=true. */
   devBearer: boolean;
   migrationsDir: string;
+  /** SEARCH_LIMIT_PER_HOUR: most searches one actor may start in a rolling hour. 0 turns the limit off. */
+  searchLimitPerHour: number;
   /** ALLOWED_ORIGINS: comma-separated browser origins for CORS. Unset keeps the local desks. */
   allowedOrigins?: string[];
 }
@@ -102,8 +104,16 @@ export function readEnv(): Env {
     cid: readCidConfig(process.env),
     devBearer: process.env.EIDETIC_DEV_BEARER === "true",
     migrationsDir: process.env.MIGRATIONS_DIR ?? findMigrations(),
+    searchLimitPerHour: readSearchLimit(process.env.SEARCH_LIMIT_PER_HOUR),
     allowedOrigins: readAllowedOrigins(process.env.ALLOWED_ORIGINS),
   };
+}
+
+export function readSearchLimit(value: string | undefined): number {
+  if (value === undefined || value.trim() === "") return 120;
+  const limit = Number(value);
+  if (!Number.isInteger(limit) || limit < 0) throw new Error("SEARCH_LIMIT_PER_HOUR must be a whole number, 0 or more.");
+  return limit;
 }
 
 export function readAllowedOrigins(value: string | undefined): string[] | undefined {

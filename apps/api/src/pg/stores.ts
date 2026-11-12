@@ -243,6 +243,16 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
       async markDecided(id) {
         await sql.query("UPDATE searches SET status = 'decided' WHERE id = $1", [id]);
       },
+      async countSince(actorId, since) {
+        const result = await sql.query(
+          `SELECT count(*) FILTER (WHERE denial_code IS DISTINCT FROM 'RATE_LIMITED')::int AS counted,
+                  count(*) FILTER (WHERE denial_code = 'RATE_LIMITED')::int AS rate_limited
+           FROM searches WHERE actor_id = $1 AND created_at >= $2`,
+          [actorId, since],
+        );
+        const row = result.rows[0] ?? {};
+        return { counted: Number(row.counted ?? 0), rateLimited: Number(row.rate_limited ?? 0) };
+      },
     },
     candidates: {
       async insertMany(candidates) {
