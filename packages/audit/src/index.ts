@@ -24,7 +24,15 @@ export {
 
 export const GENESIS = "0".repeat(64);
 
-export type AuditAction = "enroll" | "withdraw" | "search" | "review" | "purpose_upsert" | "bias_evaluation" | "subject_access";
+export type AuditAction =
+  | "enroll"
+  | "withdraw"
+  | "search"
+  | "review"
+  | "purpose_upsert"
+  | "bias_evaluation"
+  | "subject_access"
+  | "consent_lapsed";
 
 export interface AuditEntry {
   seq: number;
