@@ -1,7 +1,7 @@
 // © Infinitum Corporation®. All rights reserved.
 //
-// People sign in to this desk with Cumulus ID. /cumulus-id.js (loaded in index.html) runs the
-// OAuth code + PKCE flow against the issuer and keeps the token in this tab. The API checks the
+// People sign in to this desk with Cumulus ID. /cumulus-bar.js (the account bar, loaded in
+// index.html) runs the OAuth code + PKCE flow against the issuer and keeps the token in this tab. The API checks the
 // token at the issuer and maps the Cumulus ID to a role.
 //
 // Local development only: VITE_EIDETIC_DEV_BEARER=dev-admin (with EIDETIC_DEV_BEARER=true on the
@@ -27,6 +27,8 @@ interface CumulusIdApi {
 declare global {
   interface Window {
     CumulusID?: CumulusIdApi;
+    /** The account bar (/cumulus-bar.js). setProfile(null) re-renders it from this tab's sign-in. */
+    CumulusBar?: CumulusIdApi & { setProfile(profile: CidProfile | null): void };
   }
 }
 
