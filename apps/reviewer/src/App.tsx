@@ -1,9 +1,10 @@
 // © Infinitum Corporation®. All rights reserved.
 import { FirmSuite } from "./firm/FirmSuite";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Badge, Button, Card, CardContent, Label, Textarea } from "@eidetic/ui";
 import { CidAccount, CidSignIn } from "./CidSignIn";
+import { OperatorSearch } from "./OperatorSearch";
 import { useCumulusId } from "./cid";
 
 interface Me {
@@ -167,6 +168,14 @@ export function App() {
     }
   }
 
+  const call = useCallback(<T,>(path: string, init?: RequestInit) => api<T>(path, token, init), [token]);
+
+  async function queued(reviewId: string) {
+    setFilter("pending");
+    await loadQueue("pending").catch((reason: ApiError) => setError(reason.message));
+    setSelectedId(reviewId);
+  }
+
   const canDecide = me?.role === "reviewer" && detail?.status === "pending" && detail.searchedBy.id !== me.id;
 
   return (
@@ -205,6 +214,7 @@ export function App() {
         {health === "up" && me && (
           <>
             <section className="space-y-3">
+              {me.role === "operator" && <OperatorSearch call={call} role={me.role} demoMode={demoMode} onQueued={queued} />}
               <div className="flex gap-2">
                 <Button variant={filter === "pending" ? "default" : "outline"} size="sm" onClick={() => setFilter("pending")}>
                   Waiting
