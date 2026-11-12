@@ -70,7 +70,7 @@ export function App() {
   const [biasNote, setBiasNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [withdrawing, setWithdrawing] = useState<string | null>(null);
-  const { profile, token } = useCumulusId();
+  const { token } = useCumulusId();
   const [me, setMe] = useState<Me | null>(null);
   const [meError, setMeError] = useState<string | null>(null);
   const [form, setForm] = useState({ displayName: "Avery Quinn", fixtureId: "avery-quinn", purposeCode: "record_reconciliation" });
@@ -205,7 +205,7 @@ export function App() {
         <nav className="app-nav" aria-label="Main">
           <a href="/" aria-current="page">Purpose desk</a>
         </nav>
-        <CidAccount profile={profile} />
+        <CidAccount />
       </header>
       <main id="main" className="app-main grid gap-4">
         <div className="app-head">
