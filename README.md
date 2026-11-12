@@ -40,6 +40,7 @@ flowchart LR
 ## Consent and threat model
 
 - Subjects are enrolled under a Cumulus://ID™ style identifier, `cid://infinitum/...`. The VEIL seam is the named place a production enrollment capture would plug in. This MVP records consent locally.
+- Consent can carry an expiry per purpose (`expiresAt` on enrollment, or **Consent valid for** on the purpose desk). Once it passes, gallery searches leave the person out, a search that names them is refused with `CONSENT_EXPIRED`, and a reviewer cannot confirm a match that relied on it. Re-enrolling records a fresh grant. Consent without an expiry lasts until withdrawn.
 - A subject can withdraw. Withdrawal marks consent withdrawn and deletes the sealed template. Later searches for that CID fail closed.
 - A subject access report (`GET /v1/subjects/{cid}/access-report`, or **Access report** on the purpose desk) lists one person's consents and every audit entry that names them or lists them as a match candidate. Templates show as present or absent only. Admins and auditors can export it, and each export is written to the audit log as `subject_access`.
 - Gallery search only considers subjects who granted the requested purpose, legal basis, and dataset.

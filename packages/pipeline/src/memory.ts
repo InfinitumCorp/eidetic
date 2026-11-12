@@ -2,6 +2,7 @@
 
 import { AuditLog, type AuditEntry, type AuditRepository, type MerkleCheckpoint } from "@eidetic/audit";
 import type { FairnessReport } from "@eidetic/bias";
+import { consentIsLive } from "@eidetic/contracts";
 import type {
   Actor,
   ConsentGrant,
@@ -77,10 +78,10 @@ export class MemoryDatabase {
             }
           }
         },
-        listEligible: async (purposeCode, datasetId, legalBasis) => {
+        listEligible: async (purposeCode, datasetId, legalBasis, at) => {
           const seen = new Map<string, SubjectRecord>();
           for (const consent of this.consents) {
-            if (consent.status !== "granted" || consent.purposeCode !== purposeCode || consent.legalBasis !== legalBasis) continue;
+            if (!consentIsLive(consent, at) || consent.purposeCode !== purposeCode || consent.legalBasis !== legalBasis) continue;
             if (!consent.datasetIds.includes(datasetId)) continue;
             const subject = this.subjects.find((item) => item.cid === consent.cid && item.status === "active");
             if (subject) seen.set(subject.cid, structuredClone(subject));

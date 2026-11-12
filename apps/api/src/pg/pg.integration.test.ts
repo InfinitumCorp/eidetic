@@ -72,5 +72,27 @@ describe.skipIf(!live)("postgres pipeline", () => {
     });
     expect((await runtime.service.verifyAudit()).ok).toBe(true);
     await expect(pool.query("UPDATE audit_entries SET actor_id = 'tampered'")).rejects.toThrow(/append-only/);
+
+    // Consent expiry round trip: stored, read back, and honoured by the eligibility query.
+    const jordan = "cid://infinitum/fixture-jordan-blake";
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    await runtime.service.enroll({
+      actor: admin,
+      cid: jordan,
+      displayName: "Jordan Blake",
+      image: syntheticFixture("jordan-blake"),
+      legalBasis: "consent",
+      purposes: [{ purposeCode: "record_reconciliation", datasetIds: ["workforce_records"], expiresAt }],
+    });
+    const [stored] = await runtime.repos.consents.listForSubject(jordan);
+    expect(stored.expiresAt).toBe(expiresAt);
+    const eligibleNow = await runtime.repos.consents.listEligible("record_reconciliation", "workforce_records", "consent", new Date().toISOString());
+    expect(eligibleNow.map((subject) => subject.cid)).toContain(jordan);
+    const later = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+    const eligibleLater = await runtime.repos.consents.listEligible("record_reconciliation", "workforce_records", "consent", later);
+    expect(eligibleLater.map((subject) => subject.cid)).not.toContain(jordan);
+    await expect(pool.query("UPDATE consents SET expires_at = granted_at WHERE cid = $1", [jordan])).rejects.toThrow(
+      /consents_expiry_after_grant/,
+    );
   });
 });
