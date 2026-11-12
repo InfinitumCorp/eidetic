@@ -31,4 +31,17 @@ describe("audit export from the API", () => {
     expect(JSON.stringify(document)).not.toMatch(/"(template|embedding|imageBase64)[A-Za-z]*":/i);
     expect((await runtime.service.verifyAudit()).ok).toBe(true);
   });
+
+  it("records nothing when the export itself is refused", async () => {
+    const runtime = createMemoryRuntime();
+    await seedReferenceData(runtime.repos, { demoMode: true });
+    const auditor = await runtime.repos.actors.get(DEMO_ACTORS[3].id);
+    if (!auditor) throw new Error("demo auditor missing");
+    const before = (await runtime.service.listAudit()).length;
+    runtime.repos.audit.export = async () => {
+      throw new Error('Audit export refused "embedding".');
+    };
+    await expect(runtime.service.exportAudit(auditor)).rejects.toThrow(/refused/);
+    expect((await runtime.service.listAudit()).length).toBe(before);
+  });
 });

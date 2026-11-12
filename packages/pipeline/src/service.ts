@@ -819,12 +819,15 @@ export class EideticService {
 
   /**
    * The whole log as a signed, verifiable export (the same document `pnpm audit:export` writes). Taking the
-   * export is itself recorded first, so the file shows who pulled it. Biometric fields are refused on the way out.
+   * export is recorded, and the returned file includes that entry, so it shows who pulled it. Biometric fields are
+   * refused on the way out, and a refused export records nothing.
    */
   async exportAudit(actor: Actor) {
     if (actor.role !== "admin" && actor.role !== "auditor") {
       throw new EideticError("FORBIDDEN", "Only an admin or an auditor can export the audit log.", 403, false);
     }
+    // Build the export once before recording anything: if the guard refuses it, the log must not claim an export.
+    await this.deps.repos.audit.export();
     const now = this.deps.now().toISOString();
     const checkpoint = await this.deps.transaction(async (tx) => {
       const recorded = await tx.audit.record({
