@@ -27,7 +27,7 @@ interface SubjectView {
   cid: string;
   displayName: string;
   status: "active" | "withdrawn";
-  consents: Array<{ purposeCode: string; status: string; datasetIds: string[] }>;
+  consents: Array<{ purposeCode: string; status: string; datasetIds: string[]; expiresAt?: string | null; expired?: boolean }>;
   template: { present: boolean; quality: number | null };
 }
 
@@ -73,7 +73,7 @@ export function App() {
   const { profile, token } = useCumulusId();
   const [me, setMe] = useState<Me | null>(null);
   const [meError, setMeError] = useState<string | null>(null);
-  const [form, setForm] = useState({ displayName: "Avery Quinn", fixtureId: "avery-quinn", purposeCode: "record_reconciliation" });
+  const [form, setForm] = useState({ displayName: "Avery Quinn", fixtureId: "avery-quinn", purposeCode: "record_reconciliation", validDays: "0" });
 
   async function reload() {
     const [purposeBody, subjectBody, auditBody, seamBody, editionBody] = await Promise.all([
@@ -126,7 +126,14 @@ export function App() {
         body: JSON.stringify({
           displayName: form.displayName,
           legalBasis: "consent",
-          purposes: [{ purposeCode: form.purposeCode, datasetIds: form.purposeCode === "consented_assistance" ? ["personal_memory"] : form.purposeCode === "access_control" ? ["facility_access"] : ["workforce_records"] }],
+          purposes: [
+            {
+              purposeCode: form.purposeCode,
+              datasetIds: form.purposeCode === "consented_assistance" ? ["personal_memory"] : form.purposeCode === "access_control" ? ["facility_access"] : ["workforce_records"],
+              // "0" means the consent lasts until the subject withdraws it.
+              expiresAt: form.validDays === "0" ? undefined : new Date(Date.now() + Number(form.validDays) * 86_400_000).toISOString(),
+            },
+          ],
           fixtureId: form.fixtureId,
           recordAttributes: { site: "Washington" },
         }),
@@ -274,6 +281,20 @@ export function App() {
                         ))}
                       </select>
                     </div>
+                    <div>
+                      <Label htmlFor="valid">Consent valid for</Label>
+                      <select
+                        id="valid"
+                        className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3"
+                        value={form.validDays}
+                        onChange={(event) => setForm({ ...form, validDays: event.target.value })}
+                      >
+                        <option value="0">Until withdrawn</option>
+                        <option value="30">30 days</option>
+                        <option value="90">90 days</option>
+                        <option value="365">1 year</option>
+                      </select>
+                    </div>
                     <Button type="submit" disabled={busy}>
                       Record consent
                     </Button>
@@ -295,7 +316,15 @@ export function App() {
                       <p className="font-mono text-xs text-muted-foreground">{subject.cid}</p>
                       <p className="mt-1 text-sm text-muted-foreground">
                         Template {subject.template.present ? "sealed" : "purged"} ·{" "}
-                        {subject.consents.map((consent) => `${consent.purposeCode} ${consent.status}`).join(", ") || "no consent"}
+                        {subject.consents
+                          .map((consent) =>
+                            consent.expired
+                              ? `${consent.purposeCode} expired`
+                              : consent.status === "granted" && consent.expiresAt
+                                ? `${consent.purposeCode} granted until ${consent.expiresAt.slice(0, 10)}`
+                                : `${consent.purposeCode} ${consent.status}`,
+                          )
+                          .join(", ") || "no consent"}
                       </p>
                     </div>
                     {subject.status === "withdrawn" ? (

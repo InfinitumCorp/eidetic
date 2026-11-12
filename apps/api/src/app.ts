@@ -34,7 +34,15 @@ const enrollBody = z.object({
   displayName: z.string().min(1).max(80),
   cid: z.string().regex(/^cid:\/\/infinitum\/[a-z0-9-]{3,80}$/).optional(),
   legalBasis,
-  purposes: z.array(z.object({ purposeCode: code, datasetIds: z.array(code).min(1) })).min(1),
+  purposes: z
+    .array(
+      z.object({
+        purposeCode: code,
+        datasetIds: z.array(code).min(1),
+        expiresAt: z.string().datetime({ offset: true }).optional(),
+      }),
+    )
+    .min(1),
   recordAttributes: attributes,
   fixtureId: z.string().regex(/^[a-z0-9-]{3,64}$/).optional(),
   imageBase64: z.string().max(700_000).optional(),

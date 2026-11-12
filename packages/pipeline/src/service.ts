@@ -13,6 +13,7 @@ import {
   ROLES,
   assertRecordAttributes,
   clipMessage,
+  consentIsLive,
   type Actor,
   type AuditAttestation,
   type DenialCode,
@@ -51,6 +52,9 @@ export interface SubjectView {
     datasetIds: string[];
     legalBasis: LegalBasis;
     status: "granted" | "withdrawn";
+    expiresAt: string | null;
+    /** True when the grant is still marked granted but its expiry has passed. */
+    expired: boolean;
     receiptHash: string;
   }>;
   template: { present: boolean; quality: number | null };
@@ -129,7 +133,7 @@ export class EideticService {
     displayName: string;
     image: Uint8Array;
     cid?: string;
-    purposes: Array<{ purposeCode: string; datasetIds: string[] }>;
+    purposes: Array<{ purposeCode: string; datasetIds: string[]; expiresAt?: string }>;
     legalBasis: LegalBasis;
     recordAttributes?: Record<string, string>;
   }): Promise<{ cid: string; status: "active"; templateStored: true; quality: number; displayName: string; receipts: Array<{ purposeCode: string; receiptHash: string }> }> {
@@ -152,6 +156,19 @@ export class EideticService {
         throw new EideticError("DATASET_OUT_OF_SCOPE", `Consent datasets must already belong to purpose ${purpose.code}.`, 422, false);
       }
     }
+    const enrolledAt = this.deps.now();
+    const expiries = input.purposes.map((requested) => {
+      if (!requested.expiresAt) return null;
+      const at = new Date(requested.expiresAt);
+      if (Number.isNaN(at.getTime())) {
+        throw new EideticError("VALIDATION", `Consent expiry for ${requested.purposeCode} is not a valid date.`, 422, false);
+      }
+      if (at.getTime() <= enrolledAt.getTime()) {
+        throw new EideticError("VALIDATION", `Consent expiry for ${requested.purposeCode} has to be in the future.`, 422, false);
+      }
+      return at.toISOString();
+    });
+    const expiryFor = (requested: (typeof input.purposes)[number]) => expiries[input.purposes.indexOf(requested)] ?? null;
 
     const existing = await this.deps.repos.subjects.get(cid);
     const existingTemplate = existing ? await this.deps.repos.templates.activeForCid(cid) : null;
@@ -159,12 +176,13 @@ export class EideticService {
     let created: { templateRef: string; quality: number } | null = null;
     try {
       if (needTemplate) created = await this.deps.matcher.enroll(input.image);
-      const now = this.deps.now().toISOString();
+      const now = enrolledAt.toISOString();
       const existingConsents = existing ? await this.deps.repos.consents.listForSubject(cid) : [];
+      // An expired grant does not cover a new request, so re-enrolling renews it.
       const fresh = input.purposes.filter((requested) => {
         return !existingConsents.some(
           (consent) =>
-            consent.status === "granted" &&
+            consentIsLive(consent, now) &&
             consent.purposeCode === requested.purposeCode &&
             consent.legalBasis === input.legalBasis &&
             sameSet(consent.datasetIds, requested.datasetIds),
@@ -178,6 +196,7 @@ export class EideticService {
           legalBasis: input.legalBasis,
           status: "granted",
           at: now,
+          expiresAt: expiryFor(requested),
         });
         return { requested, hash: receipt.proof.payloadHash, receipt };
       });
@@ -217,6 +236,7 @@ export class EideticService {
             status: "granted",
             grantedAt: now,
             withdrawnAt: null,
+            expiresAt: expiryFor(item.requested),
             receiptHash: item.hash,
           });
           const recorded = await tx.audit.record({
@@ -358,7 +378,12 @@ export class EideticService {
       throw new EideticError(decision.code, decision.message, 403, false);
     }
 
-    let eligible = await this.deps.repos.consents.listEligible(input.purposeCode, input.datasetId, input.legalBasis);
+    let eligible = await this.deps.repos.consents.listEligible(
+      input.purposeCode,
+      input.datasetId,
+      input.legalBasis,
+      this.deps.now().toISOString(),
+    );
     if (input.subjectCid) eligible = eligible.filter((subject) => subject.cid === input.subjectCid);
     const pointers = await this.deps.repos.templates.activeForCids(eligible.map((subject) => subject.cid));
     const byCid = new Map(pointers.map((pointer) => [pointer.cid, pointer]));
@@ -503,17 +528,18 @@ export class EideticService {
       }
       const subject = await this.deps.repos.subjects.get(input.selectedCid);
       const consents = subject ? await this.deps.repos.consents.listForSubject(subject.cid) : [];
-      const stillGranted =
-        subject?.status === "active" &&
-        consents.some(
-          (consent) =>
-            consent.status === "granted" &&
-            consent.purposeCode === search.purposeCode &&
-            consent.legalBasis === search.legalBasis &&
-            consent.datasetIds.includes(search.datasetId),
-        );
+      const at = this.deps.now().toISOString();
+      const covers = (consent: (typeof consents)[number]) =>
+        consent.purposeCode === search.purposeCode &&
+        consent.legalBasis === search.legalBasis &&
+        consent.datasetIds.includes(search.datasetId);
+      const stillGranted = subject?.status === "active" && consents.some((consent) => covers(consent) && consentIsLive(consent, at));
       if (!stillGranted) {
-        const message = "Confirmation refused. The subject withdrew consent before a person confirmed the match.";
+        const lapsed = subject?.status === "active" && consents.some((consent) => covers(consent) && consent.status === "granted");
+        const refusal: DenialCode = lapsed ? "CONSENT_EXPIRED" : "CONSENT_WITHDRAWN";
+        const message = lapsed
+          ? "Confirmation refused. The subject's consent expired before a person confirmed the match."
+          : "Confirmation refused. The subject withdrew consent before a person confirmed the match.";
         const checkpoint = await this.deps.transaction(async (tx) => {
           const recorded = await tx.audit.record({
             actorId: input.actor.id,
@@ -522,7 +548,7 @@ export class EideticService {
             attestation: {
               outcome: "denied",
               matchRan: false,
-              code: "CONSENT_WITHDRAWN",
+              code: refusal,
               searchId: search.id,
               reviewId: review.id,
               subjectCid: input.selectedCid,
@@ -532,7 +558,7 @@ export class EideticService {
           return recorded.checkpoint;
         });
         await this.submit(checkpoint);
-        throw new EideticError("CONSENT_WITHDRAWN", message, 403, false);
+        throw new EideticError(refusal, message, 403, false);
       }
     }
 
@@ -729,6 +755,7 @@ export class EideticService {
     if (!subject) throw new EideticError("NOT_FOUND", "No enrolled subject uses that CID.", 404, false);
     const consents = await this.deps.repos.consents.listForSubject(cid);
     const template = await this.deps.repos.templates.activeForCid(cid);
+    const at = this.deps.now().toISOString();
     return {
       cid: subject.cid,
       displayName: subject.displayName,
@@ -741,6 +768,8 @@ export class EideticService {
         datasetIds: consent.datasetIds,
         legalBasis: consent.legalBasis,
         status: consent.status,
+        expiresAt: consent.expiresAt,
+        expired: consent.status === "granted" && !consentIsLive(consent, at),
         receiptHash: consent.receiptHash,
       })),
       template: { present: Boolean(template), quality: template?.quality ?? null },
@@ -797,20 +826,22 @@ export class EideticService {
     legalBasis: LegalBasis;
     datasetId: string;
     subjectCid?: string;
-  }): Promise<{ state: "granted" | "withdrawn" | "missing" | "not_enrolled"; label?: string } | undefined> {
+  }): Promise<{ state: "granted" | "withdrawn" | "expired" | "missing" | "not_enrolled"; label?: string } | undefined> {
     if (!input.subjectCid) return undefined;
     const subject = await this.deps.repos.subjects.get(input.subjectCid);
     if (!subject) return { state: "not_enrolled" };
     if (subject.status === "withdrawn") return { state: "withdrawn", label: subject.displayName };
     const consents = await this.deps.repos.consents.listForSubject(subject.cid);
-    const granted = consents.some(
+    const at = this.deps.now().toISOString();
+    const matching = consents.filter(
       (consent) =>
         consent.status === "granted" &&
         consent.purposeCode === input.purposeCode &&
         consent.legalBasis === input.legalBasis &&
         consent.datasetIds.includes(input.datasetId),
     );
-    if (granted) return { state: "granted", label: subject.displayName };
+    if (matching.some((consent) => consentIsLive(consent, at))) return { state: "granted", label: subject.displayName };
+    if (matching.length > 0) return { state: "expired", label: subject.displayName };
     const withdrawn = consents.some((consent) => consent.purposeCode === input.purposeCode && consent.status === "withdrawn");
     return withdrawn ? { state: "withdrawn", label: subject.displayName } : { state: "missing", label: subject.displayName };
   }

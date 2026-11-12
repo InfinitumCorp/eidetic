@@ -37,7 +37,8 @@ export interface ConsentRepository {
   insert(consent: ConsentGrant): Promise<void>;
   listForSubject(cid: string): Promise<ConsentGrant[]>;
   withdrawAll(cid: string, at: string): Promise<void>;
-  listEligible(purposeCode: string, datasetId: string, legalBasis: LegalBasis): Promise<SubjectRecord[]>;
+  /** Active subjects with a live grant (granted and not expired at `at`). */
+  listEligible(purposeCode: string, datasetId: string, legalBasis: LegalBasis, at: string): Promise<SubjectRecord[]>;
 }
 
 export interface TemplateRepository {
