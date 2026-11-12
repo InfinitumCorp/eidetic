@@ -63,6 +63,8 @@ describe.skipIf(!live)("postgres pipeline", () => {
       image: syntheticFixture("avery-quinn"),
     });
     expect(search.finalDecision).toBeNull();
+    const recent = await runtime.repos.searches.countSince(operator.id, new Date(Date.now() - 60 * 60 * 1000).toISOString());
+    expect(recent).toEqual({ counted: 1, rateLimited: 0 });
     await runtime.service.decide({
       actor: reviewer,
       reviewId: search.reviewId,

@@ -59,6 +59,7 @@ export async function createPgRuntime(env: Env, pool = createPool(env.databaseUr
     milEnabled: env.milEnabled,
     now: () => new Date(),
     ids: createIdFactory(),
+    searchLimitPerHour: env.searchLimitPerHour,
   });
   return {
     pool,

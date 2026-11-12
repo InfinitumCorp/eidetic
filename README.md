@@ -40,6 +40,7 @@ flowchart LR
 ## Consent and threat model
 
 - Subjects are enrolled under a Cumulus://ID™ style identifier, `cid://infinitum/...`. The VEIL seam is the named place a production enrollment capture would plug in. This MVP records consent locally.
+- Each account may start at most `SEARCH_LIMIT_PER_HOUR` searches in a rolling hour (default 120; `0` turns it off). Policy refusals count too. Past the limit the API answers `429 RATE_LIMITED` and does not run a match. Only the first refusal in a window is audited, so repeated refused calls cannot flood the log. The count comes from the searches table, so it holds across restarts and API instances.
 - A subject can withdraw. Withdrawal marks consent withdrawn and deletes the sealed template. Later searches for that CID fail closed.
 - Gallery search only considers subjects who granted the requested purpose, legal basis, and dataset.
 - Review notes are redacted for email addresses, phone numbers, and SSN-shaped strings before they enter the audit attestation. The case file kept for the reviewer desk can still hold the original note.

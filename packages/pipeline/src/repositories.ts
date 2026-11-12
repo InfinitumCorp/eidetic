@@ -51,6 +51,8 @@ export interface SearchRepository {
   insert(search: SearchRecord): Promise<void>;
   get(id: string): Promise<SearchRecord | null>;
   markDecided(id: string): Promise<void>;
+  /** Searches this actor started at or after `since`: those that counted, and those refused for the rate limit. */
+  countSince(actorId: string, since: string): Promise<{ counted: number; rateLimited: number }>;
 }
 
 export interface CandidateRepository {

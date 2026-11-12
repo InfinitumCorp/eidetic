@@ -119,6 +119,8 @@ interface ServiceDeps {
   milEnabled: boolean;
   now: () => Date;
   ids: IdFactory;
+  /** Most searches one actor may start in a rolling hour. Unset or 0 means no limit. */
+  searchLimitPerHour?: number;
 }
 
 export class EideticService {
@@ -338,6 +340,7 @@ export class EideticService {
     recordHints?: Record<string, string>;
   }): Promise<SearchResult> {
     const hints = assertRecordAttributes(input.recordHints);
+    await this.enforceSearchLimit(input);
     if (!input.purposeCode.trim()) {
       await this.recordDenial(input, "PURPOSE_REQUIRED", "Search refused. A purpose is required. The match did not run.");
       throw new EideticError("PURPOSE_REQUIRED", "Search refused. A purpose is required. The match did not run.", 403, false);
@@ -745,6 +748,29 @@ export class EideticService {
       })),
       template: { present: Boolean(template), quality: template?.quality ?? null },
     };
+  }
+
+  /**
+   * A per-actor ceiling on searches in a rolling hour, so one account cannot sweep the gallery.
+   * Counted from the searches table, so it holds across restarts and API instances.
+   * Only the first refusal in a window is audited, so a flood of refused calls cannot flood the log.
+   */
+  private async enforceSearchLimit(input: {
+    actor: Actor;
+    purposeCode: string;
+    legalBasis: LegalBasis;
+    datasetId: string;
+    edition: Edition;
+    subjectCid?: string;
+  }): Promise<void> {
+    const limit = this.deps.searchLimitPerHour ?? 0;
+    if (limit <= 0) return;
+    const since = new Date(this.deps.now().getTime() - 60 * 60 * 1000).toISOString();
+    const recent = await this.deps.repos.searches.countSince(input.actor.id, since);
+    if (recent.counted < limit) return;
+    const message = `Search refused. This account reached ${limit} searches in the last hour. The match did not run. Try again later.`;
+    if (recent.rateLimited === 0) await this.recordDenial(input, "RATE_LIMITED", message);
+    throw new EideticError("RATE_LIMITED", message, 429, false);
   }
 
   private async recordDenial(

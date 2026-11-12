@@ -303,8 +303,8 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   return app;
 }
 
-function errorStatus(status: number): 400 | 401 | 403 | 404 | 409 | 422 | 500 | 501 | 502 {
-  if (status === 400 || status === 401 || status === 403 || status === 404 || status === 409 || status === 422 || status === 501 || status === 502) {
+function errorStatus(status: number): 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 | 501 | 502 {
+  if (status === 400 || status === 401 || status === 403 || status === 404 || status === 409 || status === 422 || status === 429 || status === 501 || status === 502) {
     return status;
   }
   return 500;
