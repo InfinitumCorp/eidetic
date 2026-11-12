@@ -135,5 +135,9 @@
   "Show": "عرض",
   "Subject access reports": "تقارير وصول صاحب البيانات",
   "Withdrawals": "عمليات السحب",
-  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها."
+  "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
+  "New searches under this purpose will be refused.": "سيتم رفض عمليات البحث الجديدة لهذا الغرض.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "لا تزال مراجعة واحدة لهذا الغرض بالانتظار. لن يتمكن المراجع من تأكيدها، بل رفضها أو وسمها بغير حاسمة فقط.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "لا تزال {0} مراجعات لهذا الغرض بالانتظار. لن يتمكن المراجع من تأكيدها، بل رفضها أو وسمها بغير حاسمة فقط.",
+  "Retire purpose": "إيقاف الغرض"
 }

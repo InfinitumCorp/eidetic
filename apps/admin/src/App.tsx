@@ -111,6 +111,8 @@ export function App() {
   const [auditAction, setAuditAction] = useState("");
   const [verify, setVerify] = useState<string>("Audit chain has not been checked this session.");
   const [swept, setSwept] = useState<string | null>(null);
+  const [retiring, setRetiring] = useState<string | null>(null);
+  const [pendingByPurpose, setPendingByPurpose] = useState<Record<string, number>>({});
   const [seams, setSeams] = useState<Seam[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [biasNote, setBiasNote] = useState<string | null>(null);
@@ -138,6 +140,15 @@ export function App() {
     setSeams(seamBody.seams);
     setMilEnabled(editionBody.mil.enabled);
     setEdition(`${editionBody.mil.product} flag ${editionBody.mil.enabled ? "on" : "off"} · ${editionBody.mil.workflows}`);
+    // Pending reviews per purpose, so retiring a purpose can say what it leaves stranded.
+    try {
+      const pending = await api<{ reviews: Array<{ purposeCode: string }> }>("/v1/reviews?status=pending");
+      const counts: Record<string, number> = {};
+      for (const review of pending.reviews) counts[review.purposeCode] = (counts[review.purposeCode] ?? 0) + 1;
+      setPendingByPurpose(counts);
+    } catch {
+      setPendingByPurpose({});
+    }
     try {
       setGeoRouting(await api<GeoRoutingView>("/v1/settings/geo-routing"));
     } catch {
@@ -453,10 +464,44 @@ export function App() {
                         >
                           Edit
                         </Button>
-                        <Button variant="outline" disabled={busy} onClick={() => savePurpose({ ...purpose, active: !purpose.active })}>
-                          {purpose.active ? "Retire" : "Reinstate"}
-                        </Button>
+                        {purpose.active ? (
+                          retiring !== purpose.code && (
+                            <Button variant="outline" disabled={busy} onClick={() => setRetiring(purpose.code)}>
+                              Retire
+                            </Button>
+                          )
+                        ) : (
+                          <Button variant="outline" disabled={busy} onClick={() => savePurpose({ ...purpose, active: true })}>
+                            Reinstate
+                          </Button>
+                        )}
                       </div>
+                      {retiring === purpose.code && (
+                        <div className="mt-2 space-y-2 rounded-md border border-destructive/50 bg-destructive/10 p-3" data-testid="retire-confirm">
+                          <p>New searches under this purpose will be refused.</p>
+                          {(pendingByPurpose[purpose.code] ?? 0) > 0 && (
+                            <p className="font-medium">
+                              {pendingByPurpose[purpose.code] === 1
+                                ? "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive."
+                                : `${pendingByPurpose[purpose.code]} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.`}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              variant="destructive"
+                              disabled={busy}
+                              onClick={async () => {
+                                if (await savePurpose({ ...purpose, active: false })) setRetiring(null);
+                              }}
+                            >
+                              Retire purpose
+                            </Button>
+                            <Button variant="outline" onClick={() => setRetiring(null)}>
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                   {draft && (
