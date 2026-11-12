@@ -8,7 +8,8 @@
     "start": "tsx src/main.ts",
     "dev:memory": "tsx src/dev-memory.ts --seed",
     "audit:verify": "tsx src/audit-cli.ts verify",
-    "audit:export": "tsx src/audit-cli.ts export"
+    "audit:export": "tsx src/audit-cli.ts export",
+    "consent:sweep": "tsx src/consent-cli.ts"
   },
   "dependencies": {
     "@eidetic/audit": "workspace:*",

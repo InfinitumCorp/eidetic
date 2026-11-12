@@ -84,6 +84,20 @@ describe("consent expiry", () => {
     expect(last.attestation).toMatchObject({ code: "CONSENT_EXPIRED", matchRan: false });
   });
 
+  it("shows each candidate's live consent on the review, not the state at search time", async () => {
+    const { service, search, enroll, advanceTo, admin } = await desk();
+    await enroll("2026-11-08T00:00:00.000Z");
+    const pending = await search();
+    expect(pending.candidates[0].consentStatus).toBe("granted");
+    expect((await service.getReview(pending.reviewId)).candidates[0].consentStatus).toBe("granted");
+
+    advanceTo("2026-11-09T00:00:00.000Z");
+    expect((await service.getReview(pending.reviewId)).candidates[0].consentStatus).toBe("expired");
+
+    await service.withdraw(admin, AVERY);
+    expect((await service.getReview(pending.reviewId)).candidates[0].consentStatus).toBe("withdrawn");
+  });
+
   it("renews an expired grant on re-enrollment and rejects an expiry in the past", async () => {
     const { service, search, enroll, advanceTo } = await desk();
     await enroll("2026-11-08T00:00:00.000Z");
