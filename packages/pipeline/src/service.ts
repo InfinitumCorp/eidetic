@@ -60,6 +60,8 @@ export interface SubjectView {
   template: { present: boolean; quality: number | null };
 }
 
+export type CandidateConsent = "granted" | "withdrawn" | "expired";
+
 export interface SearchResult {
   searchId: string;
   reviewId: string;
@@ -74,7 +76,8 @@ export interface SearchResult {
     confidence: number;
     rank: number;
     evidence: EvidenceItem[];
-    consentStatus: "granted";
+    /** The candidate's consent for this search's purpose, legal basis and dataset, as of when it is read. */
+    consentStatus: CandidateConsent;
   }>;
   audit: AuditReceipt;
   geoRouting?: GeoRoutingAnnotation;
@@ -921,6 +924,8 @@ export class EideticService {
 
   private async candidateViews(searchId: string): Promise<SearchResult["candidates"]> {
     const candidates = await this.deps.repos.candidates.listForSearch(searchId);
+    const search = await this.deps.repos.searches.get(searchId);
+    const at = this.deps.now().toISOString();
     const views: SearchResult["candidates"] = [];
     for (const candidate of candidates) {
       const subject = await this.deps.repos.subjects.get(candidate.cid);
@@ -930,10 +935,29 @@ export class EideticService {
         confidence: candidate.confidence,
         rank: candidate.rank,
         evidence: candidate.evidence,
-        consentStatus: "granted",
+        consentStatus: search ? await this.candidateConsent(candidate.cid, search, at) : "withdrawn",
       });
     }
     return views;
+  }
+
+  /** Live consent for one candidate against the search it came from. Anything other than "granted" blocks confirmation. */
+  private async candidateConsent(
+    cid: string,
+    search: { purposeCode: string; legalBasis: LegalBasis; datasetId: string },
+    at: string,
+  ): Promise<CandidateConsent> {
+    const subject = await this.deps.repos.subjects.get(cid);
+    if (!subject || subject.status !== "active") return "withdrawn";
+    const grants = (await this.deps.repos.consents.listForSubject(cid)).filter(
+      (consent) =>
+        consent.status === "granted" &&
+        consent.purposeCode === search.purposeCode &&
+        consent.legalBasis === search.legalBasis &&
+        consent.datasetIds.includes(search.datasetId),
+    );
+    if (grants.some((consent) => consentIsLive(consent, at))) return "granted";
+    return grants.length > 0 ? "expired" : "withdrawn";
   }
 
   private async subjectView(cid: string): Promise<SubjectView> {
