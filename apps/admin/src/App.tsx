@@ -263,6 +263,22 @@ export function App() {
     }
   }
 
+  async function withdrawPurpose(subject: SubjectView, purposeCode: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/v1/subjects/${encodeURIComponent(subject.cid)}/consents/${encodeURIComponent(purposeCode)}/withdraw`, {
+        method: "POST",
+        body: "{}",
+      });
+      await reload();
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   // Show only one kind of audit entry. The API filters, so paging stays exact.
   async function filterAudit(action: string) {
     setAuditAction(action);
@@ -693,6 +709,20 @@ export function App() {
                           ))
                         )}
                       </p>
+                      {(() => {
+                        // One button per purpose with granted consent, when there is more than one to choose from.
+                        const granted = [...new Set(subject.consents.filter((consent) => consent.status === "granted").map((consent) => consent.purposeCode))];
+                        if (subject.status !== "active" || granted.length < 2) return null;
+                        return (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {granted.map((purposeCode) => (
+                              <Button key={purposeCode} variant="outline" size="sm" disabled={busy} onClick={() => withdrawPurpose(subject, purposeCode)}>
+                                Withdraw {purposeCode} only
+                              </Button>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                     <Button variant="outline" disabled={busy} onClick={() => downloadAccessReport(subject)}>
