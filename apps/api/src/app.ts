@@ -112,23 +112,63 @@ export interface AppDeps {
   conjure?: ConjureRouteHandler | null;
   /** @scalvs / @scalus: the SCALVS agent on an OpenClaw gateway (prefix /v1/openclaw). Off when unset and on MIL deployments. */
   openclaw?: OpenClawRouteHandler | null;
+  /** One structured line per request. Unset means no access log (tests); main.ts writes JSON to stdout. */
+  accessLog?: ((line: AccessLogLine) => void) | null;
   /** Browser origins allowed to call the API cross-origin. Defaults to the local desks. */
   allowedOrigins?: string[];
   /** @search: Infinitum Search, a web answer with numbered sources (prefix /v1/search). Off when unset and on MIL deployments. */
   search?: SearchRoutes | null;
 }
 
-type Variables = { actor: Actor };
+/**
+ * What the access log records. `route` is the route pattern (/v1/subjects/:cid), never the raw path, so subject
+ * CIDs and query strings stay out of process logs. No headers, bodies, or tokens.
+ */
+export interface AccessLogLine {
+  level: "info";
+  msg: "request";
+  requestId: string;
+  method: string;
+  route: string;
+  status: number;
+  ms: number;
+  actorId: string | null;
+}
+
+const REQUEST_ID = /^[A-Za-z0-9._:-]{8,128}$/;
+
+type Variables = { actor: Actor; requestId: string };
 
 export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   const app = new Hono<{ Variables: Variables }>();
+  // Every response carries X-Request-Id: the caller's own if it is well formed, otherwise a new one.
+  // Error bodies repeat it, so a person can quote it and an operator can find the matching log line.
+  app.use("*", async (c, next) => {
+    const incoming = c.req.header("x-request-id");
+    const requestId = incoming && REQUEST_ID.test(incoming) ? incoming : crypto.randomUUID();
+    c.set("requestId", requestId);
+    const started = performance.now();
+    await next();
+    c.res.headers.set("X-Request-Id", requestId);
+    deps.accessLog?.({
+      level: "info",
+      msg: "request",
+      requestId,
+      method: c.req.method,
+      route: c.req.routePath === "/*" ? "(unmatched)" : c.req.routePath,
+      status: c.res.status,
+      ms: Math.round(performance.now() - started),
+      actorId: c.get("actor")?.id ?? null,
+    });
+  });
   const allowedOrigins = new Set(deps.allowedOrigins ?? DEFAULT_ALLOWED_ORIGINS);
   app.use("*", secureHeaders({ crossOriginResourcePolicy: "same-site" }));
   app.use(
     "*",
     cors({
       origin: (origin) => (origin && allowedOrigins.has(origin) ? origin : ""),
-      allowHeaders: ["Authorization", "Content-Type"],
+      allowHeaders: ["Authorization", "Content-Type", "X-Request-Id"],
+      exposeHeaders: ["X-Request-Id"],
     }),
   );
   app.use(
@@ -136,7 +176,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     bodyLimit({
       maxSize: MAX_BODY_BYTES,
       onError: (c) =>
-        c.json({ error: { code: "VALIDATION", message: "Request body is larger than 1MB.", matchRan: false } }, 413),
+        c.json({ error: { code: "VALIDATION", message: "Request body is larger than 1MB.", matchRan: false, requestId: c.get("requestId") } }, 413),
     }),
   );
   // Subject, review and audit responses must not sit in browser or proxy caches.
@@ -173,6 +213,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
             code: "UNAUTHENTICATED",
             message: "Sign in with Cumulus ID.",
             matchRan: false,
+            requestId: c.get("requestId"),
           },
         },
         401,
@@ -185,6 +226,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
             code: "FORBIDDEN",
             message: `Cumulus ID ${actor.noRole.cid} has no ei·det·ic™ role. Ask an admin to add it.`,
             matchRan: false,
+            requestId: c.get("requestId"),
           },
         },
         403,
@@ -201,30 +243,30 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   // Only the text the actor sends goes to Conjure; no subject, template or match data.
   app.on(["GET", "POST"], ["/v1/conjure", "/v1/conjure/*"], async (c) => {
     if (deps.milEnabled) {
-      return c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not available on MIL deployments.", matchRan: false } }, 403);
+      return c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not available on MIL deployments.", matchRan: false, requestId: c.get("requestId") } }, 403);
     }
     const res = deps.conjure ? await deps.conjure(c.req.raw, { user: c.get("actor").id }) : null;
-    return res ?? c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not configured here.", matchRan: false } }, 503);
+    return res ?? c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not configured here.", matchRan: false, requestId: c.get("requestId") } }, 503);
   });
 
   // "@scalvs <task>" (or "@scalus") from the operator consoles: the SCALVS agent on OpenClaw answers.
   // Same rule as @conjure: only the text the actor sends goes out; no subject, template or match data.
   app.on(["GET", "POST"], "/v1/openclaw", async (c) => {
     if (deps.milEnabled) {
-      return c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not available on MIL deployments.", matchRan: false } }, 403);
+      return c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not available on MIL deployments.", matchRan: false, requestId: c.get("requestId") } }, 403);
     }
     const res = deps.openclaw ? await deps.openclaw(c.req.raw, { user: c.get("actor").id }) : null;
-    return res ?? c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not configured here.", matchRan: false } }, 503);
+    return res ?? c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not configured here.", matchRan: false, requestId: c.get("requestId") } }, 503);
   });
 
   // "@search <question>" from the operator consoles: Infinitum Search reads the public web and answers
   // with numbered sources. Only the question the actor types goes out; never subject, template or match data.
   app.on(["GET", "POST"], "/v1/search", async (c) => {
     if (deps.milEnabled) {
-      return c.json({ error: { code: "SEARCH_UNAVAILABLE", message: "@search is not available on MIL deployments.", matchRan: false } }, 403);
+      return c.json({ error: { code: "SEARCH_UNAVAILABLE", message: "@search is not available on MIL deployments.", matchRan: false, requestId: c.get("requestId") } }, 403);
     }
     const res = deps.search ? await deps.search(c.req.raw, { user: c.get("actor").id }) : null;
-    return res ?? c.json({ error: { code: "SEARCH_UNAVAILABLE", message: "@search is not configured here.", matchRan: false } }, 503);
+    return res ?? c.json({ error: { code: "SEARCH_UNAVAILABLE", message: "@search is not configured here.", matchRan: false, requestId: c.get("requestId") } }, 503);
   });
 
   app.get("/v1/edition", (c) =>
@@ -364,16 +406,19 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
 
   app.onError((error, c) => {
     if (error instanceof EideticError) {
-      return c.json({ error: { code: error.code, message: error.message, matchRan: error.matchRan } }, errorStatus(error.httpStatus));
+      return c.json(
+        { error: { code: error.code, message: error.message, matchRan: error.matchRan, requestId: c.get("requestId") } },
+        errorStatus(error.httpStatus),
+      );
     }
     if (error instanceof z.ZodError) {
       return c.json(
-        { error: { code: "VALIDATION", message: error.issues.map((issue) => issue.message).join("; "), matchRan: false } },
+        { error: { code: "VALIDATION", message: error.issues.map((issue) => issue.message).join("; "), matchRan: false, requestId: c.get("requestId") } },
         422,
       );
     }
-    console.error(JSON.stringify({ level: "error", code: "INTERNAL", name: error.name }));
-    return c.json({ error: { code: "INTERNAL", message: "The request failed closed.", matchRan: false } }, 500);
+    console.error(JSON.stringify({ level: "error", code: "INTERNAL", name: error.name, requestId: c.get("requestId") }));
+    return c.json({ error: { code: "INTERNAL", message: "The request failed closed.", matchRan: false, requestId: c.get("requestId") } }, 500);
   });
 
   return app;
