@@ -615,6 +615,33 @@ export class EideticService {
     if (search.actorId === input.actor.id) {
       throw new EideticError("SEPARATION_OF_DUTIES", "The person who ran the search cannot decide it.", 403, false);
     }
+    // A purpose retired after the search no longer authorizes naming anyone. Reject and inconclusive stay open,
+    // so the review can still be closed.
+    if (input.decision === "confirm") {
+      const purpose = await this.deps.repos.purposes.get(search.purposeCode);
+      if (!purpose?.active) {
+        const message = "Confirmation refused. The purpose behind this search was retired before a person confirmed the match.";
+        const checkpoint = await this.deps.transaction(async (tx) => {
+          const recorded = await tx.audit.record({
+            actorId: input.actor.id,
+            action: "review",
+            recordedAt: this.deps.now().toISOString(),
+            attestation: {
+              outcome: "denied",
+              matchRan: false,
+              code: "PURPOSE_INACTIVE",
+              searchId: search.id,
+              reviewId: review.id,
+              purposeCode: search.purposeCode,
+              message,
+            },
+          });
+          return recorded.checkpoint;
+        });
+        await this.submit(checkpoint);
+        throw new EideticError("PURPOSE_INACTIVE", message, 403, false);
+      }
+    }
     const candidates = await this.deps.repos.candidates.listForSearch(search.id);
     if (input.decision === "confirm") {
       if (!input.selectedCid || !candidates.some((candidate) => candidate.cid === input.selectedCid)) {
