@@ -111,6 +111,8 @@ export function App() {
   const [auditAction, setAuditAction] = useState("");
   const [verify, setVerify] = useState<string>("Audit chain has not been checked this session.");
   const [swept, setSwept] = useState<string | null>(null);
+  const [retiring, setRetiring] = useState<string | null>(null);
+  const [pendingByPurpose, setPendingByPurpose] = useState<Record<string, number>>({});
   const [seams, setSeams] = useState<Seam[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [biasNote, setBiasNote] = useState<string | null>(null);
@@ -121,7 +123,7 @@ export function App() {
   const { token } = useCumulusId();
   const [me, setMe] = useState<Me | null>(null);
   const [meError, setMeError] = useState<string | null>(null);
-  const [form, setForm] = useState({ displayName: "Avery Quinn", fixtureId: "avery-quinn", purposeCode: "record_reconciliation", validDays: "0" });
+  const [form, setForm] = useState({ displayName: "Avery Quinn", fixtureId: "avery-quinn", purposeCodes: ["record_reconciliation"] as string[], validDays: "0" });
 
   async function reload() {
     const [purposeBody, subjectBody, auditBody, seamBody, editionBody] = await Promise.all([
@@ -138,6 +140,15 @@ export function App() {
     setSeams(seamBody.seams);
     setMilEnabled(editionBody.mil.enabled);
     setEdition(`${editionBody.mil.product} flag ${editionBody.mil.enabled ? "on" : "off"} · ${editionBody.mil.workflows}`);
+    // Pending reviews per purpose, so retiring a purpose can say what it leaves stranded.
+    try {
+      const pending = await api<{ reviews: Array<{ purposeCode: string }> }>("/v1/reviews?status=pending");
+      const counts: Record<string, number> = {};
+      for (const review of pending.reviews) counts[review.purposeCode] = (counts[review.purposeCode] ?? 0) + 1;
+      setPendingByPurpose(counts);
+    } catch {
+      setPendingByPurpose({});
+    }
     try {
       setGeoRouting(await api<GeoRoutingView>("/v1/settings/geo-routing"));
     } catch {
@@ -173,6 +184,12 @@ export function App() {
 
   async function enroll(event: FormEvent) {
     event.preventDefault();
+    if (form.purposeCodes.length === 0) {
+      setError("Choose at least one purpose the person is consenting to.");
+      return;
+    }
+    // "0" means the consent lasts until the subject withdraws it.
+    const expiresAt = form.validDays === "0" ? undefined : new Date(Date.now() + Number(form.validDays) * 86_400_000).toISOString();
     setBusy(true);
     setError(null);
     try {
@@ -181,15 +198,12 @@ export function App() {
         body: JSON.stringify({
           displayName: form.displayName,
           legalBasis: "consent",
-          purposes: [
-            {
-              purposeCode: form.purposeCode,
-              // Consent covers the datasets the purpose was published with.
-              datasetIds: purposes.find((purpose) => purpose.code === form.purposeCode)?.datasetIds ?? [],
-              // "0" means the consent lasts until the subject withdraws it.
-              expiresAt: form.validDays === "0" ? undefined : new Date(Date.now() + Number(form.validDays) * 86_400_000).toISOString(),
-            },
-          ],
+          // One grant per purpose, each covering the datasets that purpose was published with.
+          purposes: form.purposeCodes.map((purposeCode) => ({
+            purposeCode,
+            datasetIds: purposes.find((purpose) => purpose.code === purposeCode)?.datasetIds ?? [],
+            expiresAt,
+          })),
           fixtureId: form.fixtureId,
           recordAttributes: { site: "Washington" },
         }),
@@ -241,6 +255,22 @@ export function App() {
     try {
       await api(`/v1/subjects/${encodeURIComponent(subject.cid)}/withdraw`, { method: "POST", body: "{}" });
       setWithdrawing(null);
+      await reload();
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function withdrawPurpose(subject: SubjectView, purposeCode: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/v1/subjects/${encodeURIComponent(subject.cid)}/consents/${encodeURIComponent(purposeCode)}/withdraw`, {
+        method: "POST",
+        body: "{}",
+      });
       await reload();
     } catch (reason) {
       setError((reason as Error).message);
@@ -306,7 +336,11 @@ export function App() {
     setError(null);
     try {
       const result = await api<{ purged: Array<{ cid: string }> }>("/v1/consents/sweep", { method: "POST", body: "{}" });
-      setSwept(result.purged.length === 0 ? "No lapsed consent. Nothing was purged." : `Purged ${result.purged.length} template(s) with lapsed consent.`);
+      setSwept(result.purged.length === 0
+          ? "No lapsed consent. Nothing was purged."
+          : result.purged.length === 1
+            ? "Purged 1 template with lapsed consent."
+            : `Purged ${result.purged.length} templates with lapsed consent.`);
       await reload();
     } catch (reason) {
       setError((reason as Error).message);
@@ -453,10 +487,44 @@ export function App() {
                         >
                           Edit
                         </Button>
-                        <Button variant="outline" disabled={busy} onClick={() => savePurpose({ ...purpose, active: !purpose.active })}>
-                          {purpose.active ? "Retire" : "Reinstate"}
-                        </Button>
+                        {purpose.active ? (
+                          retiring !== purpose.code && (
+                            <Button variant="outline" disabled={busy} onClick={() => setRetiring(purpose.code)}>
+                              Retire
+                            </Button>
+                          )
+                        ) : (
+                          <Button variant="outline" disabled={busy} onClick={() => savePurpose({ ...purpose, active: true })}>
+                            Reinstate
+                          </Button>
+                        )}
                       </div>
+                      {retiring === purpose.code && (
+                        <div className="mt-2 space-y-2 rounded-md border border-destructive/50 bg-destructive/10 p-3" data-testid="retire-confirm">
+                          <p>New searches under this purpose will be refused.</p>
+                          {(pendingByPurpose[purpose.code] ?? 0) > 0 && (
+                            <p className="font-medium">
+                              {pendingByPurpose[purpose.code] === 1
+                                ? "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive."
+                                : `${pendingByPurpose[purpose.code]} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.`}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              variant="destructive"
+                              disabled={busy}
+                              onClick={async () => {
+                                if (await savePurpose({ ...purpose, active: false })) setRetiring(null);
+                              }}
+                            >
+                              Retire purpose
+                            </Button>
+                            <Button variant="outline" onClick={() => setRetiring(null)}>
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                   {draft && (
@@ -565,21 +633,24 @@ export function App() {
                       <Label htmlFor="fixture">Synthetic fixture</Label>
                       <Input id="fixture" value={form.fixtureId} onChange={(event) => setForm({ ...form, fixtureId: event.target.value })} />
                     </div>
-                    <div>
-                      <Label htmlFor="purpose">Purpose</Label>
-                      <select
-                        id="purpose"
-                        className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3"
-                        value={form.purposeCode}
-                        onChange={(event) => setForm({ ...form, purposeCode: event.target.value })}
-                      >
-                        {purposes.filter((purpose) => purpose.active).map((purpose) => (
-                          <option key={purpose.code} value={purpose.code}>
-                            {purpose.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <fieldset>
+                      <legend className="text-sm font-medium">Purposes the person consents to</legend>
+                      <div className="mt-1 space-y-1 text-sm">
+                        {purposes
+                          .filter((purpose) => purpose.active && purpose.legalBases.includes("consent"))
+                          .map((purpose) => (
+                            <label key={purpose.code} className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={form.purposeCodes.includes(purpose.code)}
+                                onChange={() => setForm({ ...form, purposeCodes: toggle(form.purposeCodes, purpose.code) })}
+                              />
+                              {purpose.title}
+                            </label>
+                          ))}
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">Each purpose gets its own receipt and can be withdrawn on its own.</p>
+                    </fieldset>
                     <div>
                       <Label htmlFor="valid">Consent lasts</Label>
                       <select
@@ -594,7 +665,7 @@ export function App() {
                         <option value="365">For 1 year</option>
                       </select>
                     </div>
-                    <Button type="submit" disabled={busy}>
+                    <Button type="submit" disabled={busy || form.purposeCodes.length === 0}>
                       Record consent
                     </Button>
                   </form>
@@ -642,6 +713,20 @@ export function App() {
                           ))
                         )}
                       </p>
+                      {(() => {
+                        // One button per purpose with granted consent, when there is more than one to choose from.
+                        const granted = [...new Set(subject.consents.filter((consent) => consent.status === "granted").map((consent) => consent.purposeCode))];
+                        if (subject.status !== "active" || granted.length < 2) return null;
+                        return (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {granted.map((purposeCode) => (
+                              <Button key={purposeCode} variant="outline" size="sm" disabled={busy} onClick={() => withdrawPurpose(subject, purposeCode)}>
+                                {`Withdraw ${purposeCode} only`}
+                              </Button>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                     <Button variant="outline" disabled={busy} onClick={() => downloadAccessReport(subject)}>
