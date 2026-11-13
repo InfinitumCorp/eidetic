@@ -64,6 +64,26 @@ describe("per-actor search limit", () => {
     await expect(search(admin)).rejects.not.toMatchObject({ code: "RATE_LIMITED" });
   });
 
+  it("reports the allowance left, counting refusals, and frees up after an hour", async () => {
+    const { service, search, operator, admin, advance } = await desk(3);
+    expect(await service.searchAllowance(operator)).toEqual({ limit: 3, used: 0, remaining: 3, windowMinutes: 60 });
+    await search();
+    await expect(search(undefined, "open_web_lookup")).rejects.toMatchObject({ code: "PURPOSE_UNKNOWN" });
+    expect(await service.searchAllowance(operator)).toMatchObject({ used: 2, remaining: 1 });
+    expect(await service.searchAllowance(admin)).toMatchObject({ used: 0, remaining: 3 });
+    await search();
+    await expect(search()).rejects.toMatchObject({ code: "RATE_LIMITED" });
+    expect(await service.searchAllowance(operator)).toMatchObject({ remaining: 0 });
+    advance(61 * 60 * 1000);
+    expect(await service.searchAllowance(operator)).toMatchObject({ used: 0, remaining: 3 });
+  });
+
+  it("reports no limit when none is set", async () => {
+    const { service, search, operator } = await desk(undefined);
+    await search();
+    expect(await service.searchAllowance(operator)).toEqual({ limit: null, used: 1, remaining: null, windowMinutes: 60 });
+  });
+
   it("is off when the limit is unset or 0", async () => {
     for (const limit of [undefined, 0]) {
       const { search } = await desk(limit);

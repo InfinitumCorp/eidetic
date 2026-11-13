@@ -1,4 +1,6 @@
 {
+  "{0} Audit hash {1}.": "{0} 审计哈希 {1}。",
+  "{0} No new match was run.": "{0} 未运行新的匹配。",
   "A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.": "评分是证据。决定权在您手中。直到审核员记录之前，这里不会产生匹配。",
   "ÆTHER{0}": "ÆTHER{0}",
   "Base": "基础",
@@ -52,6 +54,7 @@
   "Waiting for a person": "等待人员",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "您为何确认、拒绝或将其保持不确定？",
   "{0} (local dev)": "{0} (local dev)",
+  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} 有 {1} 个候选人等待审查员处理。",
   "Avery Quinn (synthetic)": "Avery Quinn（合成）",
   "Casey Morgan (synthetic)": "Casey Morgan（合成）",
   "Choose a probe image first.": "请先选择查询图像。",
@@ -83,6 +86,8 @@
   "Consent expired": "同意已过期",
   "Consent withdrawn": "同意已撤回",
   "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "此人的同意已不再涵盖此次搜索，确认将被拒绝。请拒绝或将审查标记为无定论。",
+  "{0} of {1} searches left this hour.": "本小时还剩 {0}/{1} 次搜索。",
+  "No searches left this hour (limit {0}).": "本小时已无剩余搜索次数（上限 {0}）。",
   "{0} candidates are waiting for a reviewer.": "{0} 位候选人正在等待审查员。",
   "1 candidate is waiting for a reviewer.": "1 位候选人正在等待审查员。",
   "Write 1 more character in the note to decide.": "请在备注中再写 1 个字符后再作决定。",
@@ -277,5 +282,9 @@
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet 未在此合成图像中发现人脸。注册已停止。",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "opencv_zoo/models/face_detection_yunet 中的 YuNet 权重以 MIT 许可发布（Copyright Shiqi Yu）。opencv_zoo/models/face_recognition_sface 中的 SFace 权重以 Apache-2.0 许可发布。两项许可均允许商业使用这些文件。训练图像来源是另一个问题，已在 NOTICE 中说明。未使用 InsightFace 权重。",
   "Audit hash {0}.": "审计哈希：{0}。",
-  "No new match was run.": "未运行新的匹配。"
+  "No new match was run.": "未运行新的匹配。",
+  "Waiting under a minute": "等待不到 1 分钟",
+  "Waiting {0} min": "已等待 {0} 分钟",
+  "Waiting {0} h": "已等待 {0} 小时",
+  "Waiting {0} d": "已等待 {0} 天"
 }
