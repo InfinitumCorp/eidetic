@@ -282,5 +282,9 @@
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet не нашёл лицо на этом синтетическом изображении. Регистрация остановлена.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "Веса YuNet в opencv_zoo/models/face_detection_yunet опубликованы под MIT (Copyright Shiqi Yu). Веса SFace в opencv_zoo/models/face_recognition_sface опубликованы под Apache-2.0. Обе лицензии разрешают коммерческое использование этих файлов. Происхождение обучающих изображений — отдельный вопрос, он отмечен в NOTICE. Веса InsightFace не используются.",
   "Audit hash {0}.": "Хеш аудита: {0}.",
-  "No new match was run.": "Новое сопоставление не запускалось."
+  "No new match was run.": "Новое сопоставление не запускалось.",
+  "Waiting under a minute": "Ждёт меньше минуты",
+  "Waiting {0} min": "Ждёт {0} мин",
+  "Waiting {0} h": "Ждёт {0} ч",
+  "Waiting {0} d": "Ждёт {0} дн."
 }

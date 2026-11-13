@@ -284,7 +284,11 @@ export default {
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet did not find a face in this synthetic image. The enroll stopped.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.",
   "Audit hash {0}.": "Audit hash {0}.",
-  "No new match was run.": "No new match was run."
+  "No new match was run.": "No new match was run.",
+  "Waiting under a minute": "Waiting under a minute",
+  "Waiting {0} min": "Waiting {0} min",
+  "Waiting {0} h": "Waiting {0} h",
+  "Waiting {0} d": "Waiting {0} d"
  },
  "ru": {
   "{0} Audit hash {1}.": "{0} Хеш аудита {1}.",
@@ -570,7 +574,11 @@ export default {
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet не нашёл лицо на этом синтетическом изображении. Регистрация остановлена.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "Веса YuNet в opencv_zoo/models/face_detection_yunet опубликованы под MIT (Copyright Shiqi Yu). Веса SFace в opencv_zoo/models/face_recognition_sface опубликованы под Apache-2.0. Обе лицензии разрешают коммерческое использование этих файлов. Происхождение обучающих изображений — отдельный вопрос, он отмечен в NOTICE. Веса InsightFace не используются.",
   "Audit hash {0}.": "Хеш аудита: {0}.",
-  "No new match was run.": "Новое сопоставление не запускалось."
+  "No new match was run.": "Новое сопоставление не запускалось.",
+  "Waiting under a minute": "Ждёт меньше минуты",
+  "Waiting {0} min": "Ждёт {0} мин",
+  "Waiting {0} h": "Ждёт {0} ч",
+  "Waiting {0} d": "Ждёт {0} дн."
  },
  "uk": {
   "{0} Audit hash {1}.": "{0} Аудит хеш {1}.",
@@ -856,7 +864,11 @@ export default {
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet не знайшов обличчя на цьому синтетичному зображенні. Реєстрацію зупинено.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "Ваги YuNet у opencv_zoo/models/face_detection_yunet опубліковано під MIT (Copyright Shiqi Yu). Ваги SFace у opencv_zoo/models/face_recognition_sface опубліковано під Apache-2.0. Обидві ліцензії дозволяють комерційне використання цих файлів. Походження навчальних зображень — окреме питання, його зазначено в NOTICE. Ваги InsightFace не використовуються.",
   "Audit hash {0}.": "Хеш аудиту: {0}.",
-  "No new match was run.": "Нове зіставлення не запускалося."
+  "No new match was run.": "Нове зіставлення не запускалося.",
+  "Waiting under a minute": "Чекає менше хвилини",
+  "Waiting {0} min": "Чекає {0} хв",
+  "Waiting {0} h": "Чекає {0} год",
+  "Waiting {0} d": "Чекає {0} дн."
  },
  "es": {
   "{0} Audit hash {1}.": "{0} Hash de auditoría {1}.",
@@ -1142,7 +1154,11 @@ export default {
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet no encontró un rostro en esta imagen sintética. La inscripción se detuvo.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "Los pesos de YuNet en opencv_zoo/models/face_detection_yunet se publican bajo MIT (Copyright Shiqi Yu). Los pesos de SFace en opencv_zoo/models/face_recognition_sface se publican bajo Apache-2.0. Ambas licencias permiten el uso comercial de esos archivos. La procedencia de las imágenes de entrenamiento es una cuestión aparte y se indica en NOTICE. No se usan pesos de InsightFace.",
   "Audit hash {0}.": "Hash de auditoría: {0}.",
-  "No new match was run.": "No se ejecutó ninguna comparación nueva."
+  "No new match was run.": "No se ejecutó ninguna comparación nueva.",
+  "Waiting under a minute": "Esperando menos de un minuto",
+  "Waiting {0} min": "Esperando {0} min",
+  "Waiting {0} h": "Esperando {0} h",
+  "Waiting {0} d": "Esperando {0} d"
  },
  "fr": {
   "{0} Audit hash {1}.": "{0} Hachage d'audit {1}.",
@@ -1428,7 +1444,11 @@ export default {
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet n’a trouvé aucun visage dans cette image synthétique. L’inscription s’est arrêtée.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "Les poids YuNet dans opencv_zoo/models/face_detection_yunet sont publiés sous MIT (Copyright Shiqi Yu). Les poids SFace dans opencv_zoo/models/face_recognition_sface sont publiés sous Apache-2.0. Les deux licences autorisent l’usage commercial de ces fichiers. La provenance des images d’entraînement est une question distincte, notée dans NOTICE. Les poids InsightFace ne sont pas utilisés.",
   "Audit hash {0}.": "Empreinte d'audit : {0}.",
-  "No new match was run.": "Aucune nouvelle correspondance n'a été lancée."
+  "No new match was run.": "Aucune nouvelle correspondance n'a été lancée.",
+  "Waiting under a minute": "En attente depuis moins d'une minute",
+  "Waiting {0} min": "En attente depuis {0} min",
+  "Waiting {0} h": "En attente depuis {0} h",
+  "Waiting {0} d": "En attente depuis {0} j"
  },
  "de": {
   "{0} Audit hash {1}.": "{0} Prüf‑Hash {1}.",
@@ -1714,7 +1734,11 @@ export default {
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet hat in diesem synthetischen Bild kein Gesicht gefunden. Die Registrierung wurde gestoppt.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "YuNet-Gewichte in opencv_zoo/models/face_detection_yunet sind unter MIT veröffentlicht (Copyright Shiqi Yu). SFace-Gewichte in opencv_zoo/models/face_recognition_sface sind unter Apache-2.0 veröffentlicht. Beide Lizenzen erlauben die kommerzielle Nutzung dieser Dateien. Die Herkunft der Trainingsbilder ist eine separate Frage und in NOTICE vermerkt. InsightFace-Gewichte werden nicht verwendet.",
   "Audit hash {0}.": "Audit-Hash: {0}.",
-  "No new match was run.": "Es wurde kein neuer Abgleich ausgeführt."
+  "No new match was run.": "Es wurde kein neuer Abgleich ausgeführt.",
+  "Waiting under a minute": "Wartet seit unter einer Minute",
+  "Waiting {0} min": "Wartet seit {0} Min.",
+  "Waiting {0} h": "Wartet seit {0} Std.",
+  "Waiting {0} d": "Wartet seit {0} T."
  },
  "pt": {
   "{0} Audit hash {1}.": "{0} Hash de auditoria {1}.",
@@ -2000,7 +2024,11 @@ export default {
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "O YuNet não encontrou um rosto nesta imagem sintética. A inscrição foi interrompida.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "Os pesos do YuNet em opencv_zoo/models/face_detection_yunet são publicados sob MIT (Copyright Shiqi Yu). Os pesos do SFace em opencv_zoo/models/face_recognition_sface são publicados sob Apache-2.0. Ambas as licenças permitem o uso comercial desses arquivos. A procedência das imagens de treinamento é uma questão separada e está registrada em NOTICE. Pesos do InsightFace não são usados.",
   "Audit hash {0}.": "Hash de auditoria: {0}.",
-  "No new match was run.": "Nenhuma nova comparação foi executada."
+  "No new match was run.": "Nenhuma nova comparação foi executada.",
+  "Waiting under a minute": "Aguardando há menos de um minuto",
+  "Waiting {0} min": "Aguardando há {0} min",
+  "Waiting {0} h": "Aguardando há {0} h",
+  "Waiting {0} d": "Aguardando há {0} d"
  },
  "zh": {
   "{0} Audit hash {1}.": "{0} 审计哈希 {1}。",
@@ -2286,7 +2314,11 @@ export default {
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet 未在此合成图像中发现人脸。注册已停止。",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "opencv_zoo/models/face_detection_yunet 中的 YuNet 权重以 MIT 许可发布（Copyright Shiqi Yu）。opencv_zoo/models/face_recognition_sface 中的 SFace 权重以 Apache-2.0 许可发布。两项许可均允许商业使用这些文件。训练图像来源是另一个问题，已在 NOTICE 中说明。未使用 InsightFace 权重。",
   "Audit hash {0}.": "审计哈希：{0}。",
-  "No new match was run.": "未运行新的匹配。"
+  "No new match was run.": "未运行新的匹配。",
+  "Waiting under a minute": "等待不到 1 分钟",
+  "Waiting {0} min": "已等待 {0} 分钟",
+  "Waiting {0} h": "已等待 {0} 小时",
+  "Waiting {0} d": "已等待 {0} 天"
  },
  "ar": {
   "{0} Audit hash {1}.": "{0} تجزئة التدقيق {1}.",
@@ -2572,6 +2604,10 @@ export default {
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "لم يعثر YuNet على وجه في هذه الصورة الاصطناعية. توقف التسجيل.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "أوزان YuNet في opencv_zoo/models/face_detection_yunet منشورة بموجب MIT (Copyright Shiqi Yu). أوزان SFace في opencv_zoo/models/face_recognition_sface منشورة بموجب Apache-2.0. يسمح كلا الترخيصين بالاستخدام التجاري لتلك الملفات. مصدر صور التدريب مسألة منفصلة ومذكور في NOTICE. لا تُستخدم أوزان InsightFace.",
   "Audit hash {0}.": "تجزئة التدقيق: {0}.",
-  "No new match was run.": "لم تُجرَ أي مطابقة جديدة."
+  "No new match was run.": "لم تُجرَ أي مطابقة جديدة.",
+  "Waiting under a minute": "بانتظار أقل من دقيقة",
+  "Waiting {0} min": "بانتظار منذ {0} دقيقة",
+  "Waiting {0} h": "بانتظار منذ {0} ساعة",
+  "Waiting {0} d": "بانتظار منذ {0} يوم"
  }
 };
