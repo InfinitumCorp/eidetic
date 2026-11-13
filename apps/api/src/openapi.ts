@@ -46,6 +46,7 @@ export const ROUTES: RouteDoc[] = [
   { method: "get", path: "/v1/subjects/:cid/access-report", tag: "Subjects and consent", summary: "Subject access report: consents and audit activity. The export is audited.", roles: ["admin", "auditor"] },
   { method: "post", path: "/v1/subjects/:cid/withdraw", tag: "Subjects and consent", summary: "Withdraw all consent and purge the sealed template. Audited.", roles: ["admin"] },
   { method: "post", path: "/v1/subjects/:cid/consents/:purposeCode/withdraw", tag: "Subjects and consent", summary: "Withdraw consent for one purpose. Withdrawing the last one is a full withdrawal and purges the template. Audited.", roles: ["admin"] },
+  { method: "post", path: "/v1/subjects/:cid/consents/:purposeCode/renew", tag: "Subjects and consent", summary: "Renew an expiring consent with a new signed receipt and a later expiry. Same datasets and legal basis. Audited.", roles: ["admin"], body: "RenewalRequest" },
   { method: "post", path: "/v1/consents/sweep", tag: "Subjects and consent", summary: "Purge templates whose consent has all lapsed. Audited per subject.", roles: ["admin"] },
 
   { method: "post", path: "/v1/searches", tag: "Search and review", summary: "Run a consent-checked search. Results are unconfirmed until a reviewer decides. Audited.", body: "SearchRequest", status: 201 },
