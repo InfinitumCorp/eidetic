@@ -268,6 +268,17 @@ Palantir publishes platform libraries that are useful as reading, not as depende
 
 Flock Safety's public GitHub organization, [flocksafety](https://github.com/flocksafety), does not publish a consent ledger, matcher, or audit log appropriate to this product. Their camera and license-plate products are proprietary and out of scope. This MVP does not do plate recognition, city-wide camera search, or inter-agency watchlists.
 
+## Desk languages
+
+Both desks show their interface, and the API messages they display, in English, Russian, Ukrainian, Spanish, French, German, Portuguese, Chinese and Arabic. The API answers in English. Each desk translates refusals, validation errors and audit notes when it renders them, so a message has to reach the page as its own text node.
+
+Catalogs live in `apps/<desk>/src/i18n/locales/` and are built with `@infinitum/i18n` from an infinitum-nexus checkout. `scripts/i18n.sh` re-extracts both desks from their own source plus the API and package sources whose messages they show, then bundles the catalogs. Run it after changing any user-facing message, so extraction does not prune the API strings:
+
+```bash
+NEXUS=../infinitum-nexus sh scripts/i18n.sh --check   # report missing translations
+NEXUS=../infinitum-nexus sh scripts/i18n.sh           # write catalogs.js for both desks
+```
+
 ## Contact
 
 Infinitum Corporation®  
