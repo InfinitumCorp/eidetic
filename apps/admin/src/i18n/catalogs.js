@@ -40,7 +40,6 @@ export default {
   "Preview": "Preview",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.",
   "Purge template": "Purge template",
-  "Purpose": "Purpose",
   "Purpose desk": "Purpose desk",
   "Purposes": "Purposes",
   "Record consent": "Record consent",
@@ -138,7 +137,15 @@ export default {
   "Withdrawals": "Withdrawals",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.",
   "Purged {0} templates with lapsed consent.": "Purged {0} templates with lapsed consent.",
-  "Purged 1 template with lapsed consent.": "Purged 1 template with lapsed consent."
+  "Purged 1 template with lapsed consent.": "Purged 1 template with lapsed consent.",
+  "New searches under this purpose will be refused.": "New searches under this purpose will be refused.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.",
+  "Retire purpose": "Retire purpose",
+  "Choose at least one purpose the person is consenting to.": "Choose at least one purpose the person is consenting to.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Each purpose gets its own receipt and can be withdrawn on its own.",
+  "Purposes the person consents to": "Purposes the person consents to",
+  "Withdraw {0} only": "Withdraw {0} only"
  },
  "ru": {
   ". Military workflows are not implemented.": ". Военные рабочие процессы не реализованы.",
@@ -180,7 +187,6 @@ export default {
   "Preview": "Предпросмотр",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Публикуйте цели, фиксируйте согласие и просматривайте хеш‑цепочку. Биометрические шаблоны остаются в запечатанном хранилище.",
   "Purge template": "Удалить шаблон",
-  "Purpose": "Цель",
   "Purpose desk": "Деск назначения",
   "Purposes": "Назначения",
   "Record consent": "Записать согласие",
@@ -278,7 +284,15 @@ export default {
   "Withdrawals": "Отзывы согласия",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
   "Purged {0} templates with lapsed consent.": "{0, plural, one {Удалён # шаблон с истёкшим согласием.} few {Удалены # шаблона с истёкшим согласием.} many {Удалено # шаблонов с истёкшим согласием.} other {Удалено # шаблона с истёкшим согласием.}}",
-  "Purged 1 template with lapsed consent.": "Удалён 1 шаблон с истёкшим согласием."
+  "Purged 1 template with lapsed consent.": "Удалён 1 шаблон с истёкшим согласием.",
+  "New searches under this purpose will be refused.": "Новые поиски по этой цели будут отклоняться.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "По этой цели ещё ждёт 1 проверка. Проверяющий не сможет её подтвердить — только отклонить или отметить «без вывода».",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "По этой цели ещё {0, plural, one {ждёт # проверка} few {ждут # проверки} many {ждут # проверок} other {ждут # проверки}}. Проверяющий не сможет их подтвердить — только отклонить или отметить «без вывода».",
+  "Retire purpose": "Вывести цель из оборота",
+  "Choose at least one purpose the person is consenting to.": "Выберите хотя бы одну цель, на которую человек даёт согласие.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Для каждой цели выдаётся отдельная квитанция, и согласие на неё можно отозвать отдельно.",
+  "Purposes the person consents to": "Цели, на которые человек даёт согласие",
+  "Withdraw {0} only": "Отозвать только {0}"
  },
  "uk": {
   ". Military workflows are not implemented.": ". Військові робочі процеси не реалізовано.",
@@ -320,7 +334,6 @@ export default {
   "Preview": "Попередній перегляд",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Опублікуйте цілі, зафіксуйте згоду й перегляньте ланцюжок хешів. Біометричні шаблони залишаються у захищеному сховищі.",
   "Purge template": "Видалити шаблон",
-  "Purpose": "Ціль",
   "Purpose desk": "Деск цілей",
   "Purposes": "Цілі",
   "Record consent": "Записати згоду",
@@ -418,7 +431,15 @@ export default {
   "Withdrawals": "Відкликання згоди",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редагування {0}. Зміни застосовуються до нових реєстрацій і пошуків. Уже надана згода зберігає зазначені в ній набори даних.",
   "Purged {0} templates with lapsed consent.": "{0, plural, one {Видалено # шаблон зі сплилою згодою.} few {Видалено # шаблони зі сплилою згодою.} many {Видалено # шаблонів зі сплилою згодою.} other {Видалено # шаблону зі сплилою згодою.}}",
-  "Purged 1 template with lapsed consent.": "Видалено 1 шаблон зі сплилою згодою."
+  "Purged 1 template with lapsed consent.": "Видалено 1 шаблон зі сплилою згодою.",
+  "New searches under this purpose will be refused.": "Нові пошуки за цією ціллю буде відхилено.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "За цією ціллю ще чекає 1 перевірка. Перевіряльник не зможе її підтвердити — лише відхилити або позначити «без висновку».",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "За цією ціллю ще {0, plural, one {чекає # перевірка} few {чекають # перевірки} many {чекають # перевірок} other {чекають # перевірки}}. Перевіряльник не зможе їх підтвердити — лише відхилити або позначити «без висновку».",
+  "Retire purpose": "Вивести ціль з обігу",
+  "Choose at least one purpose the person is consenting to.": "Виберіть хоча б одну ціль, на яку людина дає згоду.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Для кожної цілі видається окрема квитанція, і згоду на неї можна відкликати окремо.",
+  "Purposes the person consents to": "Цілі, на які людина дає згоду",
+  "Withdraw {0} only": "Відкликати лише {0}"
  },
  "es": {
   ". Military workflows are not implemented.": ". Los flujos de trabajo militares no están implementados.",
@@ -460,7 +481,6 @@ export default {
   "Preview": "Vista previa",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Publicar propósitos, registrar el consentimiento y leer la cadena hash. Las plantillas biométricas permanecen en el almacén sellado.",
   "Purge template": "Eliminar plantilla",
-  "Purpose": "Propósito",
   "Purpose desk": "Escritorio de Propósito",
   "Purposes": "Propósitos",
   "Record consent": "Registrar consentimiento",
@@ -558,7 +578,15 @@ export default {
   "Withdrawals": "Retiradas",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
   "Purged {0} templates with lapsed consent.": "Se eliminaron {0} plantillas con consentimiento caducado.",
-  "Purged 1 template with lapsed consent.": "Se eliminó 1 plantilla con consentimiento caducado."
+  "Purged 1 template with lapsed consent.": "Se eliminó 1 plantilla con consentimiento caducado.",
+  "New searches under this purpose will be refused.": "Se rechazarán las nuevas búsquedas con esta finalidad.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "Aún queda 1 revisión pendiente con esta finalidad. Un revisor no podrá confirmarla, solo rechazarla o marcarla como no concluyente.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "Aún quedan {0} revisiones pendientes con esta finalidad. Un revisor no podrá confirmarlas, solo rechazarlas o marcarlas como no concluyentes.",
+  "Retire purpose": "Retirar finalidad",
+  "Choose at least one purpose the person is consenting to.": "Elige al menos un propósito para el que la persona da su consentimiento.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Cada propósito tiene su propio comprobante y se puede retirar por separado.",
+  "Purposes the person consents to": "Propósitos a los que la persona da su consentimiento",
+  "Withdraw {0} only": "Retirar solo {0}"
  },
  "fr": {
   ". Military workflows are not implemented.": ". Les flux de travail militaires ne sont pas implémentés.",
@@ -600,7 +628,6 @@ export default {
   "Preview": "Aperçu",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Publier les objectifs, enregistrer le consentement et lire la chaîne de hachage. Les modèles biométriques restent dans le magasin scellé.",
   "Purge template": "Purger le modèle",
-  "Purpose": "Objectif",
   "Purpose desk": "Bureau des finalités",
   "Purposes": "Finalités",
   "Record consent": "Enregistrer le consentement",
@@ -698,7 +725,15 @@ export default {
   "Withdrawals": "Retraits",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait.",
   "Purged {0} templates with lapsed consent.": "{0, plural, one {# modèle au consentement expiré a été purgé.} other {# modèles au consentement expiré ont été purgés.}}",
-  "Purged 1 template with lapsed consent.": "1 modèle au consentement expiré a été purgé."
+  "Purged 1 template with lapsed consent.": "1 modèle au consentement expiré a été purgé.",
+  "New searches under this purpose will be refused.": "Les nouvelles recherches pour cette finalité seront refusées.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "1 examen pour cette finalité est encore en attente. Un examinateur ne pourra pas le confirmer, seulement le rejeter ou le marquer non concluant.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "{0} examens pour cette finalité sont encore en attente. Un examinateur ne pourra pas les confirmer, seulement les rejeter ou les marquer non concluants.",
+  "Retire purpose": "Retirer la finalité",
+  "Choose at least one purpose the person is consenting to.": "Choisissez au moins une finalité à laquelle la personne consent.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Chaque finalité a son propre reçu et peut être retirée séparément.",
+  "Purposes the person consents to": "Finalités auxquelles la personne consent",
+  "Withdraw {0} only": "Retirer uniquement {0}"
  },
  "de": {
   ". Military workflows are not implemented.": ". Militär-Workflows sind nicht implementiert.",
@@ -740,7 +775,6 @@ export default {
   "Preview": "Vorschau",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Zwecke veröffentlichen, Zustimmung protokollieren und die Hash‑Kette lesen. Biometrische Vorlagen verbleiben im versiegelten Speicher.",
   "Purge template": "Vorlage löschen",
-  "Purpose": "Zweck",
   "Purpose desk": "Zweck‑Desk",
   "Purposes": "Zwecke",
   "Record consent": "Einwilligung erfassen",
@@ -838,7 +872,15 @@ export default {
   "Withdrawals": "Widerrufe",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "{0} wird bearbeitet. Änderungen gelten für neue Registrierungen und Suchen. Bereits erteilte Einwilligungen behalten die darin genannten Datensätze.",
   "Purged {0} templates with lapsed consent.": "{0} Templates mit erloschener Einwilligung gelöscht.",
-  "Purged 1 template with lapsed consent.": "1 Template mit erloschener Einwilligung gelöscht."
+  "Purged 1 template with lapsed consent.": "1 Template mit erloschener Einwilligung gelöscht.",
+  "New searches under this purpose will be refused.": "Neue Suchen für diesen Zweck werden abgelehnt.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "1 Prüfung für diesen Zweck wartet noch. Ein Prüfer kann sie nicht bestätigen, nur ablehnen oder als nicht eindeutig markieren.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "{0} Prüfungen für diesen Zweck warten noch. Ein Prüfer kann sie nicht bestätigen, nur ablehnen oder als nicht eindeutig markieren.",
+  "Retire purpose": "Zweck außer Kraft setzen",
+  "Choose at least one purpose the person is consenting to.": "Wählen Sie mindestens einen Zweck, in den die Person einwilligt.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Jeder Zweck erhält eine eigene Quittung und kann einzeln widerrufen werden.",
+  "Purposes the person consents to": "Zwecke, in die die Person einwilligt",
+  "Withdraw {0} only": "Nur {0} widerrufen"
  },
  "pt": {
   ". Military workflows are not implemented.": ". Fluxos de trabalho militares não estão implementados.",
@@ -880,7 +922,6 @@ export default {
   "Preview": "Visualizar",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Publicar propósitos, registrar consentimento e ler a cadeia de hash. Os modelos biométricos permanecem no armazenamento selado.",
   "Purge template": "Excluir modelo",
-  "Purpose": "Propósito",
   "Purpose desk": "Desk de Propósito",
   "Purposes": "Propósitos",
   "Record consent": "Registrar consentimento",
@@ -978,7 +1019,15 @@ export default {
   "Withdrawals": "Retiradas",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou.",
   "Purged {0} templates with lapsed consent.": "{0, plural, one {# modelo com consentimento expirado foi removido.} other {# modelos com consentimento expirado foram removidos.}}",
-  "Purged 1 template with lapsed consent.": "1 modelo com consentimento expirado foi removido."
+  "Purged 1 template with lapsed consent.": "1 modelo com consentimento expirado foi removido.",
+  "New searches under this purpose will be refused.": "Novas pesquisas com esta finalidade serão recusadas.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "Ainda há 1 revisão pendente com esta finalidade. Um revisor não poderá confirmá-la, apenas rejeitá-la ou marcá-la como inconclusiva.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "Ainda há {0} revisões pendentes com esta finalidade. Um revisor não poderá confirmá-las, apenas rejeitá-las ou marcá-las como inconclusivas.",
+  "Retire purpose": "Retirar finalidade",
+  "Choose at least one purpose the person is consenting to.": "Escolha pelo menos um propósito com o qual a pessoa consente.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Cada propósito tem seu próprio recibo e pode ser retirado separadamente.",
+  "Purposes the person consents to": "Propósitos com os quais a pessoa consente",
+  "Withdraw {0} only": "Retirar apenas {0}"
  },
  "zh": {
   ". Military workflows are not implemented.": "未实现军事工作流。",
@@ -1020,7 +1069,6 @@ export default {
   "Preview": "预览",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "发布用途，记录同意，读取哈希链。生物特征模板存于密封存储。",
   "Purge template": "删除模板",
-  "Purpose": "用途",
   "Purpose desk": "目的桌面",
   "Purposes": "目的",
   "Record consent": "记录同意",
@@ -1118,7 +1166,15 @@ export default {
   "Withdrawals": "撤回",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
   "Purged {0} templates with lapsed consent.": "已清除 {0} 个同意失效的模板。",
-  "Purged 1 template with lapsed consent.": "已清除 1 个同意失效的模板。"
+  "Purged 1 template with lapsed consent.": "已清除 1 个同意失效的模板。",
+  "New searches under this purpose will be refused.": "此用途下的新搜索将被拒绝。",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "此用途下还有 1 项审查在等待。审查员将无法确认它，只能拒绝或标记为无定论。",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "此用途下还有 {0} 项审查在等待。审查员将无法确认它们，只能拒绝或标记为无定论。",
+  "Retire purpose": "停用此用途",
+  "Choose at least one purpose the person is consenting to.": "请至少选择一个此人同意的用途。",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "每个用途都有单独的回执，并可单独撤回。",
+  "Purposes the person consents to": "此人同意的用途",
+  "Withdraw {0} only": "仅撤回 {0}"
  },
  "ar": {
   ". Military workflows are not implemented.": ". لم يتم تنفيذ سير عمل عسكري.",
@@ -1160,7 +1216,6 @@ export default {
   "Preview": "معاينة",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "نشر الأغراض، تسجيل الموافقة، وقراءة سلسلة التجزئة. تبقى القوالب البيومترية في المخزن المُغلق.",
   "Purge template": "مسح القالب",
-  "Purpose": "الغرض",
   "Purpose desk": "مكتب الهدف",
   "Purposes": "الأهداف",
   "Record consent": "تسجيل الموافقة",
@@ -1258,6 +1313,14 @@ export default {
   "Withdrawals": "عمليات السحب",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
   "Purged {0} templates with lapsed consent.": "تم حذف {0, plural, zero {# قالب} one {قالب واحد} two {قالبين} few {# قوالب} many {# قالبًا} other {# قالب}} بسبب انتهاء الموافقة.",
-  "Purged 1 template with lapsed consent.": "تم حذف قالب واحد بسبب انتهاء الموافقة."
+  "Purged 1 template with lapsed consent.": "تم حذف قالب واحد بسبب انتهاء الموافقة.",
+  "New searches under this purpose will be refused.": "سيتم رفض عمليات البحث الجديدة لهذا الغرض.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "لا تزال مراجعة واحدة لهذا الغرض بالانتظار. لن يتمكن المراجع من تأكيدها، بل رفضها أو وسمها بغير حاسمة فقط.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "لا تزال {0, plural, zero {# مراجعة} one {مراجعة واحدة} two {مراجعتان} few {# مراجعات} many {# مراجعة} other {# مراجعة}} لهذا الغرض بالانتظار. لن يتمكن المراجع من تأكيدها، بل رفضها أو وسمها بغير حاسمة فقط.",
+  "Retire purpose": "إيقاف الغرض",
+  "Choose at least one purpose the person is consenting to.": "اختر غرضًا واحدًا على الأقل يوافق عليه الشخص.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "لكل غرض إيصال خاص به ويمكن سحبه بمفرده.",
+  "Purposes the person consents to": "الأغراض التي يوافق عليها الشخص",
+  "Withdraw {0} only": "سحب {0} فقط"
  }
 };

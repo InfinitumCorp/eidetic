@@ -38,7 +38,6 @@
   "Preview": "Предпросмотр",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Публикуйте цели, фиксируйте согласие и просматривайте хеш‑цепочку. Биометрические шаблоны остаются в запечатанном хранилище.",
   "Purge template": "Удалить шаблон",
-  "Purpose": "Цель",
   "Purpose desk": "Деск назначения",
   "Purposes": "Назначения",
   "Record consent": "Записать согласие",
@@ -136,5 +135,13 @@
   "Withdrawals": "Отзывы согласия",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Редактирование {0}. Изменения применяются к новым регистрациям и поискам. Уже данное согласие сохраняет указанные в нём наборы данных.",
   "Purged {0} templates with lapsed consent.": "{0, plural, one {Удалён # шаблон с истёкшим согласием.} few {Удалены # шаблона с истёкшим согласием.} many {Удалено # шаблонов с истёкшим согласием.} other {Удалено # шаблона с истёкшим согласием.}}",
-  "Purged 1 template with lapsed consent.": "Удалён 1 шаблон с истёкшим согласием."
+  "Purged 1 template with lapsed consent.": "Удалён 1 шаблон с истёкшим согласием.",
+  "New searches under this purpose will be refused.": "Новые поиски по этой цели будут отклоняться.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "По этой цели ещё ждёт 1 проверка. Проверяющий не сможет её подтвердить — только отклонить или отметить «без вывода».",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "По этой цели ещё {0, plural, one {ждёт # проверка} few {ждут # проверки} many {ждут # проверок} other {ждут # проверки}}. Проверяющий не сможет их подтвердить — только отклонить или отметить «без вывода».",
+  "Retire purpose": "Вывести цель из оборота",
+  "Choose at least one purpose the person is consenting to.": "Выберите хотя бы одну цель, на которую человек даёт согласие.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Для каждой цели выдаётся отдельная квитанция, и согласие на неё можно отозвать отдельно.",
+  "Purposes the person consents to": "Цели, на которые человек даёт согласие",
+  "Withdraw {0} only": "Отозвать только {0}"
 }

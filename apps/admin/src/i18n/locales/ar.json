@@ -38,7 +38,6 @@
   "Preview": "معاينة",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "نشر الأغراض، تسجيل الموافقة، وقراءة سلسلة التجزئة. تبقى القوالب البيومترية في المخزن المُغلق.",
   "Purge template": "مسح القالب",
-  "Purpose": "الغرض",
   "Purpose desk": "مكتب الهدف",
   "Purposes": "الأهداف",
   "Record consent": "تسجيل الموافقة",
@@ -136,5 +135,13 @@
   "Withdrawals": "عمليات السحب",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "تحرير {0}. تسري التغييرات على التسجيلات وعمليات البحث الجديدة. تحتفظ الموافقة الممنوحة سابقًا بمجموعات البيانات التي سمّتها.",
   "Purged {0} templates with lapsed consent.": "تم حذف {0, plural, zero {# قالب} one {قالب واحد} two {قالبين} few {# قوالب} many {# قالبًا} other {# قالب}} بسبب انتهاء الموافقة.",
-  "Purged 1 template with lapsed consent.": "تم حذف قالب واحد بسبب انتهاء الموافقة."
+  "Purged 1 template with lapsed consent.": "تم حذف قالب واحد بسبب انتهاء الموافقة.",
+  "New searches under this purpose will be refused.": "سيتم رفض عمليات البحث الجديدة لهذا الغرض.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "لا تزال مراجعة واحدة لهذا الغرض بالانتظار. لن يتمكن المراجع من تأكيدها، بل رفضها أو وسمها بغير حاسمة فقط.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "لا تزال {0, plural, zero {# مراجعة} one {مراجعة واحدة} two {مراجعتان} few {# مراجعات} many {# مراجعة} other {# مراجعة}} لهذا الغرض بالانتظار. لن يتمكن المراجع من تأكيدها، بل رفضها أو وسمها بغير حاسمة فقط.",
+  "Retire purpose": "إيقاف الغرض",
+  "Choose at least one purpose the person is consenting to.": "اختر غرضًا واحدًا على الأقل يوافق عليه الشخص.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "لكل غرض إيصال خاص به ويمكن سحبه بمفرده.",
+  "Purposes the person consents to": "الأغراض التي يوافق عليها الشخص",
+  "Withdraw {0} only": "سحب {0} فقط"
 }

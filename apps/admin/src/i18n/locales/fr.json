@@ -38,7 +38,6 @@
   "Preview": "Aperçu",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Publier les objectifs, enregistrer le consentement et lire la chaîne de hachage. Les modèles biométriques restent dans le magasin scellé.",
   "Purge template": "Purger le modèle",
-  "Purpose": "Objectif",
   "Purpose desk": "Bureau des finalités",
   "Purposes": "Finalités",
   "Record consent": "Enregistrer le consentement",
@@ -136,5 +135,13 @@
   "Withdrawals": "Retraits",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Modification de {0}. Les changements s’appliquent aux nouvelles inscriptions et recherches. Un consentement déjà donné conserve les jeux de données qu’il nommait.",
   "Purged {0} templates with lapsed consent.": "{0, plural, one {# modèle au consentement expiré a été purgé.} other {# modèles au consentement expiré ont été purgés.}}",
-  "Purged 1 template with lapsed consent.": "1 modèle au consentement expiré a été purgé."
+  "Purged 1 template with lapsed consent.": "1 modèle au consentement expiré a été purgé.",
+  "New searches under this purpose will be refused.": "Les nouvelles recherches pour cette finalité seront refusées.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "1 examen pour cette finalité est encore en attente. Un examinateur ne pourra pas le confirmer, seulement le rejeter ou le marquer non concluant.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "{0} examens pour cette finalité sont encore en attente. Un examinateur ne pourra pas les confirmer, seulement les rejeter ou les marquer non concluants.",
+  "Retire purpose": "Retirer la finalité",
+  "Choose at least one purpose the person is consenting to.": "Choisissez au moins une finalité à laquelle la personne consent.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Chaque finalité a son propre reçu et peut être retirée séparément.",
+  "Purposes the person consents to": "Finalités auxquelles la personne consent",
+  "Withdraw {0} only": "Retirer uniquement {0}"
 }

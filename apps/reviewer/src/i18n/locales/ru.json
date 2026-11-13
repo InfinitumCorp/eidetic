@@ -86,5 +86,8 @@
   "Consent withdrawn": "Согласие отозвано",
   "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную.",
   "{0} candidates are waiting for a reviewer.": "{0, plural, one {# кандидат ожидает рецензента.} few {# кандидата ожидают рецензента.} many {# кандидатов ожидают рецензента.} other {# кандидата ожидают рецензента.}}",
-  "1 candidate is waiting for a reviewer.": "1 кандидат ожидает рецензента."
+  "1 candidate is waiting for a reviewer.": "1 кандидат ожидает рецензента.",
+  "Write 1 more character in the note to decide.": "Допишите в заметку ещё 1 символ, чтобы принять решение.",
+  "Write {0} more characters in the note to decide.": "Допишите в заметку ещё {0, plural, one {# символ} few {# символа} many {# символов} other {# символа}}, чтобы принять решение.",
+  "Select a candidate to confirm. Reject and inconclusive need no selection.": "Чтобы подтвердить, выберите кандидата. Для отклонения и «без вывода» выбор не нужен."
 }

@@ -38,7 +38,6 @@
   "Preview": "Vista previa",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Publicar propósitos, registrar el consentimiento y leer la cadena hash. Las plantillas biométricas permanecen en el almacén sellado.",
   "Purge template": "Eliminar plantilla",
-  "Purpose": "Propósito",
   "Purpose desk": "Escritorio de Propósito",
   "Purposes": "Propósitos",
   "Record consent": "Registrar consentimiento",
@@ -136,5 +135,13 @@
   "Withdrawals": "Retiradas",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. Los cambios se aplican a nuevas inscripciones y búsquedas. El consentimiento ya otorgado conserva los conjuntos de datos que nombró.",
   "Purged {0} templates with lapsed consent.": "Se eliminaron {0} plantillas con consentimiento caducado.",
-  "Purged 1 template with lapsed consent.": "Se eliminó 1 plantilla con consentimiento caducado."
+  "Purged 1 template with lapsed consent.": "Se eliminó 1 plantilla con consentimiento caducado.",
+  "New searches under this purpose will be refused.": "Se rechazarán las nuevas búsquedas con esta finalidad.",
+  "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "Aún queda 1 revisión pendiente con esta finalidad. Un revisor no podrá confirmarla, solo rechazarla o marcarla como no concluyente.",
+  "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "Aún quedan {0} revisiones pendientes con esta finalidad. Un revisor no podrá confirmarlas, solo rechazarlas o marcarlas como no concluyentes.",
+  "Retire purpose": "Retirar finalidad",
+  "Choose at least one purpose the person is consenting to.": "Elige al menos un propósito para el que la persona da su consentimiento.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Cada propósito tiene su propio comprobante y se puede retirar por separado.",
+  "Purposes the person consents to": "Propósitos a los que la persona da su consentimiento",
+  "Withdraw {0} only": "Retirar solo {0}"
 }
