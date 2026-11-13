@@ -106,5 +106,29 @@ describe.skipIf(!live)("postgres pipeline", () => {
     await expect(pool.query("UPDATE consents SET expires_at = granted_at WHERE cid = $1", [jordan])).rejects.toThrow(
       /consents_expiry_after_grant/,
     );
+
+    // Per-purpose withdrawal: one purpose goes, the other stays, and the template stays sealed.
+    const casey = "cid://infinitum/fixture-casey-morgan";
+    await runtime.service.enroll({
+      actor: admin,
+      cid: casey,
+      displayName: "Casey Morgan",
+      image: syntheticFixture("casey-morgan"),
+      legalBasis: "consent",
+      purposes: [
+        { purposeCode: "record_reconciliation", datasetIds: ["workforce_records"] },
+        { purposeCode: "access_control", datasetIds: ["facility_access"] },
+      ],
+    });
+    const partial = await runtime.service.withdrawPurpose(admin, casey, "access_control");
+    expect(partial.status).toBe("active");
+    expect(partial.template.present).toBe(true);
+    expect(partial.consents.find((consent) => consent.purposeCode === "access_control")?.status).toBe("withdrawn");
+    expect(partial.consents.find((consent) => consent.purposeCode === "record_reconciliation")?.status).toBe("granted");
+    expect(await runtime.repos.consents.withdrawPurpose(casey, "access_control", new Date().toISOString())).toBe(0);
+    const full = await runtime.service.withdrawPurpose(admin, casey, "record_reconciliation");
+    expect(full.status).toBe("withdrawn");
+    expect(full.template.present).toBe(false);
+    expect((await runtime.service.verifyAudit()).ok).toBe(true);
   });
 });
