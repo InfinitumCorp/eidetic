@@ -1,0 +1,1857 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ei·det·ic™ API",
+    "version": "1",
+    "description": "Consent-first identity matching. A search runs only when purpose, legal basis and consent allow it; every attempt is audited; a match is never final until a person decides."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "security": [
+    {
+      "bearer": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Service"
+    },
+    {
+      "name": "Geo routing"
+    },
+    {
+      "name": "Purposes"
+    },
+    {
+      "name": "Subjects and consent"
+    },
+    {
+      "name": "Search and review"
+    },
+    {
+      "name": "Audit"
+    },
+    {
+      "name": "Bias"
+    },
+    {
+      "name": "Demo"
+    },
+    {
+      "name": "Assistants"
+    }
+  ],
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "Liveness and database status. 503 when the database is down.",
+        "description": "No sign-in needed.",
+        "operationId": "getV1Health",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/openapi.json": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "This document.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1OpenapiJson",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "The signed-in actor and role.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1Me",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/edition": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "Product, MIL status and adapter names.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1Edition",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/seams": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "External systems and whether each is wired, mocked or off.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1Seams",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/sites/{assetId}": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "Describe a site asset.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1SitesAssetId",
+        "parameters": [
+          {
+            "name": "assetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/settings/geo-routing": {
+      "get": {
+        "tags": [
+          "Geo routing"
+        ],
+        "summary": "Whether country and site-category labels are on.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1SettingsGeoRouting",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Geo routing"
+        ],
+        "summary": "Turn geo routing on or off.",
+        "description": "Roles: admin.",
+        "operationId": "putV1SettingsGeoRouting",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeoRoutingSettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/geo/lookup": {
+      "post": {
+        "tags": [
+          "Geo routing"
+        ],
+        "summary": "Label an IP or domain. Never used for identity matching.",
+        "description": "Roles: admin.",
+        "operationId": "postV1GeoLookup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeoLookupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/purposes": {
+      "get": {
+        "tags": [
+          "Purposes"
+        ],
+        "summary": "Published purposes.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1Purposes",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Purposes"
+        ],
+        "summary": "Publish or edit a purpose. Audited.",
+        "description": "Roles: admin.",
+        "operationId": "postV1Purposes",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurposeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/subjects": {
+      "get": {
+        "tags": [
+          "Subjects and consent"
+        ],
+        "summary": "Enrolled subjects and their consent.",
+        "description": "Roles: admin, auditor.",
+        "operationId": "getV1Subjects",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Subjects and consent"
+        ],
+        "summary": "Enroll a subject with consent per purpose. Audited.",
+        "description": "Roles: admin.",
+        "operationId": "postV1Subjects",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/subjects/{cid}/access-report": {
+      "get": {
+        "tags": [
+          "Subjects and consent"
+        ],
+        "summary": "Subject access report: consents and audit activity. The export is audited.",
+        "description": "Roles: admin, auditor.",
+        "operationId": "getV1SubjectsCidAccessReport",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/subjects/{cid}/withdraw": {
+      "post": {
+        "tags": [
+          "Subjects and consent"
+        ],
+        "summary": "Withdraw all consent and purge the sealed template. Audited.",
+        "description": "Roles: admin.",
+        "operationId": "postV1SubjectsCidWithdraw",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/subjects/{cid}/consents/{purposeCode}/withdraw": {
+      "post": {
+        "tags": [
+          "Subjects and consent"
+        ],
+        "summary": "Withdraw consent for one purpose. Withdrawing the last one is a full withdrawal and purges the template. Audited.",
+        "description": "Roles: admin.",
+        "operationId": "postV1SubjectsCidConsentsPurposeCodeWithdraw",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "purposeCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/consents/sweep": {
+      "post": {
+        "tags": [
+          "Subjects and consent"
+        ],
+        "summary": "Purge templates whose consent has all lapsed. Audited per subject.",
+        "description": "Roles: admin.",
+        "operationId": "postV1ConsentsSweep",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/searches": {
+      "post": {
+        "tags": [
+          "Search and review"
+        ],
+        "summary": "Run a consent-checked search. Results are unconfirmed until a reviewer decides. Audited.",
+        "description": "Any signed-in role.",
+        "operationId": "postV1Searches",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/reviews": {
+      "get": {
+        "tags": [
+          "Search and review"
+        ],
+        "summary": "Review queue. ?status=pending|decided. Operators see only their own searches.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1Reviews",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/reviews/{id}": {
+      "get": {
+        "tags": [
+          "Search and review"
+        ],
+        "summary": "One review with its candidates.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1ReviewsId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/reviews/{id}/decide": {
+      "post": {
+        "tags": [
+          "Search and review"
+        ],
+        "summary": "Record a reviewer's decision. The searcher cannot decide their own search. Audited.",
+        "description": "Roles: reviewer.",
+        "operationId": "postV1ReviewsIdDecide",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/stats/usage": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "Searches run and refused, refusal codes, decisions and pending reviews over the last ?hours= (1 to 2160, default 24). No biometric data.",
+        "description": "Roles: admin, auditor.",
+        "operationId": "getV1StatsUsage",
+        "parameters": [
+          {
+            "name": "hours",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2160
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/audit": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "The hash-chained audit log, newest first, paged.",
+        "description": "Roles: admin, auditor.",
+        "operationId": "getV1Audit",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z_]{1,40}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/audit/verify": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "Recompute the hash chain and Merkle checkpoints.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1AuditVerify",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/bias/evaluations": {
+      "post": {
+        "tags": [
+          "Bias"
+        ],
+        "summary": "Record a bias evaluation for a model release.",
+        "description": "Roles: admin.",
+        "operationId": "postV1BiasEvaluations",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BiasEvaluationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/bias/fixture-evaluations": {
+      "post": {
+        "tags": [
+          "Bias"
+        ],
+        "summary": "Run a bias evaluation over synthetic fixtures.",
+        "description": "Roles: admin.",
+        "operationId": "postV1BiasFixtureEvaluations",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BiasFixtureEvaluationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/bias/evaluations/{releaseId}": {
+      "get": {
+        "tags": [
+          "Bias"
+        ],
+        "summary": "A recorded bias report.",
+        "description": "Roles: admin, auditor.",
+        "operationId": "getV1BiasEvaluationsReleaseId",
+        "parameters": [
+          {
+            "name": "releaseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/demo/seed": {
+      "post": {
+        "tags": [
+          "Demo"
+        ],
+        "summary": "Seed the synthetic review queue. Only when DEMO_MODE is on.",
+        "description": "Roles: admin.",
+        "operationId": "postV1DemoSeed",
+        "responses": {
+          "201": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/conjure": {
+      "get": {
+        "tags": [
+          "Assistants"
+        ],
+        "summary": "@conjure passthrough. Only the actor's text leaves. Off on MIL.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1Conjure",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Assistants"
+        ],
+        "summary": "@conjure passthrough. Only the actor's text leaves. Off on MIL.",
+        "description": "Any signed-in role.",
+        "operationId": "postV1Conjure",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/openclaw": {
+      "get": {
+        "tags": [
+          "Assistants"
+        ],
+        "summary": "@scalvs passthrough. Only the actor's text leaves. Off on MIL.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1Openclaw",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Assistants"
+        ],
+        "summary": "@scalvs passthrough. Only the actor's text leaves. Off on MIL.",
+        "description": "Any signed-in role.",
+        "operationId": "postV1Openclaw",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/search": {
+      "get": {
+        "tags": [
+          "Assistants"
+        ],
+        "summary": "@search passthrough: a web answer with numbered sources. Off on MIL.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1Search",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Assistants"
+        ],
+        "summary": "@search passthrough: a web answer with numbered sources. Off on MIL.",
+        "description": "Any signed-in role.",
+        "operationId": "postV1Search",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "A Cumulus ID session token."
+      }
+    },
+    "headers": {
+      "RequestId": {
+        "description": "The caller's well-formed X-Request-Id, or a new one.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Refused or failed. The body says whether a match ran.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message",
+              "matchRan",
+              "requestId"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "A stable code such as CONSENT_REQUIRED, FORBIDDEN or VALIDATION."
+              },
+              "message": {
+                "type": "string",
+                "description": "A sentence a person can act on."
+              },
+              "matchRan": {
+                "type": "boolean",
+                "description": "Whether a biometric match ran before the refusal. Almost always false."
+              },
+              "requestId": {
+                "type": "string",
+                "description": "Matches the X-Request-Id header. Quote it when asking for support."
+              }
+            }
+          }
+        }
+      },
+      "EnrollRequest": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "cid": {
+            "type": "string",
+            "pattern": "^cid:\\/\\/infinitum\\/[a-z0-9-]{3,80}$"
+          },
+          "legalBasis": {
+            "type": "string",
+            "enum": [
+              "consent",
+              "contract",
+              "legal_obligation"
+            ]
+          },
+          "purposes": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "purposeCode": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]{2,64}$"
+                },
+                "datasetIds": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]{2,64}$"
+                  }
+                },
+                "expiresAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                }
+              },
+              "required": [
+                "purposeCode",
+                "datasetIds"
+              ]
+            }
+          },
+          "recordAttributes": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 80
+            }
+          },
+          "fixtureId": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]{3,64}$"
+          },
+          "imageBase64": {
+            "type": "string",
+            "maxLength": 700000
+          }
+        },
+        "required": [
+          "displayName",
+          "legalBasis",
+          "purposes"
+        ]
+      },
+      "SearchRequest": {
+        "type": "object",
+        "properties": {
+          "purposeCode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "legalBasis": {
+            "type": "string",
+            "enum": [
+              "consent",
+              "contract",
+              "legal_obligation"
+            ]
+          },
+          "datasetId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "edition": {
+            "default": "business",
+            "type": "string",
+            "enum": [
+              "civilian",
+              "business",
+              "mil"
+            ]
+          },
+          "subjectCid": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 120
+          },
+          "recordHints": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 80
+            }
+          },
+          "fixtureId": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]{3,64}$"
+          },
+          "imageBase64": {
+            "type": "string",
+            "maxLength": 700000
+          },
+          "routing": {
+            "type": "object",
+            "properties": {
+              "ip": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "domain": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 253
+              }
+            }
+          }
+        },
+        "required": [
+          "purposeCode",
+          "legalBasis",
+          "datasetId"
+        ]
+      },
+      "GeoRoutingSettings": {
+        "type": "object",
+        "properties": {
+          "geoRouting": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "geoRouting"
+        ]
+      },
+      "GeoLookupRequest": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "domain": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 253
+          }
+        }
+      },
+      "PurposeRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{2,64}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 80
+          },
+          "description": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 400
+          },
+          "edition": {
+            "type": "string",
+            "enum": [
+              "civilian",
+              "business"
+            ]
+          },
+          "legalBases": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "consent",
+                "contract",
+                "legal_obligation"
+              ]
+            }
+          },
+          "datasetIds": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{2,64}$"
+            }
+          },
+          "allowedRoles": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "operator",
+                "reviewer",
+                "auditor"
+              ]
+            }
+          },
+          "active": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "title",
+          "description",
+          "edition",
+          "legalBases",
+          "datasetIds",
+          "allowedRoles"
+        ]
+      },
+      "DecisionRequest": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "confirm",
+              "reject",
+              "inconclusive"
+            ]
+          },
+          "selectedCid": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 120
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "decision",
+          "notes"
+        ]
+      },
+      "BiasEvaluationRequest": {
+        "type": "object",
+        "properties": {
+          "releaseId": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{1,64}$"
+          },
+          "cases": {
+            "minItems": 1,
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                "group": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,31}$"
+                },
+                "expectedCid": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 8,
+                      "maxLength": 120
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "predictedCid": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 8,
+                      "maxLength": 120
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "id",
+                "group",
+                "expectedCid",
+                "predictedCid",
+                "confidence"
+              ]
+            }
+          }
+        },
+        "required": [
+          "releaseId",
+          "cases"
+        ]
+      },
+      "BiasFixtureEvaluationRequest": {
+        "type": "object",
+        "properties": {
+          "releaseId": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{1,64}$"
+          },
+          "cases": {
+            "minItems": 1,
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                "fixtureId": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9-]{3,64}$"
+                },
+                "expectedCid": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 8,
+                      "maxLength": 120
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "predictedCid": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 8,
+                      "maxLength": 120
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "id",
+                "fixtureId",
+                "expectedCid",
+                "predictedCid",
+                "confidence"
+              ]
+            }
+          }
+        },
+        "required": [
+          "releaseId",
+          "cases"
+        ]
+      },
+      "AuditQuery": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500
+          },
+          "before": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "action": {
+            "type": "string",
+            "pattern": "^[a-z_]{1,40}$"
+          }
+        }
+      },
+      "UsageQuery": {
+        "type": "object",
+        "properties": {
+          "hours": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2160
+          }
+        }
+      }
+    }
+  }
+}

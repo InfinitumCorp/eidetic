@@ -182,6 +182,13 @@ export function createRepositories(sql: Sql, signer: CheckpointSigner): Reposito
           [cid, at],
         );
       },
+      async withdrawPurpose(cid, purposeCode, at) {
+        const result = await sql.query(
+          "UPDATE consents SET status = 'withdrawn', withdrawn_at = $3 WHERE cid = $1 AND purpose_code = $2 AND status = 'granted'",
+          [cid, purposeCode, at],
+        );
+        return result.rowCount ?? 0;
+      },
       async listEligible(purposeCode, datasetId, legalBasis, at) {
         const result = await sql.query(
           `SELECT DISTINCT ON (s.cid) s.*

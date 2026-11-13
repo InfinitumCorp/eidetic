@@ -50,7 +50,7 @@ export function OperatorSearch({ call, role, demoMode, onQueued }: { call: Call;
   const [fixtureId, setFixtureId] = useState(demoMode ? FIXTURES[0].id : "");
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
-  const [outcome, setOutcome] = useState<{ ok: boolean; text: string } | null>(null);
+  const [outcome, setOutcome] = useState<{ ok: boolean; text: string; note?: string } | null>(null);
 
   useEffect(() => {
     call<{ purposes: Purpose[] }>("/v1/purposes")
@@ -86,7 +86,12 @@ export function OperatorSearch({ call, role, demoMode, onQueued }: { call: Call;
         method: "POST",
         body: JSON.stringify({ purposeCode: purpose.code, legalBasis, datasetId, edition: purpose.edition, ...probe }),
       });
-      setOutcome({ ok: true, text: `${result.message} ${result.candidates.length} candidate(s) are waiting for a reviewer.` });
+      const waiting = result.candidates.length;
+      setOutcome({
+        ok: true,
+        text: result.message,
+        note: waiting === 1 ? "1 candidate is waiting for a reviewer." : `${waiting} candidates are waiting for a reviewer.`,
+      });
       onQueued(result.reviewId);
     } catch (reason) {
       // Refusals from the API already say whether the match ran.
@@ -182,6 +187,7 @@ export function OperatorSearch({ call, role, demoMode, onQueued }: { call: Call;
           {outcome && (
             <p role="status" className={`text-sm ${outcome.ok ? "text-muted-foreground" : "text-destructive"}`}>
               {outcome.text}
+              {outcome.note && <> <span>{outcome.note}</span></>}
             </p>
           )}
         </form>
