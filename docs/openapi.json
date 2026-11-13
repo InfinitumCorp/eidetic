@@ -884,6 +884,53 @@
         }
       }
     },
+    "/v1/stats/usage": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "Searches run and refused, refusal codes, decisions and pending reviews over the last ?hours= (1 to 2160, default 24). No biometric data.",
+        "description": "Roles: admin, auditor.",
+        "operationId": "getV1StatsUsage",
+        "parameters": [
+          {
+            "name": "hours",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2160
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
     "/v1/audit": {
       "get": {
         "tags": [
@@ -1824,6 +1871,16 @@
           "action": {
             "type": "string",
             "pattern": "^[a-z_]{1,40}$"
+          }
+        }
+      },
+      "UsageQuery": {
+        "type": "object",
+        "properties": {
+          "hours": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2160
           }
         }
       }

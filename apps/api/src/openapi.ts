@@ -54,6 +54,7 @@ export const ROUTES: RouteDoc[] = [
   { method: "get", path: "/v1/reviews/:id", tag: "Search and review", summary: "One review with its candidates." },
   { method: "post", path: "/v1/reviews/:id/decide", tag: "Search and review", summary: "Record a reviewer's decision. The searcher cannot decide their own search. Audited.", roles: ["reviewer"], body: "DecisionRequest" },
 
+  { method: "get", path: "/v1/stats/usage", tag: "Audit", summary: "Searches run and refused, refusal codes, decisions and pending reviews over the last ?hours= (1 to 2160, default 24). No biometric data.", roles: ["admin", "auditor"], query: "UsageQuery" },
   { method: "get", path: "/v1/audit", tag: "Audit", summary: "The hash-chained audit log, newest first, paged.", roles: ["admin", "auditor"], query: "AuditQuery" },
   { method: "get", path: "/v1/audit/verify", tag: "Audit", summary: "Recompute the hash chain and Merkle checkpoints." },
 
