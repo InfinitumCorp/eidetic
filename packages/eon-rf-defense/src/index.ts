@@ -46,3 +46,4 @@ export {
   jammedScenario,
   type ScenarioOptions,
 } from "./simulate.js";
+export { analyzeRun, type RunReport } from "./analyze.js";
