@@ -368,7 +368,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   });
 
   app.get("/v1/subjects", async (c) => {
-    allow(c.get("actor"), ["admin", "auditor"], "The subject list");
+    allow(c.get("actor"), ["admin", "auditor"], "Only an admin or an auditor can view the subject list.");
     return c.json({ subjects: await deps.service.listSubjects() });
   });
   app.post("/v1/subjects", async (c) => {
@@ -435,7 +435,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
 
   // Newest first. ?limit= (1-500, default 50), ?before=<seq> for the next page, ?action= to filter.
   app.get("/v1/audit", async (c) => {
-    allow(c.get("actor"), ["admin", "auditor"], "The audit log");
+    allow(c.get("actor"), ["admin", "auditor"], "Only an admin or an auditor can view the audit log.");
     const query = parse(auditQuery, c.req.query());
     return c.json(await deps.service.pageAudit({ limit: query.limit, beforeSeq: query.before, action: query.action }));
   });
@@ -451,7 +451,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json(report, 201);
   });
   app.get("/v1/bias/evaluations/:releaseId", async (c) => {
-    allow(c.get("actor"), ["admin", "auditor"], "A bias report");
+    allow(c.get("actor"), ["admin", "auditor"], "Only an admin or an auditor can view a bias report.");
     return c.json(await deps.service.getBias(c.req.param("releaseId")));
   });
 
@@ -493,9 +493,10 @@ function geoRoutingOff() {
   return { geoRouting: false, processOptIn: false, active: false, identityMatch: false as const };
 }
 
-function allow(actor: Actor, roles: Role[], what: string): void {
+/** Role gate. `refusal` is a whole sentence, so the desks can translate it. */
+function allow(actor: Actor, roles: Role[], refusal: string): void {
   if (!roles.includes(actor.role)) {
-    throw new EideticError("FORBIDDEN", `${what} is open to the ${roles.join(" and ")} roles only.`, 403, false);
+    throw new EideticError("FORBIDDEN", refusal, 403, false);
   }
 }
 

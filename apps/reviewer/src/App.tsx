@@ -78,8 +78,9 @@ export function App() {
   const [detail, setDetail] = useState<ReviewDetail | null>(null);
   const [notes, setNotes] = useState("");
   const [selectedCid, setSelectedCid] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [receipt, setReceipt] = useState<string | null>(null);
+  // A refusal can carry a note; each stays its own text node so the desk can translate the API message.
+  const [error, setError] = useState<string | { text: string; note: string } | null>(null);
+  const [receipt, setReceipt] = useState<{ message: string; hash: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -157,13 +158,13 @@ export function App() {
           ...(decision === "confirm" && selectedCid ? { selectedCid } : {}),
         }),
       });
-      setReceipt(`${result.message} Audit hash ${result.audit.hash}.`);
+      setReceipt({ message: result.message, hash: result.audit.hash });
       await loadQueue();
       const refreshed = await api<ReviewDetail>(`/v1/reviews/${detail.reviewId}`, token);
       setDetail(refreshed);
     } catch (reason) {
       const apiError = reason as ApiError;
-      setError(apiError.matchRan === false ? `${apiError.message} No new match was run.` : apiError.message);
+      setError(apiError.matchRan === false ? { text: apiError.message, note: "No new match was run." } : apiError.message);
     } finally {
       setBusy(false);
     }
@@ -357,11 +358,11 @@ export function App() {
                       </div>
                     )}
                     {detail.notes && <p className="text-sm">Recorded note: {detail.notes}</p>}
-                    {receipt && <p className="rounded-md border border-primary/40 bg-primary/10 p-3 font-mono text-xs">{receipt}</p>}
+                    {receipt && <p className="rounded-md border border-primary/40 bg-primary/10 p-3 font-mono text-xs">{receipt.message} <span>{`Audit hash ${receipt.hash}.`}</span></p>}
                   </CardContent>
                 </Card>
               )}
-              {error && <p className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm">{error}</p>}
+              {error && <p className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm">{typeof error === "string" ? error : <>{error.text} <span>{error.note}</span></>}</p>}
             </section>
           </>
         )}
