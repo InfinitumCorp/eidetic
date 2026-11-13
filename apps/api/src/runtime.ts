@@ -15,6 +15,7 @@ import {
 } from "@eidetic/pipeline";
 import { EmbeddedPolicyDecider, OpaPolicyDecider } from "@eidetic/policy";
 import type { Env } from "./env.js";
+import { createGeoRouting, type GeoRoutingService } from "./geo-routing.js";
 import { migrate } from "./pg/migrate.js";
 import { asSql, createPool } from "./pg/pool.js";
 import { createRepositories, withTransaction } from "./pg/stores.js";
@@ -29,6 +30,7 @@ export interface RunningApi {
   repos: Repositories;
   service: EideticService;
   authenticate: (header: string | undefined) => Promise<AuthResult>;
+  geoRouting: GeoRoutingService;
 }
 
 export async function createPgRuntime(env: Env, pool = createPool(env.databaseUrl)): Promise<RunningApi> {
@@ -39,6 +41,11 @@ export async function createPgRuntime(env: Env, pool = createPool(env.databaseUr
   await seedReferenceData(repos, { demoMode: env.demoMode, actors: cidSeeds });
   const verifyCid = createCidVerifier(env.cid);
   const knownActors = new Set<string>();
+  const geoRouting = createGeoRouting({
+    processOptIn: env.geoEnabled,
+    dataDir: env.geoDataDir,
+    settingsPath: env.geoSettingsPath,
+  });
   const service = new EideticService({
     repos,
     transaction: (fn) => withTransaction(pool, fn, signer),
@@ -49,6 +56,8 @@ export async function createPgRuntime(env: Env, pool = createPool(env.databaseUr
       licenseAccepted: env.insightfaceLicenseAccepted,
       insightfaceUrl: env.insightfaceUrl,
       opencvMediapipeUrl: env.opencvMediapipeUrl,
+      opencvMediapipeModelPath: env.opencvMediapipeModelPath,
+      opencvMediapipePython: env.opencvMediapipePython,
       opencvZooModelDir: env.opencvZooModelDir,
       allowOperatorCaptures: env.allowOperatorCaptures,
     }),
@@ -59,11 +68,14 @@ export async function createPgRuntime(env: Env, pool = createPool(env.databaseUr
     milEnabled: env.milEnabled,
     now: () => new Date(),
     ids: createIdFactory(),
+    annotatePolicy: env.geoEnabled ? (decision, routing) => geoRouting.annotatePolicy(decision, routing) : undefined,
+    searchLimitPerHour: env.searchLimitPerHour,
   });
   return {
     pool,
     repos,
     service,
+    geoRouting,
     authenticate: async (header) => {
       if (!header?.startsWith("Bearer ")) return null;
       const token = header.slice("Bearer ".length).trim();

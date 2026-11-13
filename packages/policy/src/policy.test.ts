@@ -4,7 +4,14 @@ import { describe, expect, it } from "vitest";
 import type { Actor, PurposeDefinition } from "@eidetic/contracts";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { OpaPolicyDecider, authorizeSearch, mapKeycloakRoles, mapVerifiedKeycloakClaims, type PolicyInput } from "./index.js";
+import {
+  OpaPolicyDecider,
+  attachGeoRoutingAnnotation,
+  authorizeSearch,
+  mapKeycloakRoles,
+  mapVerifiedKeycloakClaims,
+  type PolicyInput,
+} from "./index.js";
 
 const operator: Actor = { id: "actor-operator", displayName: "Mira Calder", role: "operator" };
 const admin: Actor = { id: "actor-admin", displayName: "Idris Hale", role: "admin" };
@@ -31,6 +38,21 @@ function input(overrides: Partial<PolicyInput> = {}): PolicyInput {
     ...overrides,
   };
 }
+
+describe("geo routing annotation", () => {
+  it("leaves the decision object unchanged when geo routing is off", () => {
+    const decision = authorizeSearch(input());
+    expect(attachGeoRoutingAnnotation(decision, null)).toBe(decision);
+    const noted = attachGeoRoutingAnnotation(decision, {
+      countryCode: "US",
+      categories: ["example"],
+      usedForIdentityMatch: false,
+    });
+    expect(noted.allow).toBe(true);
+    expect(noted.geoRouting).toEqual({ countryCode: "US", categories: ["example"], usedForIdentityMatch: false });
+    expect(decision).toEqual({ allow: true });
+  });
+});
 
 describe("authorizeSearch", () => {
   it("allows an operator with an approved purpose, basis, and dataset", () => {
@@ -72,6 +94,10 @@ describe("authorizeSearch", () => {
       allow: false,
       code: "CONSENT_WITHDRAWN",
     });
+    expect(authorizeSearch(input({ consent: { state: "expired", label: "Jordan Blake" } }))).toMatchObject({
+      allow: false,
+      code: "CONSENT_EXPIRED",
+    });
     expect(authorizeSearch(input({ consent: { state: "missing" } }))).toMatchObject({ code: "CONSENT_REQUIRED" });
     expect(authorizeSearch(input({ consent: { state: "granted" } }))).toEqual({ allow: true });
   });
@@ -97,7 +123,7 @@ describe("authorizeSearch", () => {
 
   it("keeps the Rego bundle aligned with the embedded denial order", () => {
     const rego = readFileSync(path.resolve(process.cwd(), "deploy/opa/eidetic.rego"), "utf8");
-    const codes = ["MIL_NOT_ENABLED", "MIL_NOT_IMPLEMENTED", "PURPOSE_UNKNOWN", "FORBIDDEN", "CONSENT_WITHDRAWN", "CONSENT_REQUIRED"];
+    const codes = ["MIL_NOT_ENABLED", "MIL_NOT_IMPLEMENTED", "PURPOSE_UNKNOWN", "FORBIDDEN", "CONSENT_WITHDRAWN", "CONSENT_EXPIRED", "CONSENT_REQUIRED"];
     let cursor = 0;
     for (const code of codes) {
       const at = rego.indexOf(code, cursor);

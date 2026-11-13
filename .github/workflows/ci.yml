@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: eidetic
+          POSTGRES_PASSWORD: eidetic
+          POSTGRES_DB: eidetic_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U eidetic -d eidetic_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL_TEST: postgres://eidetic:eidetic@127.0.0.1:5432/eidetic_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      # The Postgres test skips itself when the database is unreachable. Fail CI instead.
+      - name: Postgres integration test must run
+        run: |
+          pnpm vitest run apps/api/src/pg/pg.integration.test.ts --reporter=default --reporter=json --outputFile.json=pg.json
+          node -e 'const r=require("./pg.json"); if (r.numPassedTests<1 || r.numPendingTests>0) { console.error("Postgres integration test skipped or did not pass"); process.exit(1) }'
+      - run: pnpm build
+      - run: pnpm demo

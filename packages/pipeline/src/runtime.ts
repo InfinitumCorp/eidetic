@@ -23,6 +23,8 @@ export function createMemoryRuntime(options: {
   policy?: PolicyDecider;
   matcher?: MatcherAdapter;
   redactor?: TextRedactor;
+  annotatePolicy?: NonNullable<ConstructorParameters<typeof EideticService>[0]["annotatePolicy"]>;
+  searchLimitPerHour?: number;
 } = {}): { db: MemoryDatabase; repos: Repositories; service: EideticService; matcher: MatcherAdapter } {
   const db = new MemoryDatabase();
   const matcher = options.matcher ?? new MockMatcher(new MemoryBiometricStore());
@@ -37,6 +39,8 @@ export function createMemoryRuntime(options: {
     milEnabled: options.milEnabled ?? false,
     now: options.now ?? (() => new Date("2026-11-07T12:00:00.000Z")),
     ids: createIdFactory(),
+    annotatePolicy: options.annotatePolicy,
+    searchLimitPerHour: options.searchLimitPerHour,
   });
   return { db, repos: db.repos, service, matcher };
 }

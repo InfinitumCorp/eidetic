@@ -26,6 +26,18 @@ relicense them.
   They are not committed here.
 - OpenCV itself, if you install opencv-python to run the sidecar, is Apache-2.0.
   It is not a dependency of the Node package.
+- MediaPipe (https://github.com/google-ai-edge/mediapipe), Apache-2.0.
+  The capture-quality check uses the Tasks Face Detector. It is not an npm
+  dependency and it is not a Google Cloud API. Install it with
+  packages/matcher/python/requirements-mediapipe.txt when you select
+  CAPTURE_PROVIDER=opencv-mediapipe.
+- MediaPipe BlazeFace short-range, file license Apache-2.0.
+  Model card: https://storage.googleapis.com/mediapipe-assets/MediaPipe%20BlazeFace%20Model%20Card%20(Short%20Range).pdf
+  The model card links https://www.apache.org/licenses/LICENSE-2.0.html.
+  The .tflite file is not committed. `pnpm matcher:fetch-mediapipe-model`
+  downloads it. Inference reads that local file and does not call Google Cloud.
+  The model card is the source for training notes. This project does not
+  relicense the training images.
 
 Training-image caveat, stated plainly: opencv_zoo issues 318 and 320 ask
 whether the datasets used to train these checkpoints (WIDER FACE is a known
@@ -41,3 +53,7 @@ noncommercial research use. Do not download them into this repository.
 MATCHER_MODE=insightface remains an explicit sidecar opt-in.
 
 Palantir and Flock Safety libraries and products are not bundled.
+
+Optional v2fly geo routing datasets are not committed. geoip.dat is
+CC-BY-SA-4.0 and geosite.dat (published as dlc.dat) is MIT. See
+THIRD_PARTY_NOTICES. Loyalsoldier and sing-box geo datasets are not used.

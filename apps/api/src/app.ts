@@ -1,7 +1,9 @@
 // © Infinitum Corporation®. All rights reserved.
 
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
+import { secureHeaders } from "hono/secure-headers";
 import { z } from "zod";
 import {
   COMPANY,
@@ -11,20 +13,27 @@ import {
   MIL_PRODUCT,
   PRODUCT,
   type Actor,
+  type Role,
 } from "@eidetic/contracts";
 import { syntheticFixture } from "@eidetic/matcher";
 import { seedSyntheticQueue, type EideticService, type Repositories } from "@eidetic/pipeline";
 import { describeSiteAsset } from "@eidetic/geo";
 import { SEAMS } from "@eidetic/seams";
 import type { ConjureRouteHandler } from "./conjure/conjure.mjs";
+import type { GeoRoutingService } from "./geo-routing.js";
 import type { OpenClawRouteHandler } from "./openclaw/openclaw.mjs";
+import type { SearchRoutes } from "./search/search.mjs";
+import { buildOpenApi } from "./openapi.js";
 
-const allowedOrigins = new Set([
+export const DEFAULT_ALLOWED_ORIGINS = [
   "http://127.0.0.1:43111",
   "http://localhost:43111",
   "http://127.0.0.1:43112",
   "http://localhost:43112",
-]);
+];
+
+/** Largest request body the API reads: a 512KB image, base64-encoded, plus the JSON around it. */
+export const MAX_BODY_BYTES = 1024 * 1024;
 
 const code = z.string().regex(/^[a-z][a-z0-9_]{2,64}$/);
 const legalBasis = z.enum(["consent", "contract", "legal_obligation"]);
@@ -34,7 +43,15 @@ const enrollBody = z.object({
   displayName: z.string().min(1).max(80),
   cid: z.string().regex(/^cid:\/\/infinitum\/[a-z0-9-]{3,80}$/).optional(),
   legalBasis,
-  purposes: z.array(z.object({ purposeCode: code, datasetIds: z.array(code).min(1) })).min(1),
+  purposes: z
+    .array(
+      z.object({
+        purposeCode: code,
+        datasetIds: z.array(code).min(1),
+        expiresAt: z.string().datetime({ offset: true }).optional(),
+      }),
+    )
+    .min(1),
   recordAttributes: attributes,
   fixtureId: z.string().regex(/^[a-z0-9-]{3,64}$/).optional(),
   imageBase64: z.string().max(700_000).optional(),
@@ -49,6 +66,18 @@ const searchBody = z.object({
   recordHints: attributes,
   fixtureId: z.string().regex(/^[a-z0-9-]{3,64}$/).optional(),
   imageBase64: z.string().max(700_000).optional(),
+  routing: z
+    .object({
+      ip: z.string().min(1).max(64).optional(),
+      domain: z.string().min(1).max(253).optional(),
+    })
+    .optional(),
+});
+
+const geoSettingsBody = z.object({ geoRouting: z.boolean() });
+const geoLookupBody = z.object({
+  ip: z.string().min(1).max(64).optional(),
+  domain: z.string().min(1).max(253).optional(),
 });
 
 const purposeBody = z.object({
@@ -84,6 +113,41 @@ const biasBody = z.object({
     .max(500),
 });
 
+const biasFixtureBody = z.object({
+  releaseId: z.string().regex(/^[a-z0-9][a-z0-9._-]{1,64}$/),
+  cases: z
+    .array(
+      z.object({
+        id: z.string().min(1).max(40),
+        fixtureId: z.string().regex(/^[a-z0-9-]{3,64}$/),
+        expectedCid: z.string().min(8).max(120).nullable(),
+        predictedCid: z.string().min(8).max(120).nullable(),
+        confidence: z.number().min(0).max(1),
+      }),
+    )
+    .min(1)
+    .max(500),
+});
+
+const auditQuery = z.object({
+  limit: z.coerce.number().int().min(1).max(500).optional(),
+  before: z.coerce.number().int().min(1).optional(),
+  action: z.string().regex(/^[a-z_]{1,40}$/).optional(),
+});
+
+/** The request schemas the routes parse with. The OpenAPI document is generated from these, so it cannot drift. */
+export const REQUEST_SCHEMAS = {
+  EnrollRequest: enrollBody,
+  SearchRequest: searchBody,
+  GeoRoutingSettings: geoSettingsBody,
+  GeoLookupRequest: geoLookupBody,
+  PurposeRequest: purposeBody,
+  DecisionRequest: decisionBody,
+  BiasEvaluationRequest: biasBody,
+  BiasFixtureEvaluationRequest: biasFixtureBody,
+  AuditQuery: auditQuery,
+};
+
 export interface AppDeps {
   service: EideticService;
   repos: Repositories;
@@ -93,23 +157,83 @@ export interface AppDeps {
   milEnabled: boolean;
   dbPing: () => Promise<boolean>;
   adapters: Record<string, string>;
+  geoRouting?: GeoRoutingService;
   /** @conjure live forecasts (prefix /v1/conjure). Off when unset and on MIL deployments. */
   conjure?: ConjureRouteHandler | null;
   /** @scalvs / @scalus: the SCALVS agent on an OpenClaw gateway (prefix /v1/openclaw). Off when unset and on MIL deployments. */
   openclaw?: OpenClawRouteHandler | null;
+  /** One structured line per request. Unset means no access log (tests); main.ts writes JSON to stdout. */
+  accessLog?: ((line: AccessLogLine) => void) | null;
+  /** Browser origins allowed to call the API cross-origin. Defaults to the local desks. */
+  allowedOrigins?: string[];
+  /** @search: Infinitum Search, a web answer with numbered sources (prefix /v1/search). Off when unset and on MIL deployments. */
+  search?: SearchRoutes | null;
 }
 
-type Variables = { actor: Actor };
+/**
+ * What the access log records. `route` is the route pattern (/v1/subjects/:cid), never the raw path, so subject
+ * CIDs and query strings stay out of process logs. No headers, bodies, or tokens.
+ */
+export interface AccessLogLine {
+  level: "info";
+  msg: "request";
+  requestId: string;
+  method: string;
+  route: string;
+  status: number;
+  ms: number;
+  actorId: string | null;
+}
+
+const REQUEST_ID = /^[A-Za-z0-9._:-]{8,128}$/;
+
+type Variables = { actor: Actor; requestId: string };
 
 export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   const app = new Hono<{ Variables: Variables }>();
+  // Every response carries X-Request-Id: the caller's own if it is well formed, otherwise a new one.
+  // Error bodies repeat it, so a person can quote it and an operator can find the matching log line.
+  app.use("*", async (c, next) => {
+    const incoming = c.req.header("x-request-id");
+    const requestId = incoming && REQUEST_ID.test(incoming) ? incoming : crypto.randomUUID();
+    c.set("requestId", requestId);
+    const started = performance.now();
+    await next();
+    c.res.headers.set("X-Request-Id", requestId);
+    deps.accessLog?.({
+      level: "info",
+      msg: "request",
+      requestId,
+      method: c.req.method,
+      route: c.req.routePath === "/*" ? "(unmatched)" : c.req.routePath,
+      status: c.res.status,
+      ms: Math.round(performance.now() - started),
+      actorId: c.get("actor")?.id ?? null,
+    });
+  });
+  const allowedOrigins = new Set(deps.allowedOrigins ?? DEFAULT_ALLOWED_ORIGINS);
+  app.use("*", secureHeaders({ crossOriginResourcePolicy: "same-site" }));
   app.use(
     "*",
     cors({
       origin: (origin) => (origin && allowedOrigins.has(origin) ? origin : ""),
-      allowHeaders: ["Authorization", "Content-Type"],
+      allowHeaders: ["Authorization", "Content-Type", "X-Request-Id"],
+      exposeHeaders: ["X-Request-Id"],
     }),
   );
+  app.use(
+    "/v1/*",
+    bodyLimit({
+      maxSize: MAX_BODY_BYTES,
+      onError: (c) =>
+        c.json({ error: { code: "VALIDATION", message: "Request body is larger than 1MB.", matchRan: false, requestId: c.get("requestId") } }, 413),
+    }),
+  );
+  // Subject, review and audit responses must not sit in browser or proxy caches.
+  app.use("/v1/*", async (c, next) => {
+    await next();
+    c.header("Cache-Control", "no-store");
+  });
 
   app.get("/v1/health", async (c) => {
     const db = await deps.dbPing();
@@ -139,6 +263,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
             code: "UNAUTHENTICATED",
             message: "Sign in with Cumulus ID.",
             matchRan: false,
+            requestId: c.get("requestId"),
           },
         },
         401,
@@ -151,6 +276,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
             code: "FORBIDDEN",
             message: `Cumulus ID ${actor.noRole.cid} has no ei·det·ic™ role. Ask an admin to add it.`,
             matchRan: false,
+            requestId: c.get("requestId"),
           },
         },
         403,
@@ -167,20 +293,30 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   // Only the text the actor sends goes to Conjure; no subject, template or match data.
   app.on(["GET", "POST"], ["/v1/conjure", "/v1/conjure/*"], async (c) => {
     if (deps.milEnabled) {
-      return c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not available on MIL deployments.", matchRan: false } }, 403);
+      return c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not available on MIL deployments.", matchRan: false, requestId: c.get("requestId") } }, 403);
     }
     const res = deps.conjure ? await deps.conjure(c.req.raw, { user: c.get("actor").id }) : null;
-    return res ?? c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not configured here.", matchRan: false } }, 503);
+    return res ?? c.json({ error: { code: "CONJURE_UNAVAILABLE", message: "@conjure is not configured here.", matchRan: false, requestId: c.get("requestId") } }, 503);
   });
 
   // "@scalvs <task>" (or "@scalus") from the operator consoles: the SCALVS agent on OpenClaw answers.
   // Same rule as @conjure: only the text the actor sends goes out; no subject, template or match data.
   app.on(["GET", "POST"], "/v1/openclaw", async (c) => {
     if (deps.milEnabled) {
-      return c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not available on MIL deployments.", matchRan: false } }, 403);
+      return c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not available on MIL deployments.", matchRan: false, requestId: c.get("requestId") } }, 403);
     }
     const res = deps.openclaw ? await deps.openclaw(c.req.raw, { user: c.get("actor").id }) : null;
-    return res ?? c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not configured here.", matchRan: false } }, 503);
+    return res ?? c.json({ error: { code: "SCALVS_UNAVAILABLE", message: "@scalvs is not configured here.", matchRan: false, requestId: c.get("requestId") } }, 503);
+  });
+
+  // "@search <question>" from the operator consoles: Infinitum Search reads the public web and answers
+  // with numbered sources. Only the question the actor types goes out; never subject, template or match data.
+  app.on(["GET", "POST"], "/v1/search", async (c) => {
+    if (deps.milEnabled) {
+      return c.json({ error: { code: "SEARCH_UNAVAILABLE", message: "@search is not available on MIL deployments.", matchRan: false, requestId: c.get("requestId") } }, 403);
+    }
+    const res = deps.search ? await deps.search(c.req.raw, { user: c.get("actor").id }) : null;
+    return res ?? c.json({ error: { code: "SEARCH_UNAVAILABLE", message: "@search is not configured here.", matchRan: false, requestId: c.get("requestId") } }, 503);
   });
 
   app.get("/v1/edition", (c) =>
@@ -188,10 +324,40 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
       product: PRODUCT,
       company: COMPANY,
       mil: { product: MIL_PRODUCT, enabled: deps.milEnabled, workflows: "not_implemented" },
-      adapters: deps.adapters,
+      adapters: deps.geoRouting
+        ? { ...deps.adapters, geoRouting: deps.geoRouting.active() ? "v2fly" : "off" }
+        : deps.adapters,
     }),
   );
 
+  app.get("/v1/settings/geo-routing", (c) => c.json(deps.geoRouting?.read() ?? geoRoutingOff()));
+  app.put("/v1/settings/geo-routing", async (c) => {
+    if (c.get("actor").role !== "admin") {
+      throw new EideticError("FORBIDDEN", "Only an admin can change geo routing.", 403, false);
+    }
+    if (!deps.geoRouting) {
+      throw new EideticError("POLICY_UNAVAILABLE", "Geo routing settings are not configured on this process.", 501, false);
+    }
+    const body = parse(geoSettingsBody, await readJson(c));
+    return c.json(deps.geoRouting.write(body.geoRouting));
+  });
+  app.post("/v1/geo/lookup", async (c) => {
+    if (c.get("actor").role !== "admin") {
+      throw new EideticError("FORBIDDEN", "Only an admin can look up a geo routing label.", 403, false);
+    }
+    if (!deps.geoRouting?.active()) {
+      throw new EideticError("FORBIDDEN", "Geo routing is off. Country and site-category labels stay unused.", 403, false);
+    }
+    const body = parse(geoLookupBody, await readJson(c));
+    if (!body.ip && !body.domain) {
+      throw new EideticError("VALIDATION", "Provide an IP address or a domain.", 422, false);
+    }
+    const note = deps.geoRouting.lookup(body);
+    return c.json(note ?? { countryCode: null, categories: [], usedForIdentityMatch: false });
+  });
+
+  // This API, described as OpenAPI 3.1. Generated from the same schemas the routes validate with.
+  app.get("/v1/openapi.json", (c) => c.json(buildOpenApi(REQUEST_SCHEMAS)));
   app.get("/v1/seams", (c) => c.json({ seams: SEAMS }));
   app.get("/v1/sites/:assetId", (c) => c.json(describeSiteAsset(c.req.param("assetId"))));
   app.get("/v1/purposes", async (c) => c.json({ purposes: await deps.service.listPurposes() }));
@@ -201,17 +367,32 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json({ purpose }, 201);
   });
 
-  app.get("/v1/subjects", async (c) => c.json({ subjects: await deps.service.listSubjects() }));
+  app.get("/v1/subjects", async (c) => {
+    allow(c.get("actor"), ["admin", "auditor"], "Only an admin or an auditor can view the subject list.");
+    return c.json({ subjects: await deps.service.listSubjects() });
+  });
   app.post("/v1/subjects", async (c) => {
     const body = parse(enrollBody, await readJson(c));
     const image = probeBytes(body.fixtureId, body.imageBase64, deps.demoMode);
     const enrolled = await deps.service.enroll({ actor: c.get("actor"), ...body, image });
     return c.json(enrolled, 201);
   });
+  // Subject access request: one person's consents and audit activity. The export is itself audited.
+  app.get("/v1/subjects/:cid/access-report", async (c) =>
+    c.json(await deps.service.subjectAccess(c.get("actor"), c.req.param("cid"))),
+  );
   app.post("/v1/subjects/:cid/withdraw", async (c) => {
     const subject = await deps.service.withdraw(c.get("actor"), c.req.param("cid"));
     return c.json({ subject });
   });
+  // Withdraw consent for one purpose. Withdrawing the last one is a full withdrawal and purges the template.
+  app.post("/v1/subjects/:cid/consents/:purposeCode/withdraw", async (c) => {
+    const subject = await deps.service.withdrawPurpose(c.get("actor"), c.req.param("cid"), c.req.param("purposeCode"));
+    return c.json({ subject });
+  });
+
+  // Purge sealed templates for subjects whose consent has all lapsed. Admin only, audited per subject.
+  app.post("/v1/consents/sweep", async (c) => c.json(await deps.service.sweepLapsedConsent(c.get("actor"))));
 
   app.post("/v1/searches", async (c) => {
     const body = parse(searchBody, await readJson(c));
@@ -224,6 +405,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
       edition: body.edition ?? "business",
       subjectCid: body.subjectCid,
       recordHints: body.recordHints,
+      routing: body.routing,
       image,
     });
     return c.json(result, 201);
@@ -232,37 +414,35 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   app.get("/v1/reviews", async (c) => {
     const status = c.req.query("status");
     const filter = status === "pending" || status === "decided" ? status : undefined;
-    return c.json({ reviews: await deps.service.listReviews(filter) });
+    const actor = c.get("actor");
+    const reviews = await deps.service.listReviews(filter);
+    // An operator sees only the reviews for searches they ran.
+    return c.json({ reviews: actor.role === "operator" ? reviews.filter((review) => review.searchedBy.id === actor.id) : reviews });
   });
-  app.get("/v1/reviews/:id", async (c) => c.json(await deps.service.getReview(c.req.param("id"))));
+  app.get("/v1/reviews/:id", async (c) => {
+    const actor = c.get("actor");
+    const review = await deps.service.getReview(c.req.param("id"));
+    if (actor.role === "operator" && review.searchedBy.id !== actor.id) {
+      throw new EideticError("NOT_FOUND", "That review is not on the desk.", 404, false);
+    }
+    return c.json(review);
+  });
   app.post("/v1/reviews/:id/decide", async (c) => {
     const body = parse(decisionBody, await readJson(c));
     const result = await deps.service.decide({ actor: c.get("actor"), reviewId: c.req.param("id"), ...body });
     return c.json(result);
   });
 
-  app.get("/v1/audit", async (c) => c.json({ entries: await deps.service.listAudit() }));
+  // Newest first. ?limit= (1-500, default 50), ?before=<seq> for the next page, ?action= to filter.
+  app.get("/v1/audit", async (c) => {
+    allow(c.get("actor"), ["admin", "auditor"], "Only an admin or an auditor can view the audit log.");
+    const query = parse(auditQuery, c.req.query());
+    return c.json(await deps.service.pageAudit({ limit: query.limit, beforeSeq: query.before, action: query.action }));
+  });
   app.get("/v1/audit/verify", async (c) => c.json(await deps.service.verifyAudit()));
 
   app.post("/v1/bias/fixture-evaluations", async (c) => {
-    const body = parse(
-      z.object({
-        releaseId: z.string().regex(/^[a-z0-9][a-z0-9._-]{1,64}$/),
-        cases: z
-          .array(
-            z.object({
-              id: z.string().min(1).max(40),
-              fixtureId: z.string().regex(/^[a-z0-9-]{3,64}$/),
-              expectedCid: z.string().min(8).max(120).nullable(),
-              predictedCid: z.string().min(8).max(120).nullable(),
-              confidence: z.number().min(0).max(1),
-            }),
-          )
-          .min(1)
-          .max(500),
-      }),
-      await readJson(c),
-    );
+    const body = parse(biasFixtureBody, await readJson(c));
     return c.json(await deps.service.runFixtureBias(c.get("actor"), body.releaseId, body.cases), 201);
   });
   app.post("/v1/bias/evaluations", async (c) => {
@@ -270,7 +450,10 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     const report = await deps.service.runBias(c.get("actor"), body.releaseId, body.cases);
     return c.json(report, 201);
   });
-  app.get("/v1/bias/evaluations/:releaseId", async (c) => c.json(await deps.service.getBias(c.req.param("releaseId"))));
+  app.get("/v1/bias/evaluations/:releaseId", async (c) => {
+    allow(c.get("actor"), ["admin", "auditor"], "Only an admin or an auditor can view a bias report.");
+    return c.json(await deps.service.getBias(c.req.param("releaseId")));
+  });
 
   app.post("/v1/demo/seed", async (c) => {
     if (!deps.demoMode) {
@@ -288,23 +471,37 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
 
   app.onError((error, c) => {
     if (error instanceof EideticError) {
-      return c.json({ error: { code: error.code, message: error.message, matchRan: error.matchRan } }, errorStatus(error.httpStatus));
+      return c.json(
+        { error: { code: error.code, message: error.message, matchRan: error.matchRan, requestId: c.get("requestId") } },
+        errorStatus(error.httpStatus),
+      );
     }
     if (error instanceof z.ZodError) {
       return c.json(
-        { error: { code: "VALIDATION", message: error.issues.map((issue) => issue.message).join("; "), matchRan: false } },
+        { error: { code: "VALIDATION", message: error.issues.map((issue) => issue.message).join("; "), matchRan: false, requestId: c.get("requestId") } },
         422,
       );
     }
-    console.error(JSON.stringify({ level: "error", code: "INTERNAL", name: error.name }));
-    return c.json({ error: { code: "INTERNAL", message: "The request failed closed.", matchRan: false } }, 500);
+    console.error(JSON.stringify({ level: "error", code: "INTERNAL", name: error.name, requestId: c.get("requestId") }));
+    return c.json({ error: { code: "INTERNAL", message: "The request failed closed.", matchRan: false, requestId: c.get("requestId") } }, 500);
   });
 
   return app;
 }
 
-function errorStatus(status: number): 400 | 401 | 403 | 404 | 409 | 422 | 500 | 501 | 502 {
-  if (status === 400 || status === 401 || status === 403 || status === 404 || status === 409 || status === 422 || status === 501 || status === 502) {
+function geoRoutingOff() {
+  return { geoRouting: false, processOptIn: false, active: false, identityMatch: false as const };
+}
+
+/** Role gate. `refusal` is a whole sentence, so the desks can translate it. */
+function allow(actor: Actor, roles: Role[], refusal: string): void {
+  if (!roles.includes(actor.role)) {
+    throw new EideticError("FORBIDDEN", refusal, 403, false);
+  }
+}
+
+function errorStatus(status: number): 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 | 501 | 502 {
+  if (status === 400 || status === 401 || status === 403 || status === 404 || status === 409 || status === 422 || status === 429 || status === 501 || status === 502) {
     return status;
   }
   return 500;

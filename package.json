@@ -5,6 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@10.33.4",
   "scripts": {
+    "dev:memory": "concurrently -n api,review,admin -c cyan,green,yellow \"pnpm --filter @eidetic/api dev:memory\" \"pnpm --filter @eidetic/reviewer dev:memory\" \"pnpm --filter @eidetic/admin dev:memory\"",
     "dev": "concurrently -n api,review,admin -c cyan,green,yellow \"pnpm --filter @eidetic/api dev\" \"pnpm --filter @eidetic/reviewer dev\" \"pnpm --filter @eidetic/admin dev\"",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -12,7 +13,12 @@
     "demo:http": "tsx scripts/demo.ts --http",
     "audit:verify": "pnpm --filter @eidetic/api audit:verify",
     "audit:export": "pnpm --filter @eidetic/api audit:export",
+    "consent:sweep": "pnpm --filter @eidetic/api consent:sweep",
     "matcher:fetch-models": "tsx scripts/fetch-opencv-zoo-models.ts",
+    "geo:fetch": "tsx scripts/fetch-geo-dat.ts",
+    "openapi": "tsx scripts/openapi.ts",
+    "geo:routing": "tsx scripts/geo-routing.ts",
+    "matcher:fetch-mediapipe-model": "tsx scripts/fetch-mediapipe-model.ts",
     "build": "pnpm --filter @eidetic/reviewer build && pnpm --filter @eidetic/admin build"
   },
   "devDependencies": {
@@ -26,6 +32,6 @@
     "concurrently": "^9.1.0",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   }
 }
