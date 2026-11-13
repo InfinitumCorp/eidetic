@@ -6,6 +6,7 @@ import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, 
 import { CidAccount, CidSignIn } from "./CidSignIn";
 import { cidToken, useCumulusId } from "./cid";
 import { Billing } from "./Billing";
+import { Usage } from "./Usage";
 
 interface Me {
   id: string;
@@ -172,7 +173,9 @@ export function App() {
     if (health !== "up" || !token) return;
     api<{ actor: Me }>("/v1/me")
       .then((body) => {
-        if (body.actor.role !== "admin") throw new Error(`This Cumulus ID is a ${body.actor.role}. The purpose desk needs the admin role.`);
+        if (body.actor.role !== "admin" && body.actor.role !== "auditor") {
+          throw new Error(`This Cumulus ID is a ${body.actor.role}. The purpose desk needs the admin or auditor role.`);
+        }
         setMe(body.actor);
       })
       .catch((reason: Error) => setMeError(reason.message));
@@ -419,6 +422,10 @@ export function App() {
       )
     : subjects;
 
+  // Auditors get the same desk read-only: purposes, the consent ledger, access reports and the audit chain,
+  // with every control that changes something hidden. The API refuses those calls for auditors anyway.
+  const isAdmin = me?.role === "admin";
+
   return (
     <div className="min-h-screen">
       <a className="skip-link" href="#main">Skip to content</a>
@@ -437,6 +444,11 @@ export function App() {
           <div>
             <h1>Purpose desk</h1>
             <p className="max-w-2xl">Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.</p>
+            {me && !isAdmin && (
+              <p className="mt-2">
+                <Badge variant="outline">Read only · {me.role}</Badge>
+              </p>
+            )}
           </div>
         </div>
         {health === "loading" && <p className="text-muted-foreground">Checking the API…</p>}
@@ -452,11 +464,11 @@ export function App() {
           <>
             {error && <p className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm">{error}</p>}
             <section className="grid gap-4 md:grid-cols-2">
-              <Card>
+              <Card className={isAdmin ? undefined : "md:col-span-2"}>
                 <CardHeader>
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <CardTitle>Purposes</CardTitle>
-                    {!draft && (
+                    {isAdmin && !draft && (
                       <Button variant="outline" disabled={busy} onClick={() => setDraft({ ...EMPTY_PURPOSE })}>
                         Publish a purpose
                       </Button>
@@ -478,6 +490,7 @@ export function App() {
                       <p className="mt-2 font-mono text-xs text-muted-foreground">
                         {purpose.code} · {purpose.legalBases.join(", ")} · {purpose.datasetIds.join(", ")} · {purpose.allowedRoles.join(", ")}
                       </p>
+                      {isAdmin && (<>
                       <div className="mt-2 flex flex-wrap gap-2">
                         <Button
                           variant="outline"
@@ -535,6 +548,8 @@ export function App() {
                             </Button>
                           </div>
                         </div>
+                      )}
+                      </>
                       )}
                     </div>
                   ))}
@@ -630,6 +645,7 @@ export function App() {
                   )}
                 </CardContent>
               </Card>
+              {isAdmin && (
               <Card>
                 <CardHeader>
                   <CardTitle>Enroll a synthetic subject</CardTitle>
@@ -682,15 +698,18 @@ export function App() {
                   </form>
                 </CardContent>
               </Card>
+              )}
             </section>
 
             <Card>
               <CardHeader>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <CardTitle>Consent ledger</CardTitle>
-                  <Button variant="outline" disabled={busy} onClick={sweepLapsed}>
-                    Purge lapsed templates
-                  </Button>
+                  {isAdmin && (
+                    <Button variant="outline" disabled={busy} onClick={sweepLapsed}>
+                      Purge lapsed templates
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -763,7 +782,7 @@ export function App() {
                     </Button>
                     {subject.status === "withdrawn" ? (
                       <Badge variant="danger">Withdrawn</Badge>
-                    ) : withdrawing === subject.cid ? (
+                    ) : !isAdmin ? null : withdrawing === subject.cid ? (
                       <div className="flex gap-2">
                         <Button variant="destructive" disabled={busy} onClick={() => withdraw(subject)}>
                           Purge template
@@ -782,6 +801,8 @@ export function App() {
                 ))}
               </CardContent>
             </Card>
+
+            <Usage api={api} refresh={entries} />
 
             <section className="grid gap-4 md:grid-cols-2">
               <Card>
@@ -825,7 +846,7 @@ export function App() {
                   )}
                 </CardContent>
               </Card>
-              {!milEnabled && <Billing signedIn={Boolean(token)} />}
+              {!milEnabled && isAdmin && <Billing signedIn={Boolean(token)} />}
               <Card>
                 <CardHeader>
                   <CardTitle>Bias hook and boundaries</CardTitle>
@@ -840,7 +861,7 @@ export function App() {
                         type="button"
                         variant={geoRouting?.geoRouting ? "secondary" : "outline"}
                         aria-pressed={geoRouting?.geoRouting ?? false}
-                        disabled={busy || !geoRouting}
+                        disabled={busy || !geoRouting || !isAdmin}
                         onClick={() => void toggleGeoRouting()}
                       >
                         {geoRouting?.geoRouting ? "On" : "Off"}
@@ -852,9 +873,11 @@ export function App() {
                       {geoRouting?.active ? " The hook is active for routing labels only." : ""}
                     </p>
                   </div>
-                  <Button variant="outline" disabled={busy} onClick={runBias}>
-                    Run sample cohort evaluation
-                  </Button>
+                  {isAdmin && (
+                    <Button variant="outline" disabled={busy} onClick={runBias}>
+                      Run sample cohort evaluation
+                    </Button>
+                  )}
                   {biasNote && <p>{biasNote}</p>}
                   <ul className="space-y-2 text-muted-foreground">
                     {seams.map((seam) => (

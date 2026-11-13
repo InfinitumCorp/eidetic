@@ -136,6 +136,8 @@ const auditQuery = z.object({
 });
 
 /** The request schemas the routes parse with. The OpenAPI document is generated from these, so it cannot drift. */
+const usageQuery = z.object({ hours: z.coerce.number().int().min(1).max(2160).optional() });
+
 export const REQUEST_SCHEMAS = {
   EnrollRequest: enrollBody,
   SearchRequest: searchBody,
@@ -146,6 +148,7 @@ export const REQUEST_SCHEMAS = {
   BiasEvaluationRequest: biasBody,
   BiasFixtureEvaluationRequest: biasFixtureBody,
   AuditQuery: auditQuery,
+  UsageQuery: usageQuery,
 };
 
 export interface AppDeps {
@@ -394,6 +397,9 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   // Purge sealed templates for subjects whose consent has all lapsed. Admin only, audited per subject.
   app.post("/v1/consents/sweep", async (c) => c.json(await deps.service.sweepLapsedConsent(c.get("actor"))));
 
+  // The caller's own search allowance for the rolling hour. Says nothing about other accounts.
+  app.get("/v1/searches/allowance", async (c) => c.json(await deps.service.searchAllowance(c.get("actor"))));
+
   app.post("/v1/searches", async (c) => {
     const body = parse(searchBody, await readJson(c));
     const image = probeBytes(body.fixtureId, body.imageBase64, deps.demoMode);
@@ -440,6 +446,11 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json(await deps.service.pageAudit({ limit: query.limit, beforeSeq: query.before, action: query.action }));
   });
   app.get("/v1/audit/verify", async (c) => c.json(await deps.service.verifyAudit()));
+  // Usage over the last ?hours= (1-2160, default 24): searches run and refused, refusal codes, review decisions.
+  app.get("/v1/stats/usage", async (c) => {
+    const query = parse(usageQuery, c.req.query());
+    return c.json(await deps.service.usageStats(c.get("actor"), query.hours));
+  });
 
   app.post("/v1/bias/fixture-evaluations", async (c) => {
     const body = parse(biasFixtureBody, await readJson(c));
