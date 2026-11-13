@@ -23,6 +23,7 @@ import type { ConjureRouteHandler } from "./conjure/conjure.mjs";
 import type { GeoRoutingService } from "./geo-routing.js";
 import type { OpenClawRouteHandler } from "./openclaw/openclaw.mjs";
 import type { SearchRoutes } from "./search/search.mjs";
+import { buildOpenApi } from "./openapi.js";
 
 export const DEFAULT_ALLOWED_ORIGINS = [
   "http://127.0.0.1:43111",
@@ -111,6 +112,41 @@ const biasBody = z.object({
     .min(1)
     .max(500),
 });
+
+const biasFixtureBody = z.object({
+  releaseId: z.string().regex(/^[a-z0-9][a-z0-9._-]{1,64}$/),
+  cases: z
+    .array(
+      z.object({
+        id: z.string().min(1).max(40),
+        fixtureId: z.string().regex(/^[a-z0-9-]{3,64}$/),
+        expectedCid: z.string().min(8).max(120).nullable(),
+        predictedCid: z.string().min(8).max(120).nullable(),
+        confidence: z.number().min(0).max(1),
+      }),
+    )
+    .min(1)
+    .max(500),
+});
+
+const auditQuery = z.object({
+  limit: z.coerce.number().int().min(1).max(500).optional(),
+  before: z.coerce.number().int().min(1).optional(),
+  action: z.string().regex(/^[a-z_]{1,40}$/).optional(),
+});
+
+/** The request schemas the routes parse with. The OpenAPI document is generated from these, so it cannot drift. */
+export const REQUEST_SCHEMAS = {
+  EnrollRequest: enrollBody,
+  SearchRequest: searchBody,
+  GeoRoutingSettings: geoSettingsBody,
+  GeoLookupRequest: geoLookupBody,
+  PurposeRequest: purposeBody,
+  DecisionRequest: decisionBody,
+  BiasEvaluationRequest: biasBody,
+  BiasFixtureEvaluationRequest: biasFixtureBody,
+  AuditQuery: auditQuery,
+};
 
 export interface AppDeps {
   service: EideticService;
@@ -320,6 +356,8 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json(note ?? { countryCode: null, categories: [], usedForIdentityMatch: false });
   });
 
+  // This API, described as OpenAPI 3.1. Generated from the same schemas the routes validate with.
+  app.get("/v1/openapi.json", (c) => c.json(buildOpenApi(REQUEST_SCHEMAS)));
   app.get("/v1/seams", (c) => c.json({ seams: SEAMS }));
   app.get("/v1/sites/:assetId", (c) => c.json(describeSiteAsset(c.req.param("assetId"))));
   app.get("/v1/purposes", async (c) => c.json({ purposes: await deps.service.listPurposes() }));
@@ -330,7 +368,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   });
 
   app.get("/v1/subjects", async (c) => {
-    allow(c.get("actor"), ["admin", "auditor"], "The subject list");
+    allow(c.get("actor"), ["admin", "auditor"], "Only an admin or an auditor can view the subject list.");
     return c.json({ subjects: await deps.service.listSubjects() });
   });
   app.post("/v1/subjects", async (c) => {
@@ -345,6 +383,11 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   );
   app.post("/v1/subjects/:cid/withdraw", async (c) => {
     const subject = await deps.service.withdraw(c.get("actor"), c.req.param("cid"));
+    return c.json({ subject });
+  });
+  // Withdraw consent for one purpose. Withdrawing the last one is a full withdrawal and purges the template.
+  app.post("/v1/subjects/:cid/consents/:purposeCode/withdraw", async (c) => {
+    const subject = await deps.service.withdrawPurpose(c.get("actor"), c.req.param("cid"), c.req.param("purposeCode"));
     return c.json({ subject });
   });
 
@@ -392,15 +435,8 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
 
   // Newest first. ?limit= (1-500, default 50), ?before=<seq> for the next page, ?action= to filter.
   app.get("/v1/audit", async (c) => {
-    allow(c.get("actor"), ["admin", "auditor"], "The audit log");
-    const query = parse(
-      z.object({
-        limit: z.coerce.number().int().min(1).max(500).optional(),
-        before: z.coerce.number().int().min(1).optional(),
-        action: z.string().regex(/^[a-z_]{1,40}$/).optional(),
-      }),
-      c.req.query(),
-    );
+    allow(c.get("actor"), ["admin", "auditor"], "Only an admin or an auditor can view the audit log.");
+    const query = parse(auditQuery, c.req.query());
     return c.json(await deps.service.pageAudit({ limit: query.limit, beforeSeq: query.before, action: query.action }));
   });
   app.get("/v1/audit/verify", async (c) => c.json(await deps.service.verifyAudit()));
@@ -412,24 +448,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
   });
 
   app.post("/v1/bias/fixture-evaluations", async (c) => {
-    const body = parse(
-      z.object({
-        releaseId: z.string().regex(/^[a-z0-9][a-z0-9._-]{1,64}$/),
-        cases: z
-          .array(
-            z.object({
-              id: z.string().min(1).max(40),
-              fixtureId: z.string().regex(/^[a-z0-9-]{3,64}$/),
-              expectedCid: z.string().min(8).max(120).nullable(),
-              predictedCid: z.string().min(8).max(120).nullable(),
-              confidence: z.number().min(0).max(1),
-            }),
-          )
-          .min(1)
-          .max(500),
-      }),
-      await readJson(c),
-    );
+    const body = parse(biasFixtureBody, await readJson(c));
     return c.json(await deps.service.runFixtureBias(c.get("actor"), body.releaseId, body.cases), 201);
   });
   app.post("/v1/bias/evaluations", async (c) => {
@@ -438,7 +457,7 @@ export function createApp(deps: AppDeps): Hono<{ Variables: Variables }> {
     return c.json(report, 201);
   });
   app.get("/v1/bias/evaluations/:releaseId", async (c) => {
-    allow(c.get("actor"), ["admin", "auditor"], "A bias report");
+    allow(c.get("actor"), ["admin", "auditor"], "Only an admin or an auditor can view a bias report.");
     return c.json(await deps.service.getBias(c.req.param("releaseId")));
   });
 
@@ -480,9 +499,10 @@ function geoRoutingOff() {
   return { geoRouting: false, processOptIn: false, active: false, identityMatch: false as const };
 }
 
-function allow(actor: Actor, roles: Role[], what: string): void {
+/** Role gate. `refusal` is a whole sentence, so the desks can translate it. */
+function allow(actor: Actor, roles: Role[], refusal: string): void {
   if (!roles.includes(actor.role)) {
-    throw new EideticError("FORBIDDEN", `${what} is open to the ${roles.join(" and ")} roles only.`, 403, false);
+    throw new EideticError("FORBIDDEN", refusal, 403, false);
   }
 }
 
