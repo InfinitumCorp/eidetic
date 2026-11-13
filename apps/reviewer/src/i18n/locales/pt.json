@@ -1,4 +1,6 @@
 {
+  "{0} Audit hash {1}.": "{0} Hash de auditoria {1}.",
+  "{0} No new match was run.": "{0} Nenhuma nova correspondência foi executada.",
   "A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.": "Uma pontuação é evidência. A decisão é sua. Nada aqui se tornará uma correspondência até que um revisor a registre.",
   "ÆTHER{0}": "ÆTHER{0}",
   "Base": "Base",
@@ -52,6 +54,7 @@
   "Waiting for a person": "Aguardando por uma pessoa",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Por que você está confirmando, rejeitando ou deixando isso inconclusivo?",
   "{0} (local dev)": "{0} (local dev)",
+  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} candidato(s) aguardando um revisor.",
   "Avery Quinn (synthetic)": "Avery Quinn (sintético)",
   "Casey Morgan (synthetic)": "Casey Morgan (sintético)",
   "Choose a probe image first.": "Escolha primeiro uma imagem de consulta.",
@@ -83,6 +86,8 @@
   "Consent expired": "Consentimento expirado",
   "Consent withdrawn": "Consentimento retirado",
   "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "O consentimento desta pessoa não cobre mais esta pesquisa, então uma confirmação seria recusada. Rejeite ou marque a revisão como inconclusiva.",
+  "{0} of {1} searches left this hour.": "Restam {0} de {1} pesquisas nesta hora.",
+  "No searches left this hour (limit {0}).": "Não restam pesquisas nesta hora (limite {0}).",
   "{0} candidates are waiting for a reviewer.": "{0, plural, one {# candidato aguarda um revisor.} other {# candidatos aguardam um revisor.}}",
   "1 candidate is waiting for a reviewer.": "1 candidato aguarda um revisor.",
   "Write 1 more character in the note to decide.": "Escreva mais 1 caractere na nota para decidir.",

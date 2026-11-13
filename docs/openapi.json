@@ -723,6 +723,38 @@
         }
       }
     },
+    "/v1/searches/allowance": {
+      "get": {
+        "tags": [
+          "Search and review"
+        ],
+        "summary": "The caller's searches left this hour. A hint only; the limit is enforced on every search.",
+        "description": "Any signed-in role.",
+        "operationId": "getV1SearchesAllowance",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
     "/v1/reviews": {
       "get": {
         "tags": [

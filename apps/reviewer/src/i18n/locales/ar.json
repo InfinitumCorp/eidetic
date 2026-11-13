@@ -1,4 +1,6 @@
 {
+  "{0} Audit hash {1}.": "{0} تجزئة التدقيق {1}.",
+  "{0} No new match was run.": "{0} لم يتم تشغيل أي تطابق جديد.",
   "A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.": "النقاط هي دليل. القرار لك. لا يصبح شيء هنا تطابقًا حتى يسجله المراجع.",
   "ÆTHER{0}": "ÆTHER{0}",
   "Base": "قاعدة",
@@ -52,6 +54,7 @@
   "Waiting for a person": "في انتظار شخص",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "لماذا تؤكد أو ترفض أو تترك هذا غير حاسم؟",
   "{0} (local dev)": "{0} (local dev)",
+  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} عدد المرشحين بانتظار مراجع: {1}.",
   "Avery Quinn (synthetic)": "Avery Quinn (اصطناعي)",
   "Casey Morgan (synthetic)": "Casey Morgan (اصطناعي)",
   "Choose a probe image first.": "اختر صورة البحث أولًا.",
@@ -83,6 +86,8 @@
   "Consent expired": "انتهت صلاحية الموافقة",
   "Consent withdrawn": "سُحبت الموافقة",
   "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "لم تعد موافقة هذا الشخص تشمل هذا البحث، لذا سيُرفض أي تأكيد. ارفض أو علّم المراجعة على أنها غير حاسمة.",
+  "{0} of {1} searches left this hour.": "تبقّى {0} من {1} عمليات بحث في هذه الساعة.",
+  "No searches left this hour (limit {0}).": "لم تتبقَّ عمليات بحث في هذه الساعة (الحد {0}).",
   "{0} candidates are waiting for a reviewer.": "{0, plural, zero {# مرشح} one {مرشح واحد} two {مرشحان} few {# مرشحين} many {# مرشحًا} other {# مرشح}} بانتظار مراجع.",
   "1 candidate is waiting for a reviewer.": "مرشح واحد بانتظار مراجع.",
   "Write 1 more character in the note to decide.": "اكتب حرفًا واحدًا إضافيًا في الملاحظة لاتخاذ القرار.",

@@ -1039,6 +1039,18 @@ export class EideticService {
    * Counted from the searches table, so it holds across restarts and API instances.
    * Only the first refusal in a window is audited, so a flood of refused calls cannot flood the log.
    */
+  /**
+   * How many searches this account has left in the rolling hour. `limit` is null when no limit is set.
+   * Refused attempts count too, the same way the limit counts them.
+   */
+  async searchAllowance(actor: Actor): Promise<{ limit: number | null; used: number; remaining: number | null; windowMinutes: number }> {
+    const limit = this.deps.searchLimitPerHour ?? 0;
+    const since = new Date(this.deps.now().getTime() - 60 * 60 * 1000).toISOString();
+    const recent = await this.deps.repos.searches.countSince(actor.id, since);
+    if (limit <= 0) return { limit: null, used: recent.counted, remaining: null, windowMinutes: 60 };
+    return { limit, used: recent.counted, remaining: Math.max(0, limit - recent.counted), windowMinutes: 60 };
+  }
+
   private async enforceSearchLimit(input: {
     actor: Actor;
     purposeCode: string;

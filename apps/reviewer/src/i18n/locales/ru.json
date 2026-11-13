@@ -1,4 +1,6 @@
 {
+  "{0} Audit hash {1}.": "{0} Хеш аудита {1}.",
+  "{0} No new match was run.": "{0} Новое сопоставление не выполнено.",
   "A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.": "Оценка – это доказательство. Решение за вами. Здесь ничего не становится совпадением, пока рецензент не зафиксирует его.",
   "ÆTHER{0}": "ÆTHER{0}",
   "Base": "База",
@@ -52,6 +54,7 @@
   "Waiting for a person": "Ожидание человека",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Почему подтверждаете, отклоняете или оставляете без решения?",
   "{0} (local dev)": "{0} (local dev)",
+  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} Кандидатов, ожидающих рецензента: {1}.",
   "Avery Quinn (synthetic)": "Avery Quinn (синтетический)",
   "Casey Morgan (synthetic)": "Casey Morgan (синтетический)",
   "Choose a probe image first.": "Сначала выберите изображение для поиска.",
@@ -83,6 +86,8 @@
   "Consent expired": "Срок согласия истёк",
   "Consent withdrawn": "Согласие отозвано",
   "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Согласие этого человека больше не покрывает этот поиск, поэтому подтверждение будет отклонено. Отклоните его или отметьте проверку как неокончательную.",
+  "{0} of {1} searches left this hour.": "Осталось поисков в этом часе: {0} из {1}.",
+  "No searches left this hour (limit {0}).": "В этом часе поисков не осталось (лимит {0}).",
   "{0} candidates are waiting for a reviewer.": "{0, plural, one {# кандидат ожидает рецензента.} few {# кандидата ожидают рецензента.} many {# кандидатов ожидают рецензента.} other {# кандидата ожидают рецензента.}}",
   "1 candidate is waiting for a reviewer.": "1 кандидат ожидает рецензента.",
   "Write 1 more character in the note to decide.": "Допишите в заметку ещё 1 символ, чтобы принять решение.",

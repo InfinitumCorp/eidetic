@@ -1,4 +1,6 @@
 {
+  "{0} Audit hash {1}.": "{0} Audit hash {1}.",
+  "{0} No new match was run.": "{0} No new match was run.",
   "A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.": "A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.",
   "ÆTHER{0}": "ÆTHER{0}",
   "Base": "Base",
@@ -52,6 +54,7 @@
   "Waiting for a person": "Waiting for a person",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Why are you confirming, rejecting, or leaving this inconclusive?",
   "{0} (local dev)": "{0} (local dev)",
+  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} candidate(s) are waiting for a reviewer.",
   "Avery Quinn (synthetic)": "Avery Quinn (synthetic)",
   "Casey Morgan (synthetic)": "Casey Morgan (synthetic)",
   "Choose a probe image first.": "Choose a probe image first.",
@@ -83,6 +86,8 @@
   "Consent expired": "Consent expired",
   "Consent withdrawn": "Consent withdrawn",
   "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.",
+  "{0} of {1} searches left this hour.": "{0} of {1} searches left this hour.",
+  "No searches left this hour (limit {0}).": "No searches left this hour (limit {0}).",
   "{0} candidates are waiting for a reviewer.": "{0} candidates are waiting for a reviewer.",
   "1 candidate is waiting for a reviewer.": "1 candidate is waiting for a reviewer.",
   "Write 1 more character in the note to decide.": "Write 1 more character in the note to decide.",
