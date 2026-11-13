@@ -38,7 +38,6 @@
   "Preview": "预览",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "发布用途，记录同意，读取哈希链。生物特征模板存于密封存储。",
   "Purge template": "删除模板",
-  "Purpose": "用途",
   "Purpose desk": "目的桌面",
   "Purposes": "目的",
   "Record consent": "记录同意",
@@ -127,7 +126,6 @@
   "No entries of this kind.": "没有此类条目。",
   "No lapsed consent. Nothing was purged.": "没有失效的同意，未清除任何内容。",
   "Purge lapsed templates": "清除失效模板",
-  "Purged {0} template(s) with lapsed consent.": "已清除 {0} 个同意失效的模板。",
   "Purpose changes": "用途变更",
   "Review decisions": "审查决定",
   "Save changes": "保存更改",
@@ -136,8 +134,14 @@
   "Subject access reports": "数据主体访问报告",
   "Withdrawals": "撤回",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "正在编辑 {0}。更改仅适用于新的登记和搜索。已给出的同意仍保留其所列的数据集。",
+  "Purged {0} templates with lapsed consent.": "已清除 {0} 个同意失效的模板。",
+  "Purged 1 template with lapsed consent.": "已清除 1 个同意失效的模板。",
   "New searches under this purpose will be refused.": "此用途下的新搜索将被拒绝。",
   "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "此用途下还有 1 项审查在等待。审查员将无法确认它，只能拒绝或标记为无定论。",
   "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "此用途下还有 {0} 项审查在等待。审查员将无法确认它们，只能拒绝或标记为无定论。",
-  "Retire purpose": "停用此用途"
+  "Retire purpose": "停用此用途",
+  "Choose at least one purpose the person is consenting to.": "请至少选择一个此人同意的用途。",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "每个用途都有单独的回执，并可单独撤回。",
+  "Purposes the person consents to": "此人同意的用途",
+  "Withdraw {0} only": "仅撤回 {0}"
 }

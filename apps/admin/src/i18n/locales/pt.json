@@ -38,7 +38,6 @@
   "Preview": "Visualizar",
   "Publish purposes, record consent, and read the hash chain. Biometric templates stay in the sealed store.": "Publicar propósitos, registrar consentimento e ler a cadeia de hash. Os modelos biométricos permanecem no armazenamento selado.",
   "Purge template": "Excluir modelo",
-  "Purpose": "Propósito",
   "Purpose desk": "Desk de Propósito",
   "Purposes": "Propósitos",
   "Record consent": "Registrar consentimento",
@@ -127,7 +126,6 @@
   "No entries of this kind.": "Nenhuma entrada deste tipo.",
   "No lapsed consent. Nothing was purged.": "Nenhum consentimento expirado. Nada foi removido.",
   "Purge lapsed templates": "Remover modelos expirados",
-  "Purged {0} template(s) with lapsed consent.": "{0} modelo(s) com consentimento expirado removido(s).",
   "Purpose changes": "Alterações de propósito",
   "Review decisions": "Decisões de revisão",
   "Save changes": "Salvar alterações",
@@ -136,8 +134,14 @@
   "Subject access reports": "Relatórios de acesso do titular",
   "Withdrawals": "Retiradas",
   "Editing {0}. Changes apply to new enrollments and searches. Consent already given keeps the datasets it named.": "Editando {0}. As alterações valem para novas inscrições e pesquisas. O consentimento já dado mantém os conjuntos de dados que nomeou.",
+  "Purged {0} templates with lapsed consent.": "{0, plural, one {# modelo com consentimento expirado foi removido.} other {# modelos com consentimento expirado foram removidos.}}",
+  "Purged 1 template with lapsed consent.": "1 modelo com consentimento expirado foi removido.",
   "New searches under this purpose will be refused.": "Novas pesquisas com esta finalidade serão recusadas.",
   "1 review under this purpose is still waiting. A reviewer will not be able to confirm it, only reject it or mark it inconclusive.": "Ainda há 1 revisão pendente com esta finalidade. Um revisor não poderá confirmá-la, apenas rejeitá-la ou marcá-la como inconclusiva.",
   "{0} reviews under this purpose are still waiting. A reviewer will not be able to confirm them, only reject them or mark them inconclusive.": "Ainda há {0} revisões pendentes com esta finalidade. Um revisor não poderá confirmá-las, apenas rejeitá-las ou marcá-las como inconclusivas.",
-  "Retire purpose": "Retirar finalidade"
+  "Retire purpose": "Retirar finalidade",
+  "Choose at least one purpose the person is consenting to.": "Escolha pelo menos um propósito com o qual a pessoa consente.",
+  "Each purpose gets its own receipt and can be withdrawn on its own.": "Cada propósito tem seu próprio recibo e pode ser retirado separadamente.",
+  "Purposes the person consents to": "Propósitos com os quais a pessoa consente",
+  "Withdraw {0} only": "Retirar apenas {0}"
 }

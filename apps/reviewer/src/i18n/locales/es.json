@@ -54,7 +54,6 @@
   "Waiting for a person": "Esperando a una persona",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "¿Por qué confirmas, rechazas o dejas esto inconcluso?",
   "{0} (local dev)": "{0} (local dev)",
-  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} candidato(s) esperan a un revisor.",
   "Avery Quinn (synthetic)": "Avery Quinn (sintético)",
   "Casey Morgan (synthetic)": "Casey Morgan (sintético)",
   "Choose a probe image first.": "Primero elige una imagen de consulta.",
@@ -86,6 +85,8 @@
   "Consent expired": "Consentimiento caducado",
   "Consent withdrawn": "Consentimiento retirado",
   "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "El consentimiento de esta persona ya no cubre esta búsqueda, así que se rechazaría una confirmación. Rechaza o marca la revisión como no concluyente.",
+  "{0} candidates are waiting for a reviewer.": "{0} candidatos esperan a un revisor.",
+  "1 candidate is waiting for a reviewer.": "1 candidato espera a un revisor.",
   "Write 1 more character in the note to decide.": "Escriba 1 carácter más en la nota para decidir.",
   "Write {0} more characters in the note to decide.": "Escriba {0} caracteres más en la nota para decidir.",
   "Select a candidate to confirm. Reject and inconclusive need no selection.": "Seleccione un candidato para confirmar. Rechazar y no concluyente no requieren selección."
