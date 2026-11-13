@@ -343,5 +343,9 @@
   "Within the local stub threshold. Publish the report with the release notes. This is not a certification.": "ضمن عتبة الاختبار المحلية. انشر التقرير مع ملاحظات الإصدار. هذه ليست شهادة اعتماد.",
   "YuNet did not find a face in the probe. The match did not continue.": "لم يعثر YuNet على وجه في صورة الفحص. لم تستمر المطابقة.",
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "لم يعثر YuNet على وجه في هذه الصورة الاصطناعية. توقف التسجيل.",
-  "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "أوزان YuNet في opencv_zoo/models/face_detection_yunet منشورة بموجب MIT (Copyright Shiqi Yu). أوزان SFace في opencv_zoo/models/face_recognition_sface منشورة بموجب Apache-2.0. يسمح كلا الترخيصين بالاستخدام التجاري لتلك الملفات. مصدر صور التدريب مسألة منفصلة ومذكور في NOTICE. لا تُستخدم أوزان InsightFace."
+  "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "أوزان YuNet في opencv_zoo/models/face_detection_yunet منشورة بموجب MIT (Copyright Shiqi Yu). أوزان SFace في opencv_zoo/models/face_recognition_sface منشورة بموجب Apache-2.0. يسمح كلا الترخيصين بالاستخدام التجاري لتلك الملفات. مصدر صور التدريب مسألة منفصلة ومذكور في NOTICE. لا تُستخدم أوزان InsightFace.",
+  "Find a person": "ابحث عن شخص",
+  "Name, CID or purpose": "الاسم أو CID أو الغرض",
+  "No one in the ledger matches that.": "لا أحد في السجل يطابق ذلك.",
+  "Showing {0} of {1}.": "عرض {0} من {1}."
 }
