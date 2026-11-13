@@ -596,6 +596,56 @@
         }
       }
     },
+    "/v1/subjects/{cid}/consents/{purposeCode}/withdraw": {
+      "post": {
+        "tags": [
+          "Subjects and consent"
+        ],
+        "summary": "Withdraw consent for one purpose. Withdrawing the last one is a full withdrawal and purges the template. Audited.",
+        "description": "Roles: admin.",
+        "operationId": "postV1SubjectsCidConsentsPurposeCodeWithdraw",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "purposeCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
     "/v1/consents/sweep": {
       "post": {
         "tags": [
