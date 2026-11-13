@@ -78,8 +78,9 @@ export function App() {
   const [detail, setDetail] = useState<ReviewDetail | null>(null);
   const [notes, setNotes] = useState("");
   const [selectedCid, setSelectedCid] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [receipt, setReceipt] = useState<string | null>(null);
+  // A refusal can carry a note; each stays its own text node so the desk can translate the API message.
+  const [error, setError] = useState<string | { text: string; note: string } | null>(null);
+  const [receipt, setReceipt] = useState<{ message: string; hash: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -157,13 +158,13 @@ export function App() {
           ...(decision === "confirm" && selectedCid ? { selectedCid } : {}),
         }),
       });
-      setReceipt(`${result.message} Audit hash ${result.audit.hash}.`);
+      setReceipt({ message: result.message, hash: result.audit.hash });
       await loadQueue();
       const refreshed = await api<ReviewDetail>(`/v1/reviews/${detail.reviewId}`, token);
       setDetail(refreshed);
     } catch (reason) {
       const apiError = reason as ApiError;
-      setError(apiError.matchRan === false ? `${apiError.message} No new match was run.` : apiError.message);
+      setError(apiError.matchRan === false ? { text: apiError.message, note: "No new match was run." } : apiError.message);
     } finally {
       setBusy(false);
     }
@@ -178,6 +179,9 @@ export function App() {
   }
 
   const canDecide = me?.role === "reviewer" && detail?.status === "pending" && detail.searchedBy.id !== me.id;
+  // The API wants a note of at least 8 characters, and a selected candidate to confirm. Say so before the click.
+  const NOTE_MIN = 8;
+  const noteShort = Math.max(0, NOTE_MIN - notes.trim().length);
 
   return (
     <div className="min-h-screen">
@@ -210,7 +214,7 @@ export function App() {
         )}
         {health === "up" && !me && (
           <div className="lg:col-span-2">
-            <CidSignIn desk="review desk" error={meError} signedIn={Boolean(token)} />
+            <CidSignIn desk="review" error={meError} signedIn={Boolean(token)} />
           </div>
         )}
         {health === "up" && me && (
@@ -277,7 +281,11 @@ export function App() {
                         {detail.finalDecision ? `Human decision: ${detail.finalDecision}` : "Waiting for a person"}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">Searched by {detail.searchedBy.displayName}. You cannot decide a search you ran.</p>
+                    <p className="text-sm text-muted-foreground">
+                      {detail.searchedBy.id === me?.id
+                        ? "You ran this search, so another reviewer has to decide it."
+                        : `Searched by ${detail.searchedBy.displayName}.`}
+                    </p>
                     <div className="space-y-3">
                       {detail.candidates.map((candidate) => (
                         <label key={candidate.cid} className="block rounded-md border border-border p-3">
@@ -300,7 +308,7 @@ export function App() {
                           </ul>
                           {detail.status === "pending" && candidate.consentStatus && candidate.consentStatus !== "granted" && (
                             <p className="mt-2 text-sm text-muted-foreground">
-                              This person&apos;s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.
+                              This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.
                             </p>
                           )}
                           {detail.status === "pending" && (!candidate.consentStatus || candidate.consentStatus === "granted") && (
@@ -328,25 +336,33 @@ export function App() {
                           placeholder="Why are you confirming, rejecting, or leaving this inconclusive?"
                         />
                         <div className="flex flex-wrap gap-2">
-                          <Button disabled={!canDecide || busy} onClick={() => decide("confirm")}>
+                          <Button disabled={!canDecide || busy || noteShort > 0 || !selectedCid} onClick={() => decide("confirm")}>
                             Confirm
                           </Button>
-                          <Button variant="outline" disabled={!canDecide || busy} onClick={() => decide("reject")}>
+                          <Button variant="outline" disabled={!canDecide || busy || noteShort > 0} onClick={() => decide("reject")}>
                             Reject
                           </Button>
-                          <Button variant="secondary" disabled={!canDecide || busy} onClick={() => decide("inconclusive")}>
+                          <Button variant="secondary" disabled={!canDecide || busy || noteShort > 0} onClick={() => decide("inconclusive")}>
                             Inconclusive
                           </Button>
                         </div>
+                        {canDecide && noteShort > 0 && (
+                          <p data-testid="note-hint" className="text-xs text-muted-foreground">
+                            {noteShort === 1 ? "Write 1 more character in the note to decide." : `Write ${noteShort} more characters in the note to decide.`}
+                          </p>
+                        )}
+                        {canDecide && noteShort === 0 && !selectedCid && (
+                          <p className="text-xs text-muted-foreground">Select a candidate to confirm. Reject and inconclusive need no selection.</p>
+                        )}
                         {me?.role !== "reviewer" && <p className="text-sm text-muted-foreground">Only a Cumulus ID with the reviewer role can record a decision.</p>}
                       </div>
                     )}
                     {detail.notes && <p className="text-sm">Recorded note: {detail.notes}</p>}
-                    {receipt && <p className="rounded-md border border-primary/40 bg-primary/10 p-3 font-mono text-xs">{receipt}</p>}
+                    {receipt && <p className="rounded-md border border-primary/40 bg-primary/10 p-3 font-mono text-xs">{receipt.message} <span>{`Audit hash ${receipt.hash}.`}</span></p>}
                   </CardContent>
                 </Card>
               )}
-              {error && <p className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm">{error}</p>}
+              {error && <p className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm">{typeof error === "string" ? error : <>{error.text} <span>{error.note}</span></>}</p>}
             </section>
           </>
         )}

@@ -41,9 +41,10 @@ flowchart LR
 
 - Subjects are enrolled under a Cumulus://ID™ style identifier, `cid://infinitum/...`. The VEIL seam is the named place a production enrollment capture would plug in. This MVP records consent locally.
 - Each account may start at most `SEARCH_LIMIT_PER_HOUR` searches in a rolling hour (default 120; `0` turns it off). Policy refusals count too. Past the limit the API answers `429 RATE_LIMITED` and does not run a match. Only the first refusal in a window is audited, so repeated refused calls cannot flood the log. The count comes from the searches table, so it holds across restarts and API instances.
-- Consent can carry an expiry per purpose (`expiresAt` on enrollment, or **Consent valid for** on the purpose desk). Once it passes, gallery searches leave the person out, a search that names them is refused with `CONSENT_EXPIRED`, and a reviewer cannot confirm a match that relied on it. Re-enrolling records a fresh grant. Consent without an expiry lasts until withdrawn.
+- Consent can carry an expiry per purpose (`expiresAt` on enrollment, or **Consent lasts** on the purpose desk). Once it passes, gallery searches leave the person out, a search that names them is refused with `CONSENT_EXPIRED`, and a reviewer cannot confirm a match that relied on it. Re-enrolling records a fresh grant. Consent without an expiry lasts until withdrawn.
 - When every consent grant a person gave has lapsed or been withdrawn, the sweep purges their sealed template and audits it as `consent_lapsed`. Run it from the purpose desk (**Purge lapsed templates**), with `POST /v1/consents/sweep` as an admin, or on a schedule with `pnpm consent:sweep`. The subject record and consent history stay, so the person can re-enroll with fresh consent.
 - A subject can withdraw. Withdrawal marks consent withdrawn and deletes the sealed template. Later searches for that CID fail closed.
+- A subject can also withdraw consent for one purpose and keep the others (`POST /v1/subjects/:cid/consents/:purposeCode/withdraw`, or **Withdraw <purpose> only** on the purpose desk). Searches under that purpose stop finding them at once; the template stays sealed for the purposes still granted. Withdrawing the last purpose is a full withdrawal and purges the template.
 - A subject access report (`GET /v1/subjects/{cid}/access-report`, or **Access report** on the purpose desk) lists one person's consents and every audit entry that names them or lists them as a match candidate. Templates show as present or absent only. Admins and auditors can export it, and each export is written to the audit log as `subject_access`.
 - Gallery search only considers subjects who granted the requested purpose, legal basis, and dataset.
 - Every response carries `X-Request-Id` (the caller's own if it is 8 to 128 safe characters, otherwise a new UUID), and error bodies repeat it. The API writes one JSON access-log line per request: route pattern, status, duration and actor id. Raw paths, query strings, headers, bodies and tokens are never logged, so subject CIDs stay out of process logs.
@@ -136,6 +137,10 @@ The review and purpose desks proxy `/v1` to the API, so they are same-origin. A 
 `pnpm demo` runs the story in memory: enroll Avery Quinn and Jordan Blake, authorize record reconciliation, match in mock mode, block the operator from self-approval, let the reviewer confirm, then show purpose denial, consent withdrawal, the MIL refusal, and the hash chain.
 
 `pnpm demo:http` talks to a running API. The review desk also has **Load synthetic demo**, which re-enrolls those two fixtures and queues a new unconfirmed review.
+
+### API reference
+
+[`docs/openapi.json`](docs/openapi.json) describes every route as OpenAPI 3.1. A running API serves the same document at `GET /v1/openapi.json` (any signed-in role). It is generated from the zod schemas the routes validate with. A test fails if a route is missing from it or the committed file is stale, so run `pnpm openapi` after changing a route.
 
 ### Tests
 
@@ -262,6 +267,17 @@ Palantir publishes platform libraries that are useful as reading, not as depende
 - [Conjure](https://github.com/palantir/conjure) (Apache-2.0). One typed HTTP contract can later generate clients. The MVP uses hand-written TypeScript types.
 
 Flock Safety's public GitHub organization, [flocksafety](https://github.com/flocksafety), does not publish a consent ledger, matcher, or audit log appropriate to this product. Their camera and license-plate products are proprietary and out of scope. This MVP does not do plate recognition, city-wide camera search, or inter-agency watchlists.
+
+## Desk languages
+
+Both desks show their interface, and the API messages they display, in English, Russian, Ukrainian, Spanish, French, German, Portuguese, Chinese and Arabic. The API answers in English. Each desk translates refusals, validation errors and audit notes when it renders them, so a message has to reach the page as its own text node.
+
+Catalogs live in `apps/<desk>/src/i18n/locales/` and are built with `@infinitum/i18n` from an infinitum-nexus checkout. `scripts/i18n.sh` re-extracts both desks from their own source plus the API and package sources whose messages they show, then bundles the catalogs. Run it after changing any user-facing message, so extraction does not prune the API strings:
+
+```bash
+NEXUS=../infinitum-nexus sh scripts/i18n.sh --check   # report missing translations
+NEXUS=../infinitum-nexus sh scripts/i18n.sh           # write catalogs.js for both desks
+```
 
 ## Contact
 
