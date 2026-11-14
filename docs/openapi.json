@@ -1029,6 +1029,38 @@
         }
       }
     },
+    "/v1/audit/export": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "The whole log as a signed export, verifiable offline. Taking it is audited, and the file includes that entry.",
+        "description": "Roles: admin, auditor.",
+        "operationId": "getV1AuditExport",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
     "/v1/bias/evaluations": {
       "post": {
         "tags": [

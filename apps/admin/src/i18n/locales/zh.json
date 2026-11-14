@@ -343,5 +343,7 @@
   "Within the local stub threshold. Publish the report with the release notes. This is not a certification.": "在本地占位阈值之内。请随版本说明一同发布报告。这不是认证。",
   "YuNet did not find a face in the probe. The match did not continue.": "YuNet 未在探测图像中发现人脸。匹配未继续。",
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet 未在此合成图像中发现人脸。注册已停止。",
-  "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "opencv_zoo/models/face_detection_yunet 中的 YuNet 权重以 MIT 许可发布（Copyright Shiqi Yu）。opencv_zoo/models/face_recognition_sface 中的 SFace 权重以 Apache-2.0 许可发布。两项许可均允许商业使用这些文件。训练图像来源是另一个问题，已在 NOTICE 中说明。未使用 InsightFace 权重。"
+  "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "opencv_zoo/models/face_detection_yunet 中的 YuNet 权重以 MIT 许可发布（Copyright Shiqi Yu）。opencv_zoo/models/face_recognition_sface 中的 SFace 权重以 Apache-2.0 许可发布。两项许可均允许商业使用这些文件。训练图像来源是另一个问题，已在 NOTICE 中说明。未使用 InsightFace 权重。",
+  "Download signed export": "下载已签名的导出文件",
+  "Audit exports": "审计导出"
 }

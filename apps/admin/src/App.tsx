@@ -77,6 +77,7 @@ const AUDIT_ACTIONS = [
   { value: "purpose_upsert", label: "Purpose changes" },
   { value: "subject_access", label: "Subject access reports" },
   { value: "consent_lapsed", label: "Lapsed-consent purges" },
+  { value: "audit_export", label: "Audit exports" },
   { value: "bias_evaluation", label: "Bias evaluations" },
 ];
 
@@ -323,6 +324,28 @@ export function App() {
       const link = document.createElement("a");
       link.href = url;
       link.download = `access-report-${subject.cid.replace("cid://infinitum/", "")}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      await reload();
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // The whole log as a signed export that `pnpm audit:verify -- --file` checks offline. The API audits the export.
+  async function downloadAuditExport() {
+    setBusy(true);
+    setError(null);
+    try {
+      const exported = await api<unknown>("/v1/audit/export");
+      const blob = new Blob([`${JSON.stringify(exported, null, 2)}
+`], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `eidetic-audit-${new Date().toISOString().slice(0, 10)}.json`;
       link.click();
       URL.revokeObjectURL(url);
       await reload();
@@ -782,9 +805,14 @@ export function App() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm text-muted-foreground">{verify}</p>
-                  <Button variant="secondary" disabled={busy} onClick={checkChain}>
-                    Verify hash chain
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="secondary" disabled={busy} onClick={checkChain}>
+                      Verify hash chain
+                    </Button>
+                    <Button variant="outline" disabled={busy} onClick={downloadAuditExport}>
+                      Download signed export
+                    </Button>
+                  </div>
                   <div>
                     <Label htmlFor="audit-action">Show</Label>
                     <select

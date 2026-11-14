@@ -57,6 +57,7 @@ export const ROUTES: RouteDoc[] = [
   { method: "get", path: "/v1/stats/usage", tag: "Audit", summary: "Searches run and refused, refusal codes, decisions and pending reviews over the last ?hours= (1 to 2160, default 24). No biometric data.", roles: ["admin", "auditor"], query: "UsageQuery" },
   { method: "get", path: "/v1/audit", tag: "Audit", summary: "The hash-chained audit log, newest first, paged.", roles: ["admin", "auditor"], query: "AuditQuery" },
   { method: "get", path: "/v1/audit/verify", tag: "Audit", summary: "Recompute the hash chain and Merkle checkpoints." },
+  { method: "get", path: "/v1/audit/export", tag: "Audit", summary: "The whole log as a signed export, verifiable offline. Taking it is audited, and the file includes that entry.", roles: ["admin", "auditor"] },
 
   { method: "post", path: "/v1/bias/evaluations", tag: "Bias", summary: "Record a bias evaluation for a model release.", roles: ["admin"], body: "BiasEvaluationRequest", status: 201 },
   { method: "post", path: "/v1/bias/fixture-evaluations", tag: "Bias", summary: "Run a bias evaluation over synthetic fixtures.", roles: ["admin"], body: "BiasFixtureEvaluationRequest", status: 201 },
