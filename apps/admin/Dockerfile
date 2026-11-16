@@ -7,6 +7,10 @@ COPY apps/admin ./apps/admin
 COPY apps/reviewer/package.json ./apps/reviewer/package.json
 COPY apps/api/package.json ./apps/api/package.json
 RUN pnpm install --frozen-lockfile
+# Build-time settings. VITE_CID_ISSUER points sign-in at a Cumulus ID mirror (one that loads in Russia).
+ARG VITE_CID_ISSUER=https://id.cumuluscloud.app
+ARG VITE_REVENUE_URL=https://infinitum-revenue.infinitumcorp.workers.dev
+ARG VITE_AMPLITUDE_API_KEY=
 RUN pnpm --filter @eidetic/admin build
 
 FROM nginx:1.27-alpine
