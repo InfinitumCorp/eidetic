@@ -11,6 +11,11 @@ import {
 import type { Env } from "./env.js";
 
 export function assertProductionConfig(env: Env): void {
+  // DEMO_MODE is on unless set to "false", and it seeds dev bearer tokens. A production
+  // image must never start in demo mode just because the variable was forgotten.
+  if (env.demoMode && process.env.NODE_ENV === "production") {
+    throw new Error("DEMO_MODE is on and NODE_ENV=production. Demo mode seeds dev bearer tokens. Set DEMO_MODE=false for production.");
+  }
   if (env.devBearer && !env.demoMode) {
     throw new Error("EIDETIC_DEV_BEARER is a local development bypass. It is refused while DEMO_MODE is false.");
   }

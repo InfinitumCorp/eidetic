@@ -19,6 +19,8 @@ services:
       dockerfile: apps/api/Dockerfile
     environment:
       PORT: "43110"
+      # Local demo stack. The image defaults to NODE_ENV=production, which refuses DEMO_MODE.
+      NODE_ENV: development
       DATABASE_URL: postgres://eidetic:eidetic@db:5432/eidetic
       BIOMETRIC_STORE_PATH: /data/templates
       MATCHER_MODE: mock
