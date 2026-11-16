@@ -6,6 +6,7 @@ COPY packages ./packages
 COPY apps/api ./apps/api
 COPY scripts ./scripts
 RUN pnpm install --frozen-lockfile
+ENV NODE_ENV=production
 ENV PORT=43110
 ENV MIGRATIONS_DIR=/app/apps/api/migrations
 ENV BIOMETRIC_STORE_PATH=/data/templates
