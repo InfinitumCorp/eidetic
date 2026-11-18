@@ -12,4 +12,7 @@ ENV MIGRATIONS_DIR=/app/apps/api/migrations
 ENV BIOMETRIC_STORE_PATH=/data/templates
 RUN mkdir -p /data/templates
 EXPOSE 43110
+# /v1/health answers 503 when the database is down, so the container reports unhealthy.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||43110)+'/v1/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
 CMD ["pnpm", "--filter", "@eidetic/api", "start"]
