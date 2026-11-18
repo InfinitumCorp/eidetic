@@ -7,6 +7,9 @@ COPY apps/reviewer ./apps/reviewer
 COPY apps/admin/package.json ./apps/admin/package.json
 COPY apps/api/package.json ./apps/api/package.json
 RUN pnpm install --frozen-lockfile
+# Build-time settings. VITE_CID_ISSUER points sign-in at a Cumulus ID mirror (one that loads in Russia).
+ARG VITE_CID_ISSUER=https://id.cumuluscloud.app
+ARG VITE_AMPLITUDE_API_KEY=
 RUN pnpm --filter @eidetic/reviewer build
 
 FROM nginx:1.27-alpine
