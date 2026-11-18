@@ -35,8 +35,14 @@ If `VITE_REVENUE_URL` changes, update `connect-src` in `apps/admin/nginx.conf` t
 
 ## 5. Smoke test after deploy
 
-- [ ] `GET /v1/health` through each desk returns 200.
-- [ ] Response headers include `Content-Security-Policy`, `X-Frame-Options: DENY` and `Strict-Transport-Security`.
+Run the automated part first. It checks that each desk loads, proxies `/v1/health`, sends the security headers and that the API is up, out of demo mode and with MIL off:
+
+```bash
+node scripts/smoke.mjs https://<review-desk> https://<purpose-desk>
+```
+
+Then by hand:
+
 - [ ] An admin signs in with Cumulus ID, publishes a purpose and enrolls a synthetic subject.
 - [ ] A reviewer signs in. An operator search runs, and the reviewer records a decision. The person who ran the search cannot decide it.
 - [ ] The audit chain verifies in the purpose desk, and the signed export downloads.
