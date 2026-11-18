@@ -49,3 +49,8 @@ jobs:
           node -e 'const r=require("./pg.json"); if (r.numPassedTests<1 || r.numPendingTests>0) { console.error("Postgres integration test skipped or did not pass"); process.exit(1) }'
       - run: pnpm build
       - run: pnpm demo
+      # Boots the API with production settings: refuses a forgotten DEMO_MODE, serves health when configured.
+      - name: Production boot check
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL_TEST }}
+        run: sh scripts/prod-boot-check.sh
