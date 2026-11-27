@@ -47,3 +47,31 @@ export {
   type ScenarioOptions,
 } from "./simulate.js";
 export { analyzeRun, type RunReport } from "./analyze.js";
+export {
+  NavMessageAuthenticator,
+  buildTestChain,
+  computeMac,
+  hashChain,
+  verifyKeyAgainstAnchor,
+  verifyMac,
+  DEFAULT_AUTH_CONFIG,
+  type AuthConfig,
+  type HashName,
+  type NavRecord,
+  type VerificationResult,
+} from "./osnma.js";
+export {
+  DeadReckoner,
+  deadReckon,
+  DEFAULT_DR_CONFIG,
+  type DeadReckonConfig,
+  type DeadReckonState,
+  type ImuSample,
+} from "./inertial.js";
+export { toNdjson, toCsv, digestLine, type ExportRow } from "./export.js";
+export {
+  evaluateRfRequest,
+  enforceRfRequest,
+  RF_POLICY_STATEMENT,
+  type RfRequestDecision,
+} from "./policy.js";
