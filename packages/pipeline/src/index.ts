@@ -14,4 +14,5 @@ export type {
   ReviewSummary,
   SearchResult,
   SubjectView,
+  UsageStats,
 } from "./service.js";

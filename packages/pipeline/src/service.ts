@@ -106,6 +106,17 @@ export interface SubjectAccessReport {
   note: string;
 }
 
+/** Counts over a recent window, read from the audit log. No subject identifiers, only codes and totals. */
+export interface UsageStats {
+  since: string;
+  hours: number;
+  searches: { total: number; ran: number; refused: number };
+  byPurpose: Array<{ purposeCode: string; ran: number; refused: number }>;
+  refusalsByCode: Array<{ code: string; count: number }>;
+  decisions: { confirm: number; reject: number; inconclusive: number; refused: number };
+  pendingReviews: number;
+}
+
 export interface ConsentSweepResult {
   checkedAt: string;
   /** Subjects whose sealed template was purged because no consent grant is live any more. */
@@ -865,6 +876,83 @@ export class EideticService {
     return { ...summary, notes: review?.notes ?? null, selectedCid: review?.selectedCid ?? null, candidates };
   }
 
+  /**
+   * The whole log as a signed, verifiable export (the same document `pnpm audit:export` writes). Taking the
+   * export is recorded, and the returned file includes that entry, so it shows who pulled it. Biometric fields are
+   * refused on the way out, and a refused export records nothing.
+   */
+  async exportAudit(actor: Actor) {
+    if (actor.role !== "admin" && actor.role !== "auditor") {
+      throw new EideticError("FORBIDDEN", "Only an admin or an auditor can export the audit log.", 403, false);
+    }
+    // Build the export once before recording anything: if the guard refuses it, the log must not claim an export.
+    await this.deps.repos.audit.export();
+    const now = this.deps.now().toISOString();
+    const checkpoint = await this.deps.transaction(async (tx) => {
+      const recorded = await tx.audit.record({
+        actorId: actor.id,
+        action: "audit_export",
+        recordedAt: now,
+        attestation: {
+          outcome: "recorded",
+          matchRan: false,
+          message: "Audit log exported as a signed document. This attestation has no biometric payload.",
+        },
+      });
+      return recorded.checkpoint;
+    });
+    await this.submit(checkpoint);
+    return this.deps.repos.audit.export();
+  }
+
+  /**
+   * How the desk was used over the last `hours`: searches that ran or were refused (by purpose and by refusal
+   * code), review decisions, and the open review queue. Read from the audit log, so it counts what was recorded.
+   */
+  async usageStats(actor: Actor, hours = 24): Promise<UsageStats> {
+    if (actor.role !== "admin" && actor.role !== "auditor") {
+      throw new EideticError("FORBIDDEN", "Usage figures are for admins and auditors.", 403, false);
+    }
+    const window = Math.min(Math.max(Math.trunc(hours), 1), 24 * 90);
+    const since = new Date(this.deps.now().getTime() - window * 60 * 60 * 1000).toISOString();
+    const entries = (await this.deps.repos.audit.list()).filter((entry) => entry.recordedAt >= since);
+    const purposes = new Map<string, { ran: number; refused: number }>();
+    const codes = new Map<string, number>();
+    const searches = { total: 0, ran: 0, refused: 0 };
+    const decisions = { confirm: 0, reject: 0, inconclusive: 0, refused: 0 };
+    for (const entry of entries) {
+      const attestation = entry.attestation;
+      if (entry.action === "search") {
+        searches.total += 1;
+        const ran = attestation.outcome === "allowed";
+        if (ran) searches.ran += 1;
+        else searches.refused += 1;
+        const key = attestation.purposeCode ?? "(none)";
+        const row = purposes.get(key) ?? { ran: 0, refused: 0 };
+        if (ran) row.ran += 1;
+        else row.refused += 1;
+        purposes.set(key, row);
+        if (!ran && attestation.code) codes.set(attestation.code, (codes.get(attestation.code) ?? 0) + 1);
+      } else if (entry.action === "review") {
+        if (attestation.outcome === "denied") decisions.refused += 1;
+        else if (attestation.decision === "confirm" || attestation.decision === "reject" || attestation.decision === "inconclusive") {
+          decisions[attestation.decision] += 1;
+        }
+      }
+    }
+    return {
+      since,
+      hours: window,
+      searches,
+      byPurpose: [...purposes.entries()]
+        .map(([purposeCode, row]) => ({ purposeCode, ...row }))
+        .sort((a, b) => b.ran + b.refused - (a.ran + a.refused) || a.purposeCode.localeCompare(b.purposeCode)),
+      refusalsByCode: [...codes.entries()].map(([code, count]) => ({ code, count })).sort((a, b) => b.count - a.count || a.code.localeCompare(b.code)),
+      decisions,
+      pendingReviews: (await this.listReviews("pending")).length,
+    };
+  }
+
   async listAudit() {
     return this.deps.repos.audit.list();
   }
@@ -1039,6 +1127,18 @@ export class EideticService {
    * Counted from the searches table, so it holds across restarts and API instances.
    * Only the first refusal in a window is audited, so a flood of refused calls cannot flood the log.
    */
+  /**
+   * How many searches this account has left in the rolling hour. `limit` is null when no limit is set.
+   * Refused attempts count too, the same way the limit counts them.
+   */
+  async searchAllowance(actor: Actor): Promise<{ limit: number | null; used: number; remaining: number | null; windowMinutes: number }> {
+    const limit = this.deps.searchLimitPerHour ?? 0;
+    const since = new Date(this.deps.now().getTime() - 60 * 60 * 1000).toISOString();
+    const recent = await this.deps.repos.searches.countSince(actor.id, since);
+    if (limit <= 0) return { limit: null, used: recent.counted, remaining: null, windowMinutes: 60 };
+    return { limit, used: recent.counted, remaining: Math.max(0, limit - recent.counted), windowMinutes: 60 };
+  }
+
   private async enforceSearchLimit(input: {
     actor: Actor;
     purposeCode: string;

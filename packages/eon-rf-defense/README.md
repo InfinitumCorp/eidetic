@@ -62,3 +62,23 @@ needs genuine RF emission or interception, that belongs in a separate,
 appropriately authorised and reviewed system — not here.
 
 © Infinitum Corporation®. All rights reserved.
+
+## Defensive suite additions
+
+Built on the detectors above, all passive and within the same boundary:
+
+- **Nav-message authentication (`osnma.ts`)** — OSNMA/TESLA-style verifier.
+  `NavMessageAuthenticator` checks that disclosed keys chain back to a trusted
+  anchor (one-way hash chain) and that each nav-data record's MAC verifies. A
+  spoofer cannot predict future chain keys, so forged nav messages are rejected.
+- **Inertial dead-reckoning (`inertial.ts`)** — `DeadReckoner` propagates
+  position from the last trusted fix using IMU-like samples (forward accel +
+  yaw rate, or a direct speed) with a growing uncertainty estimate. Pairs with
+  the monitor's `DENIED`/`FALLBACK_INERTIAL_DEAD_RECKONING` state.
+- **After-action export (`export.ts`)** — `toNdjson` / `toCsv` / `digestLine`
+  serialise a `RunReport` timeline for mission logs and triage (RFC-4180 CSV
+  escaping).
+- **Policy adapter (`policy.ts`)** — `evaluateRfRequest` / `enforceRfRequest`
+  wrap the boundary into a decision object mapped onto the shared
+  `@eidetic/contracts` denial vocabulary, so the API edge denies offensive-RF
+  requests consistently (code `FORBIDDEN`, 403).

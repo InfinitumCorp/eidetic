@@ -31,4 +31,19 @@ describe("production startup guards", () => {
     env.devBearer = true;
     expect(() => assertProductionConfig(env)).toThrow(/EIDETIC_DEV_BEARER/);
   });
+
+  it("refuses demo mode when NODE_ENV=production", () => {
+    const before = process.env.NODE_ENV;
+    try {
+      const env = readEnv();
+      env.demoMode = true;
+      env.devBearer = false;
+      process.env.NODE_ENV = "production";
+      expect(() => assertProductionConfig(env)).toThrow(/Set DEMO_MODE=false for production/);
+      process.env.NODE_ENV = "development";
+      expect(() => assertProductionConfig(env)).not.toThrow();
+    } finally {
+      process.env.NODE_ENV = before;
+    }
+  });
 });

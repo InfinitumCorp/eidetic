@@ -32,7 +32,8 @@ export type AuditAction =
   | "purpose_upsert"
   | "bias_evaluation"
   | "subject_access"
-  | "consent_lapsed";
+  | "consent_lapsed"
+  | "audit_export";
 
 export interface AuditEntry {
   seq: number;

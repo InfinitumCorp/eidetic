@@ -1,4 +1,6 @@
 {
+  "{0} Audit hash {1}.": "{0} Audit hash {1}.",
+  "{0} No new match was run.": "{0} No new match was run.",
   "A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.": "A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.",
   "ÆTHER{0}": "ÆTHER{0}",
   "Base": "Base",
@@ -52,6 +54,7 @@
   "Waiting for a person": "Waiting for a person",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Why are you confirming, rejecting, or leaving this inconclusive?",
   "{0} (local dev)": "{0} (local dev)",
+  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} candidate(s) are waiting for a reviewer.",
   "Avery Quinn (synthetic)": "Avery Quinn (synthetic)",
   "Casey Morgan (synthetic)": "Casey Morgan (synthetic)",
   "Choose a probe image first.": "Choose a probe image first.",
@@ -83,6 +86,8 @@
   "Consent expired": "Consent expired",
   "Consent withdrawn": "Consent withdrawn",
   "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.",
+  "{0} of {1} searches left this hour.": "{0} of {1} searches left this hour.",
+  "No searches left this hour (limit {0}).": "No searches left this hour (limit {0}).",
   "{0} candidates are waiting for a reviewer.": "{0} candidates are waiting for a reviewer.",
   "1 candidate is waiting for a reviewer.": "1 candidate is waiting for a reviewer.",
   "Write 1 more character in the note to decide.": "Write 1 more character in the note to decide.",
@@ -277,5 +282,9 @@
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet did not find a face in this synthetic image. The enroll stopped.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.",
   "Audit hash {0}.": "Audit hash {0}.",
-  "No new match was run.": "No new match was run."
+  "No new match was run.": "No new match was run.",
+  "Waiting under a minute": "Waiting under a minute",
+  "Waiting {0} min": "Waiting {0} min",
+  "Waiting {0} h": "Waiting {0} h",
+  "Waiting {0} d": "Waiting {0} d"
 }

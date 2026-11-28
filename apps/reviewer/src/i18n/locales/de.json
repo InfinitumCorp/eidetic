@@ -1,4 +1,6 @@
 {
+  "{0} Audit hash {1}.": "{0} Prüf‑Hash {1}.",
+  "{0} No new match was run.": "{0} Keine neue Übereinstimmung wurde durchgeführt.",
   "A score is evidence. The decision is yours. Nothing here becomes a match until a reviewer records it.": "Ein Score ist ein Beweis. Die Entscheidung liegt bei Ihnen. Hier wird erst dann eine Übereinstimmung, wenn ein Prüfer sie aufzeichnet.",
   "ÆTHER{0}": "ÆTHER{0}",
   "Base": "Basis",
@@ -52,6 +54,7 @@
   "Waiting for a person": "Warten auf eine Person",
   "Why are you confirming, rejecting, or leaving this inconclusive?": "Warum bestätigen, ablehnen oder unverbindlich lassen?",
   "{0} (local dev)": "{0} (local dev)",
+  "{0} {1} candidate(s) are waiting for a reviewer.": "{0} {1} Kandidat(en) warten auf einen Prüfer.",
   "Avery Quinn (synthetic)": "Avery Quinn (synthetisch)",
   "Casey Morgan (synthetic)": "Casey Morgan (synthetisch)",
   "Choose a probe image first.": "Wählen Sie zuerst ein Suchbild.",
@@ -83,6 +86,8 @@
   "Consent expired": "Einwilligung abgelaufen",
   "Consent withdrawn": "Einwilligung widerrufen",
   "This person’s consent no longer covers this search, so a confirmation would be refused. Reject or mark the review inconclusive.": "Die Einwilligung dieser Person deckt diese Suche nicht mehr ab, eine Bestätigung würde abgelehnt. Lehnen Sie ab oder markieren Sie die Prüfung als nicht eindeutig.",
+  "{0} of {1} searches left this hour.": "Noch {0} von {1} Suchen in dieser Stunde.",
+  "No searches left this hour (limit {0}).": "Keine Suchen mehr in dieser Stunde (Limit {0}).",
   "{0} candidates are waiting for a reviewer.": "{0} Kandidaten warten auf eine Prüfung.",
   "1 candidate is waiting for a reviewer.": "1 Kandidat wartet auf eine Prüfung.",
   "Write 1 more character in the note to decide.": "Schreiben Sie noch 1 Zeichen in die Notiz, um zu entscheiden.",
@@ -277,5 +282,9 @@
   "YuNet did not find a face in this synthetic image. The enroll stopped.": "YuNet hat in diesem synthetischen Bild kein Gesicht gefunden. Die Registrierung wurde gestoppt.",
   "YuNet weights in opencv_zoo/models/face_detection_yunet are published under MIT (Copyright Shiqi Yu). SFace weights in opencv_zoo/models/face_recognition_sface are published under Apache-2.0. Both grants allow commercial use of those files. Training-image provenance is a separate question and is noted in NOTICE. InsightFace weights are not used.": "YuNet-Gewichte in opencv_zoo/models/face_detection_yunet sind unter MIT veröffentlicht (Copyright Shiqi Yu). SFace-Gewichte in opencv_zoo/models/face_recognition_sface sind unter Apache-2.0 veröffentlicht. Beide Lizenzen erlauben die kommerzielle Nutzung dieser Dateien. Die Herkunft der Trainingsbilder ist eine separate Frage und in NOTICE vermerkt. InsightFace-Gewichte werden nicht verwendet.",
   "Audit hash {0}.": "Audit-Hash: {0}.",
-  "No new match was run.": "Es wurde kein neuer Abgleich ausgeführt."
+  "No new match was run.": "Es wurde kein neuer Abgleich ausgeführt.",
+  "Waiting under a minute": "Wartet seit unter einer Minute",
+  "Waiting {0} min": "Wartet seit {0} Min.",
+  "Waiting {0} h": "Wartet seit {0} Std.",
+  "Waiting {0} d": "Wartet seit {0} T."
 }

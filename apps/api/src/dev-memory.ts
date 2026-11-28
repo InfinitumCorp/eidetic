@@ -9,6 +9,7 @@ import { serve } from "@hono/node-server";
 import { sha256Hex } from "@eidetic/contracts";
 import { createMemoryRuntime, seedReferenceData, seedSyntheticQueue } from "@eidetic/pipeline";
 import { createApp } from "./app.js";
+import { readSearchLimit } from "./env.js";
 
 if (process.env.NODE_ENV === "production" || process.env.DEMO_MODE === "false") {
   console.error("dev:memory is a local development server. It is refused when NODE_ENV=production or DEMO_MODE=false.");
@@ -16,7 +17,7 @@ if (process.env.NODE_ENV === "production" || process.env.DEMO_MODE === "false") 
 }
 
 const port = Number(process.env.PORT ?? 43110);
-const runtime = createMemoryRuntime({ now: () => new Date() });
+const runtime = createMemoryRuntime({ now: () => new Date(), searchLimitPerHour: readSearchLimit(process.env.SEARCH_LIMIT_PER_HOUR) });
 await seedReferenceData(runtime.repos, { demoMode: true });
 
 if (process.argv.includes("--seed")) {
